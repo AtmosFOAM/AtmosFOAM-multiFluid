@@ -23,12 +23,15 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Application
-    partitionedTurbulentFoam
+    partitionedExnerFoamAdv_newCN
 
 Description
-    Transient Solver for dry,buoyant, inviscid, incompressible, non-hydrostatic
-    partitioned flow, advective form momentum equation with bouyantkEpsilon
-    turbulence model
+    Transient Solver for dry, buoyant, compressible, non-hydrostatic
+    partitioned flow, advective form momentum equation, with optional turbulence
+    modelling.
+    Uses OpenFOAM's in-built functionality for Crank-Nicholson timestepping 
+    rather than the top-level timestepping usually utilised in AtmosFOAM, hence
+    "newCN".
 
 \*---------------------------------------------------------------------------*/
 
@@ -87,17 +90,18 @@ int main(int argc, char *argv[])
 
         #include "partitionedCourantNo.H"
 
-        for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
+        for (int ucorr=0; ucorr < nOuterCorr+1; ucorr++)
         {
             #include "rhoSigmaEqn.H"
-            #include "massTransfers.H"
+            //#include "massTransfers.H"
             #include "thetaEqn.H"
             #include "sigma.H"
-            #include "calculateDrag.H"
-            #include "exnerEqn.H"
+            //#include "calculateDrag.H"
+            if (ucorr < nOuterCorr)
+            {
+                #include "exnerEqn.H"
+            }
         }
-        #include "rhoSigmaEqn.H"
-        #include "massTransfers.H"
         
         //- Solve the turbulence equations and correct the turbulence viscosity
         for(label ip = 0; ip < nParts; ip++)
@@ -105,11 +109,7 @@ int main(int argc, char *argv[])
             turbulence[ip].correct();
         }
 
-        Info << "sigma[0] goes from " << min(sigma[0]).value() << " to "
-             << max(sigma[0]).value() << endl;
-
         #include "compressibleContinuityErrs.H"
-        #include "correctContinuityErrs.H"
         #include "calcDiags.H"
         runTime.write();
 
