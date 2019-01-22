@@ -78,6 +78,17 @@ for(label ip = 1; ip < partNames.size(); ip++)
 }
 sigmaf.updateSum();
 
+// theta on the faces
+partitionedSurfaceScalarField thetaf
+(
+    "thetaf", partNames, fvc::interpolate(theta[0], "theta"), sigmaRhof
+);
+for(label ip = 1; ip < partNames.size(); ip++)
+{
+    thetaf[ip] = fvc::interpolate(theta[ip], "theta");
+}
+thetaf.updateSum();
+
 Info << "Reading in the velocity in each partition\n" << endl;
 partitionedSurfaceVectorField Uf
 (
@@ -128,8 +139,21 @@ sigma.storeTime();
 sigmaFlux.storeTime();
 
 Info << "Initialising the compressibility\n" << endl;
-volScalarField Psi("Psi", sigmaRho.sum()/Exner);
-Psi.oldTime();
+partitionedVolScalarField Psi
+(
+    "Psi",
+    partNames,
+    pow(rho[0],(2*kappa-1)/(kappa-1))
+    *pow(R/pRef*theta[0], kappa/(kappa-1)),
+    sigma
+);
+for (label ip = 1; ip < nParts; ip++)
+{
+    Psi[ip] = pow(rho[ip],(2*kappa-1)/(kappa-1))
+             *pow(R/pRef*theta[ip], kappa/(kappa-1));
+}
+Psi.updateSum();
+Psi.sum().oldTime();
 
 surfaceScalarField gradPcoeffSum
 (

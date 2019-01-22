@@ -73,21 +73,21 @@ int main(int argc, char *argv[])
 
         #include "partitionedCourantNo.H"
 
-        for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
+        for (int ucorr=0; ucorr < nOuterCorr+1; ucorr++)
         {
             #include "rhoSigmaEqn.H"
             #include "massTransfers.H"
             #include "thetaEqn.H"
             #include "sigma.H"
             #include "calculateDrag.H"
-            #include "exnerEqn.H"
+            if (ucorr < nOuterCorr)
+            {
+                #include "exnerEqn.H"
+            }
         }
         
-        Info << "sigma[0] goes from " << min(sigma[0]).value() << " to "
-             << max(sigma[0]).value() << endl;
-
         #include "compressibleContinuityErrs.H"
-        #include "correctContinuityErrs.H"
+//        #include "correctContinuityErrs.H"
         #include "calcDiags.H"
         runTime.write();
 

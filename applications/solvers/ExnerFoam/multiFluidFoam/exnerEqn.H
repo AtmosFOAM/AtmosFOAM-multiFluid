@@ -20,7 +20,6 @@
                (
                    fvc::div(volFlux[ip], u[ip], "u")
                  - u[ip] * fvc::div(volFlux[ip])
-                 //+ ((turbulence[ip].divDevRhoReff(u[ip])) & u[ip])/sigmaRho[ip],
                  - nu * fvc::laplacian(u[ip]),
                    "convection"
                )
@@ -96,14 +95,6 @@
                 sigmaFlux.updateSum();
                 volFlux.updateSum();
             }
-        }
-        // Update the pressure and temperature based on the new Exner
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            thermos[ip].p() = pRef*pow(Exner, 1/kappa);
-            thermos[ip].T() = theta[ip]*Exner;
-            thermos[ip].he() == thermos[ip].he(thermos[ip].p(),thermos[ip].T());
-            thermos[ip].correct();
         }
     }
 }

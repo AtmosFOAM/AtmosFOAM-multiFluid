@@ -23,17 +23,21 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Application
-    partitionedExnerFoam
+    multiFluidFoam
 
 Description
-    Transient Solver for dry,buoyant, inviscid, incompressible, non-hydrostatic
-    partitioned flow
+    Transient Solver for dry, buoyant, Navier-Stokes equations with constant
+    dynamic viscosity partitioned into multiple fluids. 
+    Solution using one Exner pressure and multiple theta and velocity, u
+    Advective form momentum and theta equations. 
 
 \*---------------------------------------------------------------------------*/
 
 #include "HodgeOps.H"
 #include "fvCFD.H"
 #include "ExnerTheta.H"
+#include "PartitionedFields.H"
+#include "CrankNicolsonDdtScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,17 +50,23 @@ int main(int argc, char *argv[])
     #include "readThermoProperties.H"
     #include "readTransferCoeffs.H"
     HodgeOps H(mesh);
-    surfaceScalarField gd("gd", g & H.delta());
     #define dt runTime.deltaT()
     #include "createFields.H"
     #include "initContinuityErrs.H"
+    #include "initDiags.H"
+    #include "calcDiags.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
     const int nCorr = itsDict.lookupOrDefault<int>("nCorrectors", 1);
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
-    //const scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
+    fv::CrankNicolsonDdtScheme<vector> drhoUdt
+    (
+        mesh,
+        mesh.schemesDict().subDict("ddtSchemes").lookup("volFlux_CN")
+    );
+    const scalar ocCoeff = drhoUdt.ocCoeff();
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,20 +78,21 @@ int main(int argc, char *argv[])
 
         #include "partitionedCourantNo.H"
 
-        for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
+        for (int ucorr=0; ucorr < nOuterCorr+1; ucorr++)
         {
-            #include "calculateDrag.H"
             #include "rhoSigmaEqn.H"
-            #include "rhoThetaEqn.H"
+            #include "massTransfers.H"
+            #include "thetaEqn.H"
             #include "sigma.H"
-            #include "exnerEqn.H"
+            #include "calculateDrag.H"
+            if (ucorr < nOuterCorr)
+            {
+                #include "exnerEqn.H"
+            }
         }
         
-        #include "rhoSigmaEqn.H"
-        #include "rhoThetaEqn.H"
-        #include "sigma.H"
-
         #include "compressibleContinuityErrs.H"
+        #include "calcDiags.H"
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
