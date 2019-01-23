@@ -19,12 +19,21 @@
               -fvc::interpolate
                (
                    fvc::div(volFlux[ip], u[ip], "u")
-                 - u[ip] * fvc::div(volFlux[ip])
-                 - nu * fvc::laplacian(u[ip]),
+                 - u[ip] * fvc::div(volFlux[ip]),
                    "convection"
                )
-             - 2*(Omega ^ Uf[ip])
             );
+            if (nu.value() > VSMALL)
+            {
+                volFlux.ddt()[ip] += mesh.Sf() & fvc::interpolate
+                (
+                    nu * fvc::laplacian(u[ip]), "convection"
+                );
+            }
+            if (magSqr(Omega.value()) > VSMALL)
+            {
+                volFlux.ddt()[ip] -= mesh.Sf() & (2*(Omega ^ Uf[ip]));
+            }
             
             // Flux with gravity
             volFlux[ip] = volFlux[ip].oldTime() + dt*
