@@ -6,8 +6,13 @@ for(label ip = 0; ip < nParts; ip++)
 {
     theta.ddt()[ip] = 
       - fvc::div(volFlux[ip], theta[ip], "theta")
-      + theta[ip]*fvc::div(volFlux[ip])
-      + alpha*fvc::laplacian(theta[ip]);
+      + theta[ip]*fvc::div(volFlux[ip]);
+    
+    // Viscous term
+    if (alpha.value() > VSMALL)
+    {
+        theta.ddt()[ip] += alpha * fvc::laplacian(theta[ip]);
+    }
     
     theta[ip].correctBoundaryConditions();
     

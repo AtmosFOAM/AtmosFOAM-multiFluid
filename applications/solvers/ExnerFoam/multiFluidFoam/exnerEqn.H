@@ -23,6 +23,8 @@
                    "convection"
                )
             );
+            
+            // Viscous term
             if (nu.value() > VSMALL)
             {
                 volFlux.ddt()[ip] += mesh.Sf() & fvc::interpolate
@@ -30,6 +32,8 @@
                     nu * fvc::laplacian(u[ip]), "convection"
                 );
             }
+            
+            // Coriolis term
             if (magSqr(Omega.value()) > VSMALL)
             {
                 volFlux.ddt()[ip] -= mesh.Sf() & (2*(Omega ^ Uf[ip]));
