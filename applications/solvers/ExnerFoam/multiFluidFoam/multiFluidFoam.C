@@ -37,7 +37,6 @@ Description
 #include "fvCFD.H"
 #include "ExnerTheta.H"
 #include "PartitionedFields.H"
-#include "CrankNicolsonDdtScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -61,12 +60,7 @@ int main(int argc, char *argv[])
     const int nCorr = itsDict.lookupOrDefault<int>("nCorrectors", 1);
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
-    fv::CrankNicolsonDdtScheme<vector> drhoUdt
-    (
-        mesh,
-        mesh.schemesDict().subDict("ddtSchemes").lookup("volFlux_CN")
-    );
-    const scalar ocCoeff = drhoUdt.ocCoeff();
+    const scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

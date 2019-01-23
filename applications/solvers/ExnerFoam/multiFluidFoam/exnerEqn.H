@@ -27,10 +27,10 @@
             );
             
             // Flux with gravity
-            volFlux[ip] = volFlux[ip].oldTime() + dt/(1+ocCoeff)*
+            volFlux[ip] = volFlux[ip].oldTime() + dt*
             (
-                (volFlux.ddt()[ip] + gSf)
-              + ocCoeff*volFlux.ddt()[ip].oldTime()
+                (1-offCentre)*volFlux.ddt()[ip].oldTime()
+              + offCentre*(volFlux.ddt()[ip] + gSf)
             );
             sigmaFlux[ip] = sigmaRhof[ip]*volFlux[ip];
         }
@@ -44,8 +44,9 @@
             fvScalarMatrix ExnerEqn
             (
                 fvm::ddt(Psi.sum(), Exner)
-              + fvc::div(sigmaFlux.sum())
-              - fvm::laplacian(dt/(1+ocCoeff)*gradPcoeffSum, Exner)
+              + (1-offCentre)*fvc::div(sigmaFlux.sum().oldTime())
+              + offCentre*fvc::div(sigmaFlux.sum())
+              - fvm::laplacian(sqr(offCentre)*dt*gradPcoeffSum, Exner)
             );
 
             if(ucorr==nOuterCorr-1 && nonOrth==nNonOrthCorr && corr==nCorr-1)
@@ -62,7 +63,7 @@
             {
                 for(label ip = 0; ip < nParts; ip++)
                 {
-                    volFlux[ip] -= dt/(1+ocCoeff)*Cp*thetaf[ip]
+                    volFlux[ip] -= offCentre*dt*Cp*thetaf[ip]
                                    *fvc::snGrad(Exner)*mesh.magSf();
 
                     volFlux.ddt()[ip] += gSf - Cp*thetaf[ip]

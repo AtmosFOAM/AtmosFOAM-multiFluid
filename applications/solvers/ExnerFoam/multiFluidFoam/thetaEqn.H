@@ -1,14 +1,22 @@
 // advective form theta equation
+
+dimensionedScalar alpha("alpha", nu/Pr);
+
 for(label ip = 0; ip < nParts; ip++)
 {
-    fvScalarMatrix thetaEqn
+    theta.ddt()[ip] = 
+      - fvc::div(volFlux[ip], theta[ip], "theta")
+      + theta[ip]*fvc::div(volFlux[ip])
+      + alpha*fvc::laplacian(theta[ip]);
+    
+    theta[ip].correctBoundaryConditions();
+    
+    // Update theta according to the rate of change
+    theta[ip] = theta[ip].oldTime() + dt*
     (
-        fvm::ddt(theta[ip])
-      + fvm::div(volFlux[ip], theta[ip], "theta")
-      - fvm::Sp(fvc::div(volFlux[ip]), theta[ip])
-      - alpha*fvm::laplacian(theta[ip])
+        (1-offCentre)*theta.ddt()[ip].oldTime()
+      + offCentre*theta.ddt()[ip]
     );
-    thetaEqn.solve();
 }
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution

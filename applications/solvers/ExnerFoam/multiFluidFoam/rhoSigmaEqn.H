@@ -6,7 +6,7 @@ for(label ip = 0; ip < nParts; ip++)
     
     sigmaRho.ddt()[ip] = -fvc::div
     (
-        (flux[ip] + ocCoeff*flux[ip].oldTime())/(1+ocCoeff),
+        (1-offCentre)*flux[ip].oldTime() + offCentre*flux[ip],
         sigma[ip].oldTime(),
         "sigmaRho"
     );
