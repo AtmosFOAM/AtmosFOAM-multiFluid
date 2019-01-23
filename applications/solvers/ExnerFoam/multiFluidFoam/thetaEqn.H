@@ -1,7 +1,5 @@
 // advective form theta equation
 
-dimensionedScalar alpha("alpha", nu/Pr);
-
 for(label ip = 0; ip < nParts; ip++)
 {
     theta.ddt()[ip] = 
@@ -14,14 +12,14 @@ for(label ip = 0; ip < nParts; ip++)
         theta.ddt()[ip] += alpha * fvc::laplacian(theta[ip]);
     }
     
-    theta[ip].correctBoundaryConditions();
-    
     // Update theta according to the rate of change
     theta[ip] = theta[ip].oldTime() + dt*
     (
         (1-offCentre)*theta.ddt()[ip].oldTime()
       + offCentre*theta.ddt()[ip]
     );
+
+    theta[ip].correctBoundaryConditions();
 }
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
