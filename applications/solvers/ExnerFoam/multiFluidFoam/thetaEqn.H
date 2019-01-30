@@ -2,9 +2,8 @@
 
 for(label ip = 0; ip < nParts; ip++)
 {
-    theta.ddt()[ip] = 
-      - fvc::div(volFlux[ip], theta[ip], "theta")
-      + theta[ip]*fvc::div(volFlux[ip]);
+    theta.ddt()[ip] = -fvc::div(volFlux[ip], theta[ip], "theta")
+                    + theta[ip]*fvc::div(volFlux[ip]);
     
     // Viscous term
     if (alpha.value() > VSMALL)
@@ -20,6 +19,7 @@ for(label ip = 0; ip < nParts; ip++)
     );
 
     theta[ip].correctBoundaryConditions();
+    thetaf[ip] = fvc::interpolate(theta[ip]);
 }
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
@@ -32,7 +32,7 @@ if (nParts != 2)
 
 thetat[0] = max
 (
-    min(-thetaTransferDiffusivity*dt*fvc::laplacian(theta[0]), thetatMax),
+    min(-thetaTransferDiffusivity2*dt*fvc::laplacian(theta[0]), thetatMax),
     thetatMin
 );
 /*thetat[1] = max
@@ -55,11 +55,5 @@ theta[1] =
   + transfer[0]*theta[0]
 )/(1+transfer[0]);
 
-// Update the sum and the faces values
-for(label ip = 0; ip < nParts; ip++)
-{
-    thetaf[ip] = fvc::interpolate(theta[ip]);
-}
 theta.updateSum();
 thetaf.updateSum();
-

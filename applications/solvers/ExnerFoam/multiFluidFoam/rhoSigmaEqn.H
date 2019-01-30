@@ -16,7 +16,7 @@ for(label ip = 0; ip < nParts; ip++)
     sigmaRho[ip].correctBoundaryConditions();
     
     // Update the sums and face values
-    sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip], "sigmaRho");
+    sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip]);
 }
 flux.updateSum();
 sigmaRho.updateSum();

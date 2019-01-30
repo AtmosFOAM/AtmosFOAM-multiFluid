@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
+    #include "compressibleContinuityErrs.H"
 
     while (runTime.loop())
     {
@@ -78,16 +79,17 @@ int main(int argc, char *argv[])
             #include "massTransfers.H"
             #include "thetaEqn.H"
             #include "sigma.H"
-            #include "calculateDrag.H"
             if (ucorr < nOuterCorr)
             {
+                #include "calculateDrag.H"
                 #include "exnerEqn.H"
             }
         }
-        
-        #include "compressibleContinuityErrs.H"
-        #include "calcDiags.H"
         runTime.write();
+        #include "calcDiags.H"
+        #include "compressibleContinuityErrs.H"
+        Exner = pow(R*theta.sum()/pRef, kappa/(1-kappa));
+        Exner.correctBoundaryConditions();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

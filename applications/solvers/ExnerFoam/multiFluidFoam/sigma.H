@@ -19,3 +19,4 @@ sigmaf.updateSum();
 
 Info << "sigma[0] goes from " << min(sigma[0]).value() << " to "
      << max(sigma[0]).value() << endl;
+

@@ -39,7 +39,7 @@ for(label ip = 0; ip < nParts; ip++)
     }
 
     // Update the face values
-    sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip], "sigmaRho");
+    //sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip], "sigmaRho");
 }
 
 }
