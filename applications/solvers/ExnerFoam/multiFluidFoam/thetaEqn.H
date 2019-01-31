@@ -35,11 +35,11 @@ thetat[0] = max
     min(-thetaTransferDiffusivity2*dt*fvc::laplacian(theta[0]), thetatMax),
     thetatMin
 );
-/*thetat[1] = max
+thetat[1] = max
 (
     min(thetaTransferDiffusivity*dt*fvc::laplacian(theta[1]), thetatMax),
     thetatMin
-);*/
+);
 
 theta[0] =
 (

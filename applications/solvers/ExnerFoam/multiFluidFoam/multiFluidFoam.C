@@ -85,11 +85,11 @@ int main(int argc, char *argv[])
                 #include "exnerEqn.H"
             }
         }
-        runTime.write();
         #include "calcDiags.H"
         #include "compressibleContinuityErrs.H"
         Exner = pow(R*theta.sum()/pRef, kappa/(1-kappa));
         Exner.correctBoundaryConditions();
+        runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

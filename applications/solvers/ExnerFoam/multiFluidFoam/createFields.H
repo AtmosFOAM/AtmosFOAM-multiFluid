@@ -238,7 +238,7 @@ for(label jp = 0; jp < nParts; jp++)
         jp, 
         new partitionedVolScalarField
         (
-            partNames[jp]+'.'+"massTransfer", partNames, massTransferTmp
+            "massTransfer."+partNames[jp], partNames, massTransferTmp
         )
     );
 }
