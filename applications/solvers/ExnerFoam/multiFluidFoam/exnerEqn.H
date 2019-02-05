@@ -1,6 +1,6 @@
 for (int corr=0; corr<nCorr; corr++)
 {
-    gradPcoeffSum = Cp*fvc::interpolate(theta.sum());
+    gradPcoeffSum = Cp*fvc::interpolate(theta.sum(), "theta");
     Psi = (1-kappa)/kappa*rho.sum()/Exner;
     
     // Explicit part of velocity for each partition (without mass tranfers)
