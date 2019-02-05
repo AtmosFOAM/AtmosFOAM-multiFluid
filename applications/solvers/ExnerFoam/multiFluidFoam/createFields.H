@@ -65,6 +65,7 @@ rho.updateSum();
 sigmaRho = rho.timesSigma();
 sigmaRho.updateSum();
 theta.updateSum();
+sigmaRho.write();
 
 Info << "Initialising sigmaRhof and sigmaf - values on the faces\n" << endl;
 partitionedSurfaceScalarField sigmaRhof
@@ -145,10 +146,6 @@ flux.updateSum();
 
 partitionedSurfaceScalarField sigmaFlux = volFlux.timesSigma();
 
-// Needed for Exner boundary conditions
-surfaceScalarField rhog("rhog",sigmaRhof.sum()*gSf);
-
-
 Info << "Reading in BCs and calculating the cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
 (
@@ -170,7 +167,7 @@ sigma.storeTime();
 sigmaFlux.storeTime();
 
 Info << "The compressibility\n" << endl;
-partitionedVolScalarField Psi
+/*partitionedVolScalarField Psi
 (
     "Psi",
     partNames,
@@ -183,11 +180,16 @@ for (label ip = 1; ip < nParts; ip++)
 }
 Psi.updateSum();
 Psi.sum().oldTime();
+*/
+volScalarField Psi = (1-kappa)/kappa*rho.sum()/Exner;
+
+// Alternative version of theta.sum
+volScalarField rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
 
 surfaceScalarField gradPcoeffSum
 (
     IOobject("gradPcoeff", runTime.timeName(), mesh),
-    Cp*fvc::interpolate(theta.sum(), "theta")
+    Cp*fvc::interpolate(rhoTheta, "theta")
 );
 
 Info << "Initialising the drag between partitions" << endl;

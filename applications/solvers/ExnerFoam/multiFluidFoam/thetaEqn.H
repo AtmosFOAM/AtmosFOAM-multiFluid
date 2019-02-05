@@ -19,7 +19,6 @@ for(label ip = 0; ip < nParts; ip++)
     );
 
     theta[ip].correctBoundaryConditions();
-    thetaf[ip] = fvc::interpolate(theta[ip]);
 }
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
@@ -56,4 +55,9 @@ theta[1] =
 )/(1+transfer[0]);
 
 theta.updateSum();
+
+for(label ip = 0; ip < nParts; ip++)
+{
+    thetaf[ip] = fvc::interpolate(theta[ip]);
+}
 thetaf.updateSum();

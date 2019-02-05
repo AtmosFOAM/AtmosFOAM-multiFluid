@@ -53,9 +53,10 @@ Description
         << ", cumulative = " << cumulativeContErr
         << endl;
     
-    Info << "Time " << runTime.timeName() << " Maximum rho difference fraction = "
-         << max(mag(rhoDiff.internalField()
-            /rho.sum().internalField())).value() << endl;
+    Info << "Time " << runTime.timeName()
+         << " Maximum rho difference fraction = "
+         << max(mag(rhoDiff.internalField()/rho.sum().internalField())).value()
+         << endl;
 }
 
 // ************************************************************************* //

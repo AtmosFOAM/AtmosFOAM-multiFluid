@@ -17,6 +17,8 @@ rho.updateSum();
 sigma.updateSum();
 sigmaf.updateSum();
 
-Info << "sigma[0] goes from " << min(sigma[0]).value() << " to "
-     << max(sigma[0]).value() << endl;
+Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
+     << " to " << max(sigma[1].internalField()).value() 
+     << " sumSigma goes from " << min(sigma.sum().internalField()).value()
+     << " to " << max(sigma.sum().internalField()).value() << endl;
 

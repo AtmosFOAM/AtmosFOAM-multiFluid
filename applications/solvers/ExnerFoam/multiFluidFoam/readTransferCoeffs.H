@@ -33,7 +33,11 @@ const dimensionedScalar thetaTransferDiffusivity
 );
 const dimensionedScalar thetaTransferDiffusivity2
 (
-    transferProps.lookup("thetaTransferDiffusivity2")
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "thetaTransferDiffusivity2",
+        dimensionedScalar("zero", thetaTransferDiffusivity.dimensions(), scalar(0))
+    )
 );
 
 // Minimum sigmaRho for each partition
