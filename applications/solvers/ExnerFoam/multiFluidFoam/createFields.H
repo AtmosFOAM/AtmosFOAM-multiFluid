@@ -18,7 +18,14 @@ volScalarField Exner
     ),
     mesh
 );
-Exner.oldTime();
+
+volScalarField ExnerPrime
+(
+    IOobject("ExnerPrime", runTime.timeName(), mesh),
+    mesh,
+    dimensionedScalar("zero", dimless, scalar(0)),
+    "zeroGradient"
+);
 
 // The partition names
 const label nParts = 2;
@@ -35,7 +42,9 @@ partitionedVolScalarField sigma
 Info << "Setting rho for each partition\n" << endl;
 partitionedVolScalarField rho
 (
-    "rho", partNames,
+    "rho",
+    partNames,
+//    mesh, runTime.timeName(),
     volScalarField
     (
         IOobject("rho", runTime.timeName(), mesh),
@@ -62,6 +71,7 @@ rho.updateSum();
 sigmaRho = rho.timesSigma();
 sigmaRho.updateSum();
 theta.updateSum();
+sigmaRho.write();
 
 Info << "Initialising sigmaRhof and sigmaf - values on the faces\n" << endl;
 partitionedSurfaceScalarField sigmaRhof
@@ -74,6 +84,16 @@ for(label ip = 1; ip < partNames.size(); ip++)
 }
 sigmaRhof.updateSum();
 
+partitionedSurfaceScalarField thetaf
+(
+    "thetaf", partNames, fvc::interpolate(theta[0]), sigmaRhof
+);
+for(label ip = 1; ip < partNames.size(); ip++)
+{
+    thetaf[ip] = fvc::interpolate(theta[ip]);
+}
+thetaf.updateSum();
+
 partitionedSurfaceScalarField sigmaf
 (
     "sigmaf", partNames, fvc::interpolate(sigma[0], "sigma")
@@ -84,27 +104,35 @@ for(label ip = 1; ip < partNames.size(); ip++)
 }
 sigmaf.updateSum();
 
-// theta on the faces
-partitionedSurfaceScalarField thetaf
-(
-    "thetaf", partNames, fvc::interpolate(theta[0], "theta"), sigmaRhof
-);
-for(label ip = 1; ip < partNames.size(); ip++)
-{
-    thetaf[ip] = fvc::interpolate(theta[ip], "theta");
-}
-thetaf.updateSum();
-
 Info << "Reading in the velocity in each partition\n" << endl;
 partitionedSurfaceVectorField Uf
 (
     "Uf", partNames, mesh, runTime.timeName(), sigmaRhof
 );
 
+// fixed flux boundary conditions
+wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
+forAll(mesh.boundaryMesh(), patchi)
+{
+    const word btype = mesh.boundaryMesh()[patchi].type();
+    if (btype == "wall" || btype == "symmetryPlane" || btype == "empty")
+    {
+        fluxBCs[patchi] = "fixedValue";
+    }
+}
+
 Info << "Calculating the mass flux and volume flux in each partition\n"<<endl;
 partitionedSurfaceScalarField volFlux
 (
-    "volFlux", partNames, Uf[0] & mesh.Sf(), sigmaRhof
+    "volFlux",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
+        Uf[0] & mesh.Sf(),
+        fluxBCs
+    ),
+    sigmaRhof
 );
 for(label ip = 1; ip < volFlux.size(); ip++)
 {
@@ -129,7 +157,7 @@ partitionedVolVectorField u
 (
     "u", partNames, mesh, runTime.timeName(), sigmaRho
 );
-for(label ip = 1; ip < partNames.size(); ip++)
+for(label ip = 0; ip < partNames.size(); ip++)
 {
     u[ip] = fvc::reconstruct(volFlux[ip]);
 }
@@ -144,27 +172,28 @@ rho.storeTime();
 sigma.storeTime();
 sigmaFlux.storeTime();
 
-Info << "Initialising the compressibility\n" << endl;
-partitionedVolScalarField Psi
+Info << "The compressibility\n" << endl;
+/*partitionedVolScalarField Psi
 (
     "Psi",
     partNames,
-    pow(rho[0],(2*kappa-1)/(kappa-1))
-    *pow(R/pRef*theta[0], kappa/(kappa-1)),
+    (1-kappa)/kappa*rho[0]/Exner,
     sigma
 );
 for (label ip = 1; ip < nParts; ip++)
 {
-    Psi[ip] = pow(rho[ip],(2*kappa-1)/(kappa-1))
-             *pow(R/pRef*theta[ip], kappa/(kappa-1));
+    (1-kappa)/kappa*rho[ip]/Exner;
 }
-Psi.updateSum();
-Psi.sum().oldTime();
+Psi.updateSum();*/
+volScalarField Psi = (1-kappa)/kappa*rho.sum()/Exner;
+
+// Alternative version of theta.sum
+volScalarField rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
 
 surfaceScalarField gradPcoeffSum
 (
     IOobject("gradPcoeff", runTime.timeName(), mesh),
-    Cp*fvc::interpolate(theta.sum(), "theta")
+    Cp*fvc::interpolate(rhoTheta, "theta")
 );
 
 Info << "Initialising the drag between partitions" << endl;
@@ -215,7 +244,7 @@ for(label jp = 0; jp < nParts; jp++)
         jp, 
         new partitionedVolScalarField
         (
-            partNames[jp]+'.'+"massTransfer", partNames, massTransferTmp
+            "massTransfer."+partNames[jp], partNames, massTransferTmp
         )
     );
 }
