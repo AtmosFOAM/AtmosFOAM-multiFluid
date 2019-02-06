@@ -1,3 +1,9 @@
+#include "readEnvironmentalProperties.H"
+#include "readThermoProperties.H"
+#include "readTransferCoeffs.H"
+HodgeOps H(mesh);
+#define dt runTime.deltaT()
+
 // Read in prognostic variables
 Info<< "Reading field Exner\n" << endl;
 volScalarField Exner

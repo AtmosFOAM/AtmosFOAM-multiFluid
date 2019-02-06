@@ -42,14 +42,12 @@ Description
 
 int main(int argc, char *argv[])
 {
+    // Allow running solver with -postProcess option (i.e. only execute fnObjs)
+    #include "postProcess.H"
+    
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "readEnvironmentalProperties.H"
-    #include "readThermoProperties.H"
-    #include "readTransferCoeffs.H"
-    HodgeOps H(mesh);
-    #define dt runTime.deltaT()
     #include "createFields.H"
     #include "initContinuityErrs.H"
     #include "initDiags.H"
