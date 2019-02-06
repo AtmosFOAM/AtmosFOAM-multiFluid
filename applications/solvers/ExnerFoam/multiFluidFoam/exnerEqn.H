@@ -64,7 +64,7 @@ for (int corr=0; corr<nCorr; corr++)
     
     // Back-substitutions
     Exner += ExnerPrime;
-    rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
+    #include "sigma.H"
 
     for(label ip = 0; ip < nParts; ip++)
     {
@@ -73,12 +73,7 @@ for (int corr=0; corr<nCorr; corr++)
 
         volFlux.ddt()[ip] -= Cp*thetaf[ip]
                             *fvc::snGrad(ExnerPrime)*mesh.magSf();
-
-        rho[ip] = rhoTheta/theta[ip];
     }
-    rho.updateSum();
-    sigmaRho = rho.timesSigma();
-    theta.updateSum();
 
     // Include the mass transfer and drag implicitly (for nParts=2)
     transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
@@ -99,7 +94,6 @@ for (int corr=0; corr<nCorr; corr++)
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
     {
-        sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip]);
         sigmaFlux[ip] = sigmaRhof[ip]*volFlux[ip];
         u[ip] = fvc::reconstruct(volFlux[ip]);
         Uf[ip] = fvc::interpolate(u[ip], "Uf");

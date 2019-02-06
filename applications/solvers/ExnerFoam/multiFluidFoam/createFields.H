@@ -178,9 +178,7 @@ for (label ip = 1; ip < nParts; ip++)
 {
     (1-kappa)/kappa*rho[ip]/Exner;
 }
-Psi.updateSum();
-Psi.sum().oldTime();
-*/
+Psi.updateSum();*/
 volScalarField Psi = (1-kappa)/kappa*rho.sum()/Exner;
 
 // Alternative version of theta.sum

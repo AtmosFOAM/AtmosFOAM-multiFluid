@@ -78,10 +78,12 @@ int main(int argc, char *argv[])
             #include "massTransfers.H"
             #include "thetaEqn.H"
             #include "sigma.H"
-            #include "compressibleContinuityErrs.H"
             #include "calculateDrag.H"
             #include "exnerEqn.H"
         }
+        #include "compressibleContinuityErrs.H"
+        Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
+             << " to " << max(sigma[1].internalField()).value() << endl;
         #include "calcDiags.H"
         runTime.write();
 

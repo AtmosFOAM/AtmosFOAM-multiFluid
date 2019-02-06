@@ -14,11 +14,7 @@ for(label ip = 0; ip < nParts; ip++)
     // Update sigmaRho based on the rate of change
     sigmaRho[ip] = sigmaRho[ip].oldTime() + dt*sigmaRho.ddt()[ip];
     sigmaRho[ip].correctBoundaryConditions();
-    
-    // Update the sums and face values
-    sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip]);
 }
 flux.updateSum();
 sigmaRho.updateSum();
-sigmaRhof.updateSum();
 
