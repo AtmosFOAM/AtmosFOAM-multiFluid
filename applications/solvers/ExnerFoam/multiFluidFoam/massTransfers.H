@@ -36,10 +36,11 @@ if (Ksigma.value() > SMALL)
 // Mass transfer to avoid changes in sigmaRho due to partition divergence
 if (divTransfer)
 {
-    massTransfer[0][1] -= min(sign(u[0].component(vector::Z)), dimlessZero)
-                         *sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += max(sign(u[1].component(vector::Z)), dimlessZero)
-                         *sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
+    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
+    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
+// REverser it
+//    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
+//    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
 }
 
 // Mass transfer based on vertical velocity and horizontal divergence
