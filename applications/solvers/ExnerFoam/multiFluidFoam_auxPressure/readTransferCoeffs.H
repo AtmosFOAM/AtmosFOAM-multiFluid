@@ -35,3 +35,13 @@ const dimensionedScalar thetaTransferDiffusivity
 // Minimum sigmaRho for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
+// Artificial compressibility for each fluid (for auxiliary pressure Paux)
+const dimensionedScalar Chi
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "artificialCompressibility",
+        dimensionedScalar("Chi", dimensionSet(0,2,-2,0,0), scalar(0))
+    )
+);
+

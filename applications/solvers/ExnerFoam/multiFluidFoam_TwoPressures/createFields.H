@@ -1,24 +1,3 @@
-#include "readEnvironmentalProperties.H"
-#include "readThermoProperties.H"
-#include "readTransferCoeffs.H"
-HodgeOps H(mesh);
-#define dt runTime.deltaT()
-
-// Read in prognostic variables
-Info<< "Reading field Exner\n" << endl;
-volScalarField Exner
-(
-    IOobject
-    (
-        "Exner",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
 volScalarField ExnerPrime
 (
     IOobject("ExnerPrime", runTime.timeName(), mesh),
@@ -33,6 +12,12 @@ wordList partNames(nParts);
 partNames[0] = "stable";
 partNames[1] = "buoyant";
 
+Info<< "Reading field Exner in each partition\n" << endl;
+partitionedVolScalarField Exner
+(
+    "Exner", partNames, mesh, runTime.timeName()
+);
+
 Info << "Reading in sigma in each partition\n" << endl;
 partitionedVolScalarField sigma
 (
@@ -44,7 +29,6 @@ partitionedVolScalarField rho
 (
     "rho",
     partNames,
-//    mesh, runTime.timeName(),
     volScalarField
     (
         IOobject("rho", runTime.timeName(), mesh),
@@ -65,7 +49,7 @@ partitionedVolScalarField theta
 Info << "Calculating density and density in each partition and density weighted theta sum\n" << endl;
 for(label ip = 0; ip < partNames.size(); ip++)
 {
-    rho[ip] = pRef/(R*theta[ip])*pow(Exner, (1-kappa)/kappa);
+    rho[ip] = pRef/(R*theta[ip])*pow(Exner[ip], (1-kappa)/kappa);
 }
 rho.updateSum();
 sigmaRho = rho.timesSigma();
@@ -86,21 +70,21 @@ sigmaRhof.updateSum();
 
 partitionedSurfaceScalarField thetaf
 (
-    "thetaf", partNames, fvc::interpolate(theta[0]), sigmaRhof
+    "thetaf", partNames, fvc::interpolate(theta[0], "theta"), sigmaRhof
 );
 for(label ip = 1; ip < partNames.size(); ip++)
 {
-    thetaf[ip] = fvc::interpolate(theta[ip]);
+    thetaf[ip] = fvc::interpolate(theta[ip], "theta");
 }
 thetaf.updateSum();
 
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, fvc::interpolate(sigma[0], "sigma")
+    "sigmaf", partNames, fvc::interpolate(sigma[0], "sigmaRho")
 );
 for(label ip = 1; ip < partNames.size(); ip++)
 {
-    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
+    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigmaRho");
 }
 sigmaf.updateSum();
 
@@ -140,18 +124,6 @@ for(label ip = 1; ip < volFlux.size(); ip++)
 }
 volFlux.updateSum();
 
-partitionedSurfaceScalarField flux
-(
-    "flux", partNames, linearInterpolate(rho[0])*volFlux[0], sigmaf
-);
-for(label ip = 1; ip < volFlux.size(); ip++)
-{
-    flux[ip] = linearInterpolate(rho[ip])*volFlux[ip];
-}
-flux.updateSum();
-
-partitionedSurfaceScalarField sigmaFlux = volFlux.timesSigma();
-
 Info << "Reading in BCs and calculating the cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
 (
@@ -166,35 +138,8 @@ Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
 theta.storeTime();
 sigmaRho.storeTime();
-flux.sum().oldTime();
-flux.storeTime();
 rho.storeTime();
 sigma.storeTime();
-sigmaFlux.storeTime();
-
-Info << "The compressibility\n" << endl;
-/*partitionedVolScalarField Psi
-(
-    "Psi",
-    partNames,
-    (1-kappa)/kappa*rho[0]/Exner,
-    sigma
-);
-for (label ip = 1; ip < nParts; ip++)
-{
-    (1-kappa)/kappa*rho[ip]/Exner;
-}
-Psi.updateSum();*/
-volScalarField Psi = (1-kappa)/kappa*rho.sum()/Exner;
-
-// Alternative version of theta.sum
-volScalarField rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
-
-surfaceScalarField gradPcoeffSum
-(
-    IOobject("gradPcoeff", runTime.timeName(), mesh),
-    Cp*fvc::interpolate(rhoTheta, "theta")
-);
 
 Info << "Initialising the drag between partitions" << endl;
 surfaceScalarField cloudRadius
@@ -204,77 +149,4 @@ surfaceScalarField cloudRadius
 );
 surfaceScalarField dragCommon = -dragCoeff*sigmaRhof.sum()/cloudRadius
                          * mag(Uf[0] - Uf[1]);
-
-#include "calculateDrag.H"
-
-Info << "Initialising the mass transfer between partitions\n" << endl;
-// Temporary mass and heat transfer fields (for calculations)
-const dimensionedScalar massTransferZero
-(
-    "massTransferZero", dimensionSet(1,-3,-1,0,0), scalar(0)
-);
-const dimensionedScalar rateZero
-(
-    "rateZero", dimensionSet(0,0,-1,0,0), scalar(0)
-);
-const dimensionedScalar dimlessZero
-(
-    "dimlessZero", dimless, scalar(0)
-);
-const dimensionedScalar heatTransferZero
-(
-    "heatTransferZero", dimensionSet(0,-2,0,1,0), scalar(0)
-);
-const dimensionedScalar densityZero
-(
-    "densityZero", dimensionSet(1,-3,0,0,0), scalar(0)
-);
-const dimensionedScalar zeroTemp
-(
-    "zeroTemp", dimensionSet(0,0,0,1,0), scalar(0)
-);
-volScalarField massTransferTmp
-(
-    IOobject("massTransfer", runTime.timeName(), mesh,
-             IOobject::NO_READ, IOobject::NO_WRITE),
-    mesh,
-    massTransferZero
-);
-PtrList<partitionedVolScalarField> massTransfer(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    massTransfer.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "massTransfer."+partNames[jp], partNames, massTransferTmp
-        )
-    );
-}
-
-// Transfer terms for other variables (assuming nParts == 2)
-partitionedVolScalarField transfer
-(
-    "transfer",
-    partNames,
-    volScalarField
-    (
-        IOobject("transfer", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    )
-);
-
-partitionedSurfaceScalarField transferf
-(
-    "transferf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("transfer", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    )
-);
 

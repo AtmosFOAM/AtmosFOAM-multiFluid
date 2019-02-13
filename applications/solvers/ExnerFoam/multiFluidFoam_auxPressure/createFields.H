@@ -1,9 +1,3 @@
-#include "readEnvironmentalProperties.H"
-#include "readThermoProperties.H"
-#include "readTransferCoeffs.H"
-HodgeOps H(mesh);
-#define dt runTime.deltaT()
-
 // Read in prognostic variables
 Info<< "Reading field Exner\n" << endl;
 volScalarField Exner
@@ -186,6 +180,22 @@ for (label ip = 1; ip < nParts; ip++)
 }
 Psi.updateSum();*/
 volScalarField Psi = (1-kappa)/kappa*rho.sum()/Exner;
+
+Info << "Creating an auxiliary pressure for each fluid\n" << endl;
+partitionedVolScalarField Paux
+(
+    "Paux",
+    partNames, 
+    volScalarField
+    (
+        IOobject("Paux", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("zero", dimless, scalar(1)),
+        "zeroGradient"
+    ),
+    sigmaRho
+);
+Paux.storeTime();
 
 // Alternative version of theta.sum
 volScalarField rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);

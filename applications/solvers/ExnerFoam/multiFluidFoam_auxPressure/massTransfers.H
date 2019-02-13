@@ -38,7 +38,7 @@ if (divTransfer)
 {
     massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
     massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
-// REverser it
+// Reversed
 //    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
 //    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
 }
