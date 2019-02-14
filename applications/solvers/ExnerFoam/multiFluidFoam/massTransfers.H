@@ -36,16 +36,26 @@ if (Ksigma.value() > SMALL)
 // Mass transfer to avoid changes in sigmaRho due to partition divergence
 if (divTransfer)
 {
-    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
-// REverser it
-//    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
-//    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
+   // Old divTransfer
+    volScalarField T =-sigmaRho.ddt()[0] - (u[0] & fvc::grad(sigmaRho[0], "advectSigmaRho0"))
+                     + sigmaRho.ddt()[1] + (u[1] & fvc::grad(sigmaRho[1], "advectSigmaRho1"));
+    massTransfer[0][1] -= 0.5*min(T, massTransferZero);
+    massTransfer[1][0] += 0.5*max(T, massTransferZero);
+
+    // Alternative version
+//    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
+//    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
 }
 
-// Mass transfer based on vertical velocity and horizontal divergence
 if (wTransfer)
 {
+    // Fixed transfer rate dependent on w
+    massTransfer[0][1] += max(sign(u[0].component(vector::Z)), dimlessZero)
+                         *sigmaRho[0]/ transferTimeScale;
+    massTransfer[1][0] += max(sign(u[1].component(vector::Z)), dimlessZero)
+                         *sigmaRho[1]/ transferTimeScale;
+    
+/*    // Mass transfer based on vertical velocity and horizontal divergence
     massTransfer[0][1] -= max(sign(u[0].component(vector::Z)), dimlessZero)*
     min
     (
@@ -59,6 +69,7 @@ if (wTransfer)
         fvc::div(sigmaFlux[1] - sigmaRhof[1]*((Uf[1] & ghat)*ghatSf)),
         massTransferZero
     );
+*/
 }
 
 // Mass transfer based on buoyancy

@@ -29,9 +29,38 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
-           /(1+transfer.sum());
-theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
+thetat[0] = max
+(
+    min
+    (
+       -thetaTransferDiffusivity2*transferTimeScale*fvc::laplacian(theta[0]),
+        thetatMax
+    ),
+    thetatMin
+);
+thetat[1] = max
+(
+    min
+    (
+        thetaTransferDiffusivity2*transferTimeScale*fvc::laplacian(theta[1]),
+        thetatMax
+    ),
+    thetatMin
+);
+
+theta[0] =
+(
+    (1+transfer[0])*(theta[0] - transfer[1]*thetat[1] - Stransfer[0]*thetat[0])
+   + transfer[1]*(theta[1] + transfer[0]*thetat[0] + Stransfer[1]*thetat[1])
+)
+/(1+transfer.sum());
+
+theta[1] =
+(
+    theta[1]
+  + transfer[0]*thetat[0] + Stransfer[1]*thetat[1]
+  + transfer[0]*theta[0]
+)/(1+transfer[0]);
 
 theta.updateSum();
 

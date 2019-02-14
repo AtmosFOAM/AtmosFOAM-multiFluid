@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "readEnvironmentalProperties.H"
     #include "readThermoProperties.H"
+    #include "zeros.H"
     #include "readTransferCoeffs.H"
     HodgeOps H(mesh);
     #define dt runTime.deltaT()

@@ -202,31 +202,6 @@ surfaceScalarField dragCommon = -dragCoeff*sigmaRhof.sum()/cloudRadius
 #include "calculateDrag.H"
 
 Info << "Initialising the mass transfer between partitions\n" << endl;
-// Temporary mass and heat transfer fields (for calculations)
-const dimensionedScalar massTransferZero
-(
-    "massTransferZero", dimensionSet(1,-3,-1,0,0), scalar(0)
-);
-const dimensionedScalar rateZero
-(
-    "rateZero", dimensionSet(0,0,-1,0,0), scalar(0)
-);
-const dimensionedScalar dimlessZero
-(
-    "dimlessZero", dimless, scalar(0)
-);
-const dimensionedScalar heatTransferZero
-(
-    "heatTransferZero", dimensionSet(0,-2,0,1,0), scalar(0)
-);
-const dimensionedScalar densityZero
-(
-    "densityZero", dimensionSet(1,-3,0,0,0), scalar(0)
-);
-const dimensionedScalar zeroTemp
-(
-    "zeroTemp", dimensionSet(0,0,0,1,0), scalar(0)
-);
 volScalarField massTransferTmp
 (
     IOobject("massTransfer", runTime.timeName(), mesh,
@@ -269,6 +244,31 @@ partitionedSurfaceScalarField transferf
         IOobject("transfer", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
+    )
+);
+
+partitionedVolScalarField Stransfer
+(
+    "Stransfer",
+    partNames,
+    volScalarField
+    (
+        IOobject("Stransfer", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimless, scalar(0))
+    )
+);
+
+// Temperature of the transferred fluid
+partitionedVolScalarField thetat
+(
+    "thetat",
+    partNames,
+    volScalarField
+    (
+        IOobject("thetat", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimTemperature, scalar(0))
     )
 );
 
