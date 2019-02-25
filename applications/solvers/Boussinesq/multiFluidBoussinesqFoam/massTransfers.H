@@ -72,6 +72,12 @@ if (buoyancyTransfer)
     );
 }
 
+if (boundaryTransfer)
+{
+    massTransfer[0][1] = -Stransfer[0]*sigma.ddt()[1];
+    massTransfer[1][0] = -Stransfer[1]*sigma.ddt()[0];
+}
+
 #include "applyMassTransfer.H"
 
 // Update the sums

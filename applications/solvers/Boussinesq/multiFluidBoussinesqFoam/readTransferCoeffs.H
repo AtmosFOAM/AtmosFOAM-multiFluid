@@ -34,3 +34,6 @@ const dimensionedScalar bTransferDiffusivity
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
+// Transfer only at boundaries
+const Switch boundaryTransfer(transferProps.lookup("boundaryTransfer"));
+

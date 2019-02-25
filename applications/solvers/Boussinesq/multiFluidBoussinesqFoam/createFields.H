@@ -130,13 +130,11 @@ partitionedSurfaceScalarField transferf
 
 partitionedVolScalarField Stransfer
 (
-    "Stransfer",
-    partNames,
-    volScalarField
-    (
-        IOobject("Stransfer", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    )
+    "Stransfer", partNames, mesh, runTime.timeName()
 );
 
+// Divergence of each partitioned
+partitionedVolScalarField divu
+(
+    "divu", partNames, fvc::div(volFlux[0]), sigma
+);

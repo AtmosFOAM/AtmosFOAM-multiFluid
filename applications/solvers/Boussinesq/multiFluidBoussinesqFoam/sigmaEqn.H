@@ -16,6 +16,7 @@ sigma.updateSum();
 for(label ip = 0; ip < nParts; ip++)
 {
     sigma[ip] /= sigma.sum();
+    sigma.ddt()[ip] = (sigma[ip]- sigma[ip].oldTime())/dt;
 }
 sigma.updateSum();
 
