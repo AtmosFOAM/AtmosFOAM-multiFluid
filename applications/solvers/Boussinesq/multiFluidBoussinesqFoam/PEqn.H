@@ -8,7 +8,8 @@ for (int corr=0; corr<nCorr; corr++)
         (
           -fvc::interpolate
            (
-               fvc::div(volFlux[ip], u[ip], "u"),
+               fvc::div(volFlux[ip], u[ip], "u")
+             - u[ip]*fvc::div(volFlux[ip]),
                "convection"
            )
         ))
@@ -28,7 +29,7 @@ for (int corr=0; corr<nCorr; corr++)
             fvc::div(volFlux.sum())
           - offCentre*dt*fvm::laplacian(P)
         );
-        
+        PEqn.setReference(0,0);
         PEqn.solve(P.name());
     }
     

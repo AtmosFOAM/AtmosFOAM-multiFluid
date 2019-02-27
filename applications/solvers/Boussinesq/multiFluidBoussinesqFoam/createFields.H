@@ -40,6 +40,7 @@ partitionedVolScalarField b
 (
     "b", partNames, mesh, runTime.timeName(), sigma
 );
+b.mean().write();
 
 // fixed flux boundary conditions
 wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
@@ -57,6 +58,7 @@ partitionedVolVectorField u
 (
     "u", partNames, mesh, runTime.timeName(), sigma
 );
+u.mean().write();
 
 Info << "Calculating the flux in each partition\n"<<endl;
 partitionedSurfaceScalarField volFlux
@@ -76,6 +78,7 @@ for(label ip = 1; ip < volFlux.size(); ip++)
     volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
 }
 volFlux.updateSum();
+volFlux.mean().write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
@@ -128,13 +131,28 @@ partitionedSurfaceScalarField transferf
     )
 );
 
-partitionedVolScalarField Stransfer
+// transferLocation = 1 where sigma is to be kept uniform
+partitionedVolScalarField transferLocation
 (
-    "Stransfer", partNames, mesh, runTime.timeName()
+    "transferLocation",
+    partNames,
+    volScalarField
+    (
+        IOobject("transferLocation", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimless, scalar(0))
+    )
 );
 
-// Divergence of each partitioned
-partitionedVolScalarField divu
-(
-    "divu", partNames, fvc::div(volFlux[0]), sigma
-);
+if (uniformSigma)
+{
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        transferLocation[ip] == volScalarField
+        (
+            IOobject("transferLocation."+partNames[ip], runTime.timeName(), mesh,
+                    IOobject::MUST_READ, IOobject::NO_WRITE),
+            mesh
+        );
+    }
+}

@@ -69,11 +69,8 @@ int main(int argc, char *argv[])
             #include "bEqn.H"
             #include "PEqn.H"
         }
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            divu[ip] = fvc::div(volFlux[ip]);
-        }
-        divu.updateSum();
+        Info << "sigma.sum goes from " << min(sigma.sum()).value()
+             << " to "  << max(sigma.sum()).value() << endl;
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
              << " to "  << max(sigma[1].internalField()).value() << endl;
         runTime.write();

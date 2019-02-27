@@ -11,14 +11,13 @@ for(label ip = 0; ip < nParts; ip++)
     // Update sigma based on the rate of change
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];
 }
-// Correct so that the sigmas sum to 1
 sigma.updateSum();
+// Correct so that the sigmas sum to 1
 for(label ip = 0; ip < nParts; ip++)
 {
     sigma[ip] /= sigma.sum();
     sigma.ddt()[ip] = (sigma[ip]- sigma[ip].oldTime())/dt;
 }
-sigma.updateSum();
 
 // Update sigmaf
 for(label ip = 0; ip < nParts; ip++)

@@ -43,8 +43,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_+".sum", timeName, mesh,
-            IOobject::NO_READ, IOobject::NO_WRITE
+            baseName_, timeName, mesh,
+            IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         mesh,
         dimensioned<Type>("sum", dimless, pTraits<Type>::zero)
@@ -53,8 +53,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, timeName, mesh,
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            baseName_+".mean", timeName, mesh,
+            IOobject::NO_READ, IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<Type>("mean", dimless, pTraits<Type>::zero)
@@ -158,7 +158,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::NO_WRITE
+            IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         field.mesh(),
         dimensioned<Type>("sum", dimless, pTraits<Type>::zero)
@@ -167,8 +167,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            baseName_+".mean", field.time().timeName(), field.mesh(),
+            IOobject::NO_READ, IOobject::NO_WRITE
         ),
         field.mesh(),
         dimensioned<Type>("mean", dimless, pTraits<Type>::zero)

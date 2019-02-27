@@ -36,15 +36,8 @@ if (Ksigma.value() > SMALL)
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (divTransfer)
 {
-   // Old divTransfer
-    volScalarField T =-sigma.ddt()[0] - (u[0] & fvc::grad(sigma[0], "advectSigma0"))
-                     + sigma.ddt()[1] + (u[1] & fvc::grad(sigma[1], "advectSigma1"));
-    massTransfer[0][1] -= 0.5*min(T, rateZero);
-    massTransfer[1][0] += 0.5*max(T, rateZero);
-
-    // Alternative version
-//    massTransfer[0][1] += sigma[0]*max(-fvc::div(volFlux[0]), rateZero);
-//    massTransfer[1][0] += sigma[1]*max(-fvc::div(volFlux[1]), rateZero);
+    massTransfer[0][1] += sigma[0]*max(-fvc::div(volFlux[0]), rateZero);
+    massTransfer[1][0] += sigma[1]*max(-fvc::div(volFlux[1]), rateZero);
 }
 
 if (wTransfer)
@@ -72,15 +65,17 @@ if (buoyancyTransfer)
     );
 }
 
-if (boundaryTransfer)
+// Transfers to keep sigma uniform at selected locations
+if (uniformSigma)
 {
-    massTransfer[0][1] = -Stransfer[0]*sigma.ddt()[1];
-    massTransfer[1][0] = -Stransfer[1]*sigma.ddt()[0];
+    massTransfer[0][1] = -transferLocation[0]*sigma.ddt()[1]
+                       + (1-transferLocation[0])*massTransfer[0][1];
+    massTransfer[1][0] = -transferLocation[1]*sigma.ddt()[0]
+                       + (1-transferLocation[1])*massTransfer[1][0];
 }
 
 #include "applyMassTransfer.H"
 
 // Update the sums
-sigma.updateSum();
 transfer.updateSum();
 

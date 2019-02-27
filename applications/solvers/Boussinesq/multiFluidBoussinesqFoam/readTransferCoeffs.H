@@ -34,6 +34,6 @@ const dimensionedScalar bTransferDiffusivity
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
-// Transfer only at boundaries
-const Switch boundaryTransfer(transferProps.lookup("boundaryTransfer"));
+// Transfer to keep flagged cells uniform sigma
+const Switch uniformSigma(transferProps.lookup("uniformSigma"));
 
