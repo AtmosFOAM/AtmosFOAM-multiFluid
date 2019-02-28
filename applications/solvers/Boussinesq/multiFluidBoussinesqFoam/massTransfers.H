@@ -68,9 +68,9 @@ if (buoyancyTransfer)
 // Transfers to keep sigma uniform at selected locations
 if (uniformSigma)
 {
-    massTransfer[0][1] = -transferLocation[0]*sigma.ddt()[1]
+    massTransfer[0][1] = transferLocation[0]*max(-sigma.ddt()[1], rateZero)
                        + (1-transferLocation[0])*massTransfer[0][1];
-    massTransfer[1][0] = -transferLocation[1]*sigma.ddt()[0]
+    massTransfer[1][0] = transferLocation[1]*max(-sigma.ddt()[0], rateZero)
                        + (1-transferLocation[1])*massTransfer[1][0];
 }
 
