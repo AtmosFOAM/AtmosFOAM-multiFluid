@@ -12,13 +12,13 @@ for(label ip = 0; ip < nParts; ip++)
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];
 }
 sigma.updateSum();
-// Correct so that the sigmas sum to 1
+/*// Correct so that the sigmas sum to 1
 for(label ip = 0; ip < nParts; ip++)
 {
     sigma[ip] /= sigma.sum();
     sigma.ddt()[ip] = (sigma[ip]- sigma[ip].oldTime())/dt;
 }
-
+*/
 // Update sigmaf
 for(label ip = 0; ip < nParts; ip++)
 {

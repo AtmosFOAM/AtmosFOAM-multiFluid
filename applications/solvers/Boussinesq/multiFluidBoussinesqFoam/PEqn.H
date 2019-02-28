@@ -27,7 +27,7 @@ for (int corr=0; corr<nCorr; corr++)
         fvScalarMatrix PEqn
         (
             fvc::div(volFlux.sum())
-          - offCentre*dt*fvm::laplacian(P)
+          - offCentre*dt*fvm::laplacian(sigma.sum(), P)
         );
         PEqn.setReference(0,0);
         PEqn.solve(P.name());
