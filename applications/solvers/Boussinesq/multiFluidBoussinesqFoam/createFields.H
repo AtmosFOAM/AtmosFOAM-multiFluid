@@ -156,3 +156,12 @@ if (uniformSigma)
         );
     }
 }
+
+Info << "Initialising the drag between partitions" << endl;
+volScalarField cloudRadius
+(
+    "cloudRadius",
+    max(cloudRadiusMin, cloudRadiusMax*sigma[0]*sigma[1])
+);
+volScalarField dragCommon = -dragCoeff/cloudRadius* mag(u[0] - u[1]);
+

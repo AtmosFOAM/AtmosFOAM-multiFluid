@@ -74,8 +74,3 @@ if (uniformSigma)
                        + (1-transferLocation[1])*massTransfer[1][0];
 }
 
-#include "applyMassTransfer.H"
-
-// Update the sums
-transfer.updateSum();
-

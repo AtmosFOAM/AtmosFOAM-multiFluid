@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "zeros.H"
     #include "readTransferCoeffs.H"
+    #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
     #include "createFields.H"
     
@@ -66,6 +67,8 @@ int main(int argc, char *argv[])
         {
             #include "sigmaEqn.H"
             #include "massTransfers.H"
+            #include "applyMassTransfer.H"
+            #include "calculateDrag.H"
             #include "bEqn.H"
             #include "PEqn.H"
         }

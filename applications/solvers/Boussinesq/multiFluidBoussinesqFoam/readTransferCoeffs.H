@@ -12,6 +12,10 @@ IOdictionary transferProps
     )
 );
 
+const dimensionedScalar cloudRadiusMax(transferProps.lookup("cloudRadiusMax"));
+const dimensionedScalar cloudRadiusMin(transferProps.lookup("cloudRadiusMin"));
+const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
+
 // Diffusion coefficient for inter-partition mass transfer
 const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
 
