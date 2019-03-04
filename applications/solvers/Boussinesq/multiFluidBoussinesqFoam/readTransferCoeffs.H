@@ -1,4 +1,4 @@
-Info << "\nReading environmentalProperties" << endl;
+Info << "\nReading transferProperties" << endl;
 
 IOdictionary transferProps
 (

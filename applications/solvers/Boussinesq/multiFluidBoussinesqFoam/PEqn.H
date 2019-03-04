@@ -9,7 +9,8 @@ for (int corr=0; corr<nCorr; corr++)
           -fvc::interpolate
            (
                fvc::div(volFlux[ip], u[ip], "u")
-             - u[ip]*fvc::div(volFlux[ip]),
+             - u[ip]*fvc::div(volFlux[ip])
+             - nu*fvc::laplacian(u[ip]),
                "convection"
            )
         ))
