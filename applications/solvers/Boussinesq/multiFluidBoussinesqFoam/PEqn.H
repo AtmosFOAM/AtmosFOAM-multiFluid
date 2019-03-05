@@ -13,14 +13,18 @@ for (int corr=0; corr<nCorr; corr++)
              - nu*fvc::laplacian(u[ip]),
                "convection"
            )
-        ))
-        + fvc::interpolate(b[ip])*mesh.Sf().component(2);
+        ));
 
         volFlux[ip] = volFlux[ip].oldTime()
                     + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
-                    + dt*offCentre*volFlux.ddt()[ip];
+                    + dt*offCentre*volFlux.ddt()[ip]
+                    + dt*offCentre*bf[ip];
     }
     volFlux.updateSum();
+    bf.updateSum();
+
+    // Surface scalar fields for hydrostatic boundary conditions
+    gradPcoeff = fvc::interpolate(sigma.sum());
 
     // Pressure equation
     for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
@@ -28,7 +32,7 @@ for (int corr=0; corr<nCorr; corr++)
         fvScalarMatrix PEqn
         (
             fvc::div(volFlux.sum())
-          - offCentre*dt*fvm::laplacian(sigma.sum(), P)
+          - offCentre*dt*fvm::laplacian(gradPcoeff, P)
         );
         PEqn.setReference(0,0);
         PEqn.solve(P.name());
@@ -38,7 +42,7 @@ for (int corr=0; corr<nCorr; corr++)
 
     for(label ip = 0; ip < nParts; ip++)
     {
-        volFlux.ddt()[ip] -= fvc::snGrad(P)*mesh.magSf();
+        volFlux.ddt()[ip] += bf[ip] - fvc::snGrad(P)*mesh.magSf();
         volFlux[ip] -= offCentre*dt*fvc::snGrad(P)*mesh.magSf();
     }
 

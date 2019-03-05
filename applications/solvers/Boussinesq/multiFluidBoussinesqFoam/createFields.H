@@ -42,17 +42,6 @@ partitionedVolScalarField b
 );
 b.mean().write();
 
-// fixed flux boundary conditions
-wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
-forAll(mesh.boundaryMesh(), patchi)
-{
-    const word btype = mesh.boundaryMesh()[patchi].type();
-    if (btype == "wall" || btype == "symmetryPlane" || btype == "empty")
-    {
-        fluxBCs[patchi] = "fixedValue";
-    }
-}
-
 Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
 (
@@ -68,8 +57,7 @@ partitionedSurfaceScalarField volFlux
     surfaceScalarField
     (
         IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
-        linearInterpolate(u[0]) & mesh.Sf(),
-        fluxBCs
+        linearInterpolate(u[0]) & mesh.Sf()
     ),
     sigmaf
 );
@@ -84,6 +72,22 @@ Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
 b.storeTime();
 sigma.storeTime();
+
+// Surface scalar fields for hydrostatic boundary conditions
+surfaceScalarField gradPcoeff
+(
+    IOobject("gradPcoeff", runTime.timeName(), mesh),
+    fvc::interpolate(sigma.sum())
+);
+partitionedSurfaceScalarField bf
+(
+    "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2), sigmaf
+);
+for(label ip = 1; ip < nParts; ip++)
+{
+    bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
+}
+bf.updateSum();
 
 Info << "Initialising the mass transfer between partitions\n" << endl;
 volScalarField massTransferTmp

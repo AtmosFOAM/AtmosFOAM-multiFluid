@@ -2,7 +2,7 @@
 
 for(label ip = 0; ip < nParts; ip++)
 {
-    b.ddt()[ip] = Nsquared*u[ip].component(2)
+    b.ddt()[ip] = -Nsquared*u[ip].component(2)
                 - fvc::div(volFlux[ip], b[ip], "b")
                 + b[ip]*fvc::div(volFlux[ip])
                 + alpha*fvc::laplacian(b[ip])
@@ -32,5 +32,11 @@ b[0] = ((1+transfer[0])*b[0] + transfer[1]*b[1])
 b[1] = (b[1] + transfer[0]*b[0])
        /(1+transfer[0]);
 
-b.updateSum();
+// bouyancy for on faces
+for(label ip = 0; ip < nParts; ip++)
+{
+    bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
+}
 
+b.updateSum();
+bf.updateSum();
