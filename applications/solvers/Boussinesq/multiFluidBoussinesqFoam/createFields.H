@@ -169,3 +169,11 @@ volScalarField cloudRadius
 );
 volScalarField dragCommon = -dragCoeff/cloudRadius* mag(u[0] - u[1]);
 
+// Rate of change of b (eg for radiative cooling)
+uniformDimensionedScalarField Q
+(
+    IOobject("Q", runTime.timeName(), mesh, 
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
+);
+Q.write();

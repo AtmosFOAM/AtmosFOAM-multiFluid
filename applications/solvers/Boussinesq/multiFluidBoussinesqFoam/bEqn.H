@@ -5,9 +5,22 @@ for(label ip = 0; ip < nParts; ip++)
     b.ddt()[ip] = -Nsquared*u[ip].component(2)
                 - fvc::div(volFlux[ip], b[ip], "b")
                 + b[ip]*fvc::div(volFlux[ip])
-                + alpha*fvc::laplacian(b[ip])
-                + Q;
-    
+                + alpha*fvc::laplacian(b[ip]);
+}
+
+Q = dimensionedScalar("zeroQ", Q.dimensions(), scalar(0));
+for(label ip = 0; ip < nParts; ip++)
+{
+    Q -= fvc::domainIntegrate(sigma[ip]*b.ddt()[ip])/sum(mesh.V());
+}
+
+for(label ip = 0; ip < nParts; ip++)
+{
+    b.ddt()[ip] += Q;
+}
+
+for(label ip = 0; ip < nParts; ip++)
+{
     // Update b according to the rate of change
     b[ip] = b[ip].oldTime() + dt*
     (
