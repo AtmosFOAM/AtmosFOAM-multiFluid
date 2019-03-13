@@ -1,9 +1,3 @@
-#include "readEnvironmentalProperties.H"
-#include "readThermoProperties.H"
-#include "readTransferCoeffs.H"
-HodgeOps H(mesh);
-#define dt runTime.deltaT()
-
 // Read in prognostic variables
 Info<< "Reading field Exner\n" << endl;
 volScalarField Exner
@@ -60,6 +54,12 @@ Info << "Reading in theta in each partition\n" << endl;
 partitionedVolScalarField theta
 (
     "theta", partNames, mesh, runTime.timeName(), sigmaRho
+);
+
+Info << "Reading in thetaVar in each partition\n" << endl;
+partitionedVolScalarField thetaVar
+(
+    "thetaVar", partNames, mesh, runTime.timeName(), sigmaRho
 );
 
 Info << "Calculating density and density in each partition and density weighted theta sum\n" << endl;
@@ -162,15 +162,38 @@ for(label ip = 0; ip < partNames.size(); ip++)
     u[ip] = fvc::reconstruct(volFlux[ip]);
 }
 
+partitionedVolScalarField w
+(
+    "w", partNames, u[0].component(vector::Z)
+);
+for(label ip = 0; ip < partNames.size(); ip++)
+{
+    w[ip] = u[ip].component(vector::Z);
+}
+
+partitionedVolScalarField wVar
+(
+    "wVar", partNames, 0*sqr(w[0])
+);
+
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
 theta.storeTime();
+thetaVar.storeTime();
+w.storeTime();
+wVar.storeTime();
 sigmaRho.storeTime();
 flux.sum().oldTime();
 flux.storeTime();
 rho.storeTime();
 sigma.storeTime();
 sigmaFlux.storeTime();
+
+partitionedVolScalarField sigmaRhoPreTransfer = sigmaRho;
+partitionedVolScalarField thetaPreTransfer = theta;
+partitionedVolScalarField thetaVarPreTransfer = thetaVar;
+partitionedVolScalarField wPreTransfer = w;
+partitionedVolScalarField wVarPreTransfer = wVar;
 
 Info << "The compressibility\n" << endl;
 /*partitionedVolScalarField Psi
@@ -208,6 +231,31 @@ surfaceScalarField dragCommon = -dragCoeff*sigmaRhof.sum()/cloudRadius
 #include "calculateDrag.H"
 
 Info << "Initialising the mass transfer between partitions\n" << endl;
+// Temporary mass and heat transfer fields (for calculations)
+const dimensionedScalar massTransferZero
+(
+    "massTransferZero", dimensionSet(1,-3,-1,0,0), scalar(0)
+);
+const dimensionedScalar rateZero
+(
+    "rateZero", dimensionSet(0,0,-1,0,0), scalar(0)
+);
+const dimensionedScalar dimlessZero
+(
+    "dimlessZero", dimless, scalar(0)
+);
+const dimensionedScalar heatTransferZero
+(
+    "heatTransferZero", dimensionSet(0,-2,0,1,0), scalar(0)
+);
+const dimensionedScalar densityZero
+(
+    "densityZero", dimensionSet(1,-3,0,0,0), scalar(0)
+);
+const dimensionedScalar zeroTemp
+(
+    "zeroTemp", dimensionSet(0,0,0,1,0), scalar(0)
+);
 volScalarField massTransferTmp
 (
     IOobject("massTransfer", runTime.timeName(), mesh,
@@ -224,6 +272,55 @@ for(label jp = 0; jp < nParts; jp++)
         new partitionedVolScalarField
         (
             "massTransfer."+partNames[jp], partNames, massTransferTmp
+        )
+    );
+}
+
+Info << "Initialising the theta transfer between partitions\n" << endl;
+const dimensionedScalar thetaTransferTermZero
+(
+    "thetaTransferTermZero", dimensionSet(0,0,-1,0,0), scalar(0)
+);
+volScalarField thetaTransferTermTmp
+(
+    IOobject("thetaTransferTerm", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    mesh,
+    thetaTransferTermZero
+);
+PtrList<partitionedVolScalarField> thetaTransferTerm(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferTerm.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            partNames[jp]+'.'+"thetaTransferTerm", partNames, thetaTransferTermTmp
+        )
+    );
+}
+
+const dimensionedScalar thetaVarTransferTermZero
+(
+    "thetaVarTransferTermZero", dimensionSet(0,0,-1,-1,0), scalar(0)
+);
+volScalarField thetaVarTransferTermTmp
+(
+    IOobject("thetaVarTransferTerm", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    mesh,
+    thetaVarTransferTermZero
+);
+PtrList<partitionedVolScalarField> thetaVarTransferTerm(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaVarTransferTerm.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            partNames[jp]+'.'+"thetaVarTransferTerm", partNames, thetaVarTransferTermTmp
         )
     );
 }
@@ -253,28 +350,14 @@ partitionedSurfaceScalarField transferf
     )
 );
 
-partitionedVolScalarField Stransfer
+partitionedVolScalarField transferRate
 (
-    "Stransfer",
+    "transferRate",
     partNames,
     volScalarField
     (
-        IOobject("Stransfer", runTime.timeName(), mesh),
+        IOobject("transferRate", runTime.timeName(), mesh),
         mesh,
-        dimensionedScalar("", dimless, scalar(0))
+        dimensionedScalar("", dimensionSet(0,0,-1,0,0), scalar(0))
     )
 );
-
-// Temperature of the transferred fluid
-partitionedVolScalarField thetat
-(
-    "thetat",
-    partNames,
-    volScalarField
-    (
-        IOobject("thetat", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimTemperature, scalar(0))
-    )
-);
-

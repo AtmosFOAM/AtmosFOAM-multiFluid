@@ -79,7 +79,7 @@ class PartitionedField
         const PartitionedField<scalar, PatchField, GeoMesh>* sigmaPtr_;
 
         //- Optional storage for the rates of change
-        mutable PtrList<GeometricField<Type, PatchField, GeoMesh> >* ddtPtr_;
+        mutable PartitionedField<Type, PatchField, GeoMesh>* ddtPtr_;
 
     // Dissallow copy construct
         //PartitionedField(const PartitionedField&);
@@ -158,7 +158,7 @@ public:
             { return *sigmaPtr_; }
             
         //- Rate of change - const access
-        const PtrList<GeometricField<Type, PatchField, GeoMesh>>& ddt() const
+        const PartitionedField<Type, PatchField, GeoMesh>& ddt() const
         {
             if (!ddtPtr_)
             {
@@ -170,7 +170,7 @@ public:
         }
 
         //- Rate of change - non const access
-        PtrList<GeometricField<Type, PatchField, GeoMesh>>& ddt()
+        PartitionedField<Type, PatchField, GeoMesh>& ddt()
         {
             if (!ddtPtr_)
             {

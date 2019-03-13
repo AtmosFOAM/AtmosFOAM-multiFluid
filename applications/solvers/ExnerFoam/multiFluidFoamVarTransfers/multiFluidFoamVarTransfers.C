@@ -42,15 +42,11 @@ Description
 
 int main(int argc, char *argv[])
 {
-    // Allow running solver with -postProcess option (i.e. only execute fnObjs)
-    #include "postProcess.H"
-    
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
     #include "readEnvironmentalProperties.H"
     #include "readThermoProperties.H"
-    #include "zeros.H"
     #include "readTransferCoeffs.H"
     HodgeOps H(mesh);
     #define dt runTime.deltaT()
@@ -81,9 +77,12 @@ int main(int argc, char *argv[])
             #include "rhoSigmaEqn.H"
             #include "massTransfers.H"
             #include "thetaEqn.H"
+            #include "thetaVarEqn.H"
             #include "sigma.H"
             #include "calculateDrag.H"
             #include "exnerEqn.H"
+            #include "wVarEqn.H"
+            #include "heatTransfers.H"
         }
         #include "compressibleContinuityErrs.H"
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()

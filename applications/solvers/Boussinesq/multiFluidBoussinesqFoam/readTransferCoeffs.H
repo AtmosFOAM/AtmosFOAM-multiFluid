@@ -1,4 +1,4 @@
-Info << "\nReading environmentalProperties" << endl;
+Info << "\nReading transferProperties" << endl;
 
 IOdictionary transferProps
 (
@@ -28,36 +28,16 @@ const dimensionedScalar transferTimeScale = wTransfer ?
       dimensionedScalar(transferProps.lookup("transferTimeScale")) :
       dimensionedScalar("transferProps", dimTime, scalar(0));
 
-// Is mass transfer decided based on grad(theta)
-const Switch thetaTransfer(transferProps.lookup("thetaTransfer"));
-const dimensionedScalar thetaTransferDiffusivity
+// Is mass transfer decided based on grad(b)
+const Switch buoyancyTransfer(transferProps.lookup("buoyancyTransfer"));
+const dimensionedScalar bTransferDiffusivity
 (
-    transferProps.lookup("thetaTransferDiffusivity")
-);
-const dimensionedScalar thetaTransferDiffusivity2
-(
-    transferProps.lookupOrDefault<dimensionedScalar>
-    (
-        "thetaTransferDiffusivity2",
-        dimensionedScalar("zero", thetaTransferDiffusivity.dimensions(), scalar(0))
-    )
+    transferProps.lookup("bTransferDiffusivity")
 );
 
-// Minimum sigmaRho for each partition
+// Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
-// Max and min temperature perturbation - the difference in temperature of
-// the transferred variable. thetat[0] > 0 and thetat[1] < 0
-const dimensionedScalar thetatMin
-(
-    "thetatMin",
-    dimTemperature,
-    transferProps.lookupOrDefault<scalar>("thetatMin", 0)
-);
-const dimensionedScalar thetatMax
-(
-    "thetatMax",
-    dimTemperature,
-    transferProps.lookupOrDefault<scalar>("thetatMax", 0)
-);
+// Transfer to keep flagged cells uniform sigma
+const Switch uniformSigma(transferProps.lookup("uniformSigma"));
 

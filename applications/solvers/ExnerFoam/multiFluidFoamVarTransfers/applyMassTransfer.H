@@ -20,12 +20,11 @@ for(label ip = 0; ip < nParts; ip++)
 }
 
 // Transfer terms for other variables
-const scalar minSigmaDiv = max(minSigma, VSMALL);
 transfer[0] = dt*massTransfer[0][1]/max(sigmaRho[1], minSigmaDiv*rho[1]);
 transfer[1] = dt*massTransfer[1][0]/max(sigmaRho[0], minSigmaDiv*rho[0]);
 
-Stransfer[0] = dt*massTransfer[0][1]/max(sigmaRho[0], minSigmaDiv*rho[0]);
-Stransfer[1] = dt*massTransfer[1][0]/max(sigmaRho[1], minSigmaDiv*rho[1]);
+transferRate[0] = massTransfer[0][1]/max(sigmaRho[0], minSigmaDiv*rho[0]);
+transferRate[1] = massTransfer[1][0]/max(sigmaRho[1], minSigmaDiv*rho[1]);
 
 // Apply mass transfer terms (operator split) to sigmaRho equation
 for(label ip = 0; ip < nParts; ip++)

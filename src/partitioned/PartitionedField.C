@@ -43,8 +43,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_+".sum", timeName, mesh,
-            IOobject::NO_READ, IOobject::NO_WRITE
+            baseName_, timeName, mesh,
+            IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         mesh,
         dimensioned<Type>("sum", dimless, pTraits<Type>::zero)
@@ -53,8 +53,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, timeName, mesh,
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            baseName_+".mean", timeName, mesh,
+            IOobject::NO_READ, IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<Type>("mean", dimless, pTraits<Type>::zero)
@@ -158,7 +158,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::NO_WRITE
+            IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         field.mesh(),
         dimensioned<Type>("sum", dimless, pTraits<Type>::zero)
@@ -167,8 +167,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            baseName_+".mean", field.time().timeName(), field.mesh(),
+            IOobject::NO_READ, IOobject::NO_WRITE
         ),
         field.mesh(),
         dimensioned<Type>("mean", dimless, pTraits<Type>::zero)
@@ -421,28 +421,28 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::storeTime()
     mean().oldTime();
     
     // Create fields for all the time directories
-    ddtPtr_ = new PtrList<GeometricField<Type, PatchField, GeoMesh> >
+    ddtPtr_ = new PartitionedField<Type, PatchField, GeoMesh>
     (
-        partNames().size()
-    );
-    for(label ip = 0; ip < size(); ip++)
-    {
-        ddt().set
+        "ddt"+baseName(),
+        partNames(),
+        GeometricField<Type, PatchField, GeoMesh>
         (
-            ip,
-            new GeometricField<Type, PatchField, GeoMesh>
+            IOobject
             (
-                IOobject
-                (
-                    "ddt."+baseName()+"."+partNames()[ip],
-                    operator[](ip).mesh().time().timeName(),
-                    operator[](ip).mesh()
-                ),
-                (operator[](ip) - operator[](ip).oldTime())
-                    /operator[](ip).time().deltaT(),
-                "fixedValue"
-            )
-        );
+                "ddt."+baseName()+"."+partNames()[0],
+                operator[](0).mesh().time().timeName(),
+                operator[](0).mesh()
+            ),
+            (operator[](0) - operator[](0).oldTime())
+                /operator[](0).time().deltaT(),
+            "fixedValue"
+        )
+    );
+    ddt()[0].oldTime();
+    for(label ip = 1; ip < size(); ip++)
+    {
+        ddt()[ip] = (operator[](ip) - operator[](ip).oldTime())
+                    /operator[](ip).time().deltaT();
         ddt()[ip].oldTime();
     }
 }
@@ -462,10 +462,10 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::write()
     // Write out old time and rate of change if set
     if (ddtPtr_)
     {
+        ddt().write();
         for(label ip = 0; ip < size(); ip++)
         {
             operator[](ip).oldTime().write();
-            ddt()[ip].write();
         }
     }
 }
@@ -495,7 +495,6 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::operator=
             << abort(FatalError);
     }
     
-    //PtrList<GeometricField<Type, PatchField, GeoMesh>>(*this) = gf;
     for(label ip = 0; ip < size(); ip++)
     {
         operator[](ip) = gf[ip];

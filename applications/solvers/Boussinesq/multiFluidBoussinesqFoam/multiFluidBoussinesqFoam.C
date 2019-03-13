@@ -23,41 +23,28 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Application
-    multiFluidFoam
+    multiFluidBoussinesqFoam
 
 Description
-    Transient Solver for dry, buoyant, Navier-Stokes equations with constant
-    dynamic viscosity partitioned into multiple fluids. 
-    Solution using one Exner pressure and multiple theta and velocity, u
-    Advective form momentum and theta equations. 
+    Transient Solver for dry, multi-fluid Boussinesq equations
 
 \*---------------------------------------------------------------------------*/
 
-#include "HodgeOps.H"
 #include "fvCFD.H"
-#include "ExnerTheta.H"
 #include "PartitionedFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
-    // Allow running solver with -postProcess option (i.e. only execute fnObjs)
-    #include "postProcess.H"
-    
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "readEnvironmentalProperties.H"
-    #include "readThermoProperties.H"
     #include "zeros.H"
     #include "readTransferCoeffs.H"
-    HodgeOps H(mesh);
+    #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
     #include "createFields.H"
-    #include "initContinuityErrs.H"
-    #include "initDiags.H"
-    #include "calcDiags.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
@@ -78,17 +65,17 @@ int main(int argc, char *argv[])
 
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
-            #include "rhoSigmaEqn.H"
+            #include "sigmaEqn.H"
             #include "massTransfers.H"
-            #include "thetaEqn.H"
-            #include "sigma.H"
+            #include "applyMassTransfer.H"
             #include "calculateDrag.H"
-            #include "exnerEqn.H"
+            #include "bEqn.H"
+            #include "PEqn.H"
         }
-        #include "compressibleContinuityErrs.H"
+        Info << "sigma.sum goes from " << min(sigma.sum()).value()
+             << " to "  << max(sigma.sum()).value() << endl;
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
-             << " to " << max(sigma[1].internalField()).value() << endl;
-        #include "calcDiags.H"
+             << " to "  << max(sigma[1].internalField()).value() << endl;
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
