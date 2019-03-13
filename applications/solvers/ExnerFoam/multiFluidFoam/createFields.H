@@ -1,5 +1,7 @@
+// So postProcess can run properly
 #include "readEnvironmentalProperties.H"
 #include "readThermoProperties.H"
+#include "zeros.H"
 #include "readTransferCoeffs.H"
 HodgeOps H(mesh);
 #define dt runTime.deltaT()

@@ -48,12 +48,6 @@ int main(int argc, char *argv[])
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "readEnvironmentalProperties.H"
-    #include "readThermoProperties.H"
-    #include "zeros.H"
-    #include "readTransferCoeffs.H"
-    HodgeOps H(mesh);
-    #define dt runTime.deltaT()
     #include "createFields.H"
     #include "initContinuityErrs.H"
     #include "initDiags.H"
