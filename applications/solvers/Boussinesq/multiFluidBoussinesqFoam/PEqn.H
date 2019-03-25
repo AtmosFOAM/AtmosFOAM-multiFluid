@@ -26,10 +26,9 @@ for (int corr=0; corr<nCorr; corr++)
                     + dt*offCentre*bf[ip];
     }
     volFlux.updateSum();
-    bf.updateSum();
 
     // Surface scalar fields for hydrostatic boundary conditions
-    gradPcoeff = fvc::interpolate(sigma.sum());
+    gradPcoeff = sigmaf.sum();
 
     // Pressure equation
     for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)

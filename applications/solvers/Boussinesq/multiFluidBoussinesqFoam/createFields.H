@@ -24,15 +24,16 @@ partitionedVolScalarField sigma
 (
     "sigma", partNames, mesh, runTime.timeName()
 );
+simga.sum().write();
 
 // sigma on the faces
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, fvc::interpolate(sigma[0])
+    "sigmaf", partNames, linearInterpolate(sigma[0])
 );
 for(label ip = 1; ip < nParts; ip++)
 {
-    sigmaf[ip] = fvc::interpolate(sigma[ip]);
+    sigmaf[ip] = linearInterpolate(sigma[ip]);
 }
 
 Info << "Reading in b in each partition\n" << endl;
@@ -77,7 +78,7 @@ sigma.storeTime();
 surfaceScalarField gradPcoeff
 (
     IOobject("gradPcoeff", runTime.timeName(), mesh),
-    fvc::interpolate(sigma.sum())
+    sigmaf.sum()
 );
 partitionedSurfaceScalarField bf
 (
@@ -136,28 +137,21 @@ partitionedSurfaceScalarField transferf
 );
 
 // transferLocation = 1 where sigma is to be kept uniform
-partitionedVolScalarField transferLocation
+const volScalarField transferLocation
 (
-    "transferLocation",
-    partNames,
-    volScalarField
-    (
-        IOobject("transferLocation", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    )
+    IOobject("transferLocation", runTime.constant(), mesh,
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
+    dimensionedScalar("", dimless, scalar(0))
 );
 
 if (uniformSigma)
 {
-    for(label ip = 0; ip < nParts; ip++)
+    // Check that transferLocation is non-zero somewhere
+    if (abs(max(transferLocation).value()) < SMALL)
     {
-        transferLocation[ip] == volScalarField
-        (
-            IOobject("transferLocation."+partNames[ip], runTime.timeName(), mesh,
-                    IOobject::MUST_READ, IOobject::NO_WRITE),
-            mesh
-        );
+        FatalErrorIn("multiFluidBoussinesqFoam") << " transferProperty uniformSigma set to true but no transferLocation set to non-zero"
+            << exit(FatalError);
     }
 }
 
