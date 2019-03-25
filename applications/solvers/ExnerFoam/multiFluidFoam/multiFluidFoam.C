@@ -42,7 +42,7 @@ Description
 
 int main(int argc, char *argv[])
 {
-    // Allow running solver with -postProcess option (i.e. only execute fnObjs)
+    // Allow running solver with -postProcess option
     #include "postProcess.H"
     
     #include "setRootCase.H"

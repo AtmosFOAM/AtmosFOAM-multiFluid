@@ -40,6 +40,10 @@ partitionedVolScalarField sigma
 (
     "sigma", partNames, mesh, runTime.timeName()
 );
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigma[ip] /= sigma.sum();
+}
 
 Info << "Setting rho for each partition\n" << endl;
 partitionedVolScalarField rho
