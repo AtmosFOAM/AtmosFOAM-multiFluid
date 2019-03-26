@@ -6,9 +6,9 @@ for(label ip = 0; ip < nParts; ip++)
                        + wVar[ip]*fvc::div(volFlux[ip]);
     
     // Viscous term
-    if (alpha.value() > VSMALL)
+    if (nu.value() > VSMALL)
     {
-        wVar.ddt()[ip] += alpha * fvc::laplacian(wVar[ip]);
+        wVar.ddt()[ip] += nu * fvc::laplacian(wVar[ip]);
     }
     
     // Update theta according to the rate of change
@@ -30,7 +30,7 @@ if (nParts != 2)
 }
 
 wVarPreTransfer = wVar;
-/*
+
 wVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 wVar[0] -= sqr(w[0]);
 wVar[0] += sqr(wPreTransfer[0]) *
@@ -56,7 +56,7 @@ wVar[1] += dt*transferRate[0]*sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
-*/    
+    
 wVar.updateSum();
 
 

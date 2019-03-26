@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
             #include "exnerEqn.H"
             #include "wVarEqn.H"
             #include "heatTransfers.H"
+            #include "velocityTransfers.H"
         }
         #include "compressibleContinuityErrs.H"
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()

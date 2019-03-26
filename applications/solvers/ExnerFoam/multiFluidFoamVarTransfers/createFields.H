@@ -325,6 +325,55 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+Info << "Initialising the w transfer between partitions\n" << endl;
+const dimensionedScalar wTransferTermZero
+(
+    "wTransferTermZero", dimensionSet(0,0,-1,0,0), scalar(0)
+);
+volScalarField wTransferTermTmp
+(
+    IOobject("wTransferTerm", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    mesh,
+    wTransferTermZero
+);
+PtrList<partitionedVolScalarField> wTransferTerm(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    wTransferTerm.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            partNames[jp]+'.'+"wTransferTerm", partNames, wTransferTermTmp
+        )
+    );
+}
+
+const dimensionedScalar wVarTransferTermZero
+(
+    "wVarTransferTermZero", dimensionSet(0,-1,0,0,0), scalar(0)
+);
+volScalarField wVarTransferTermTmp
+(
+    IOobject("wVarTransferTerm", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    mesh,
+    wVarTransferTermZero
+);
+PtrList<partitionedVolScalarField> wVarTransferTerm(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    wVarTransferTerm.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            partNames[jp]+'.'+"wVarTransferTerm", partNames, wVarTransferTermTmp
+        )
+    );
+}
+
 // Transfer terms for other variables (assuming nParts == 2)
 partitionedVolScalarField transfer
 (

@@ -18,6 +18,8 @@ const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 
 // Diffusion coefficient for inter-partition mass transfer
 const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
+const dimensionedScalar Kw(transferProps.lookup("Kw"));
+const dimensionedScalar Ktheta(transferProps.lookup("Ktheta"));
 
 // Is mass transferred based on partition divergence
 const Switch divTransfer(transferProps.lookup("divTransfer"));
@@ -34,6 +36,7 @@ const dimensionedScalar thetaTransferDiffusivity
 
 // Is heat transferred based on overlapping theta profiles
 const Switch thetaVarTransfer(transferProps.lookup("thetaVarTransfer"));
+const Switch wVarTransfer(transferProps.lookup("wVarTransfer"));
 const dimensionedScalar thetaVarTimescale
 (
     transferProps.lookup("thetaVarTimescale")
