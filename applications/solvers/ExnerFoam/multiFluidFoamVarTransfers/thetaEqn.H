@@ -10,6 +10,7 @@ for(label ip = 0; ip < nParts; ip++)
     {
         theta.ddt()[ip] += alpha * fvc::laplacian(theta[ip]);
     }
+    theta.ddt()[ip] += Ktheta * fvc::laplacian(theta[ip]);
     
     // Update theta according to the rate of change
     theta[ip] = theta[ip].oldTime() + dt*

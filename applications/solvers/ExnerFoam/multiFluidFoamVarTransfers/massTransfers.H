@@ -29,6 +29,13 @@ if (Ksigma.value() > SMALL)
             );
             massTransfer[ip][jp] += max(massTransferTmp, massTransferZero);
             massTransfer[jp][ip] -= min(massTransferTmp, massTransferZero);
+            
+            massTransferTmp = 0.5*Ksigma*fvc::laplacian
+            (
+                sigmaRho[jp] -sigmaRho[ip]
+            );
+            massTransfer[ip][jp] += max(massTransferTmp, massTransferZero);
+            massTransfer[jp][ip] -= min(massTransferTmp, massTransferZero);
         }
     }
 }
@@ -36,8 +43,8 @@ if (Ksigma.value() > SMALL)
 // Mass transfer to avoid changes in sigmaRho due to partition divergence
 if (divTransfer)
 {
-    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
+    massTransfer[0][1] += 1*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
+    massTransfer[1][0] += 1*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
 // REverser it
 //    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
 //    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
