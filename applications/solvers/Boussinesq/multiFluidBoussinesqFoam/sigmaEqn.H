@@ -11,16 +11,22 @@ for(label ip = 0; ip < nParts; ip++)
         //sigma[ip].oldTime(),
         //"sigma"
     );
-}
 
-// Ensure that ddt(sigma[0]) = - ddt(sigma[1])
-sigma.ddt()[0] = 0.5*(sigma.ddt()[0] - sigma.ddt()[1]);
-sigma.ddt()[1] = -sigma.ddt()[0];
-
-for(label ip = 0; ip < nParts; ip++)
-{
     // Update sigma based on the rate of change
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];
+}
+
+// Ensure that sum sigma = 1
+sigma.updateSum();
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigma[ip] /= sigma.sum();
+}
+
+// Correct sigma.ddt
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigma.ddt()[ip] = (sigma[ip] - sigma[ip].oldTime())/dt;
 }
 sigma.updateSum();
 sigmaf.updateSum();

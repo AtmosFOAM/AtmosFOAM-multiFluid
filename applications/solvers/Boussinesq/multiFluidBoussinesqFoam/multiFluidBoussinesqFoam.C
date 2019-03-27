@@ -73,15 +73,16 @@ int main(int argc, char *argv[])
             #include "bEqn.H"
             #include "PEqn.H"
         }
-        Info << "1-sigma.sum goes from " << 1-max(sigma.sum()).value()
-             << " to "  << 1-min(sigma.sum()).value() << endl;
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
              << " to "  << max(sigma[1].internalField()).value() << endl;
         runTime.write();
-        
-        volScalarField divu("divu", fvc::div(volFlux.sum()));
-        Info << "divu goes from " << min(divu).value() << " to " 
-             << max(divu).value() << endl;
+
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
+        Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
+    }
+    Uf.updateSum();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

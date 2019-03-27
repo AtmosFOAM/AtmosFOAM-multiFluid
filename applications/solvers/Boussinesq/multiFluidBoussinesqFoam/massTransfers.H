@@ -34,10 +34,12 @@ if (Ksigma.value() > SMALL)
 }
 
 // Mass transfer to avoid changes in sigma due to partition divergence
-if (divTransfer)
+if (divTransfer>0)
 {
-    massTransfer[0][1] += sigma[0]*max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += sigma[1]*max(-fvc::div(volFlux[1]), rateZero);
+    massTransfer[0][1] += divTransfer*sigma[0]
+        *max(-fvc::div(volFlux[0]), rateZero);
+    massTransfer[1][0] += divTransfer*sigma[1]
+        *max(-fvc::div(volFlux[1]), rateZero);
 }
 
 if (wTransfer)
@@ -68,17 +70,9 @@ if (buoyancyTransfer)
 // Transfers to keep sigma uniform at selected locations
 if (uniformSigma)
 {
-    massTransfer[0][1] = transferLocation*0.5*
-                         (
-                            max(-sigma.ddt()[1], rateZero)
-                          + max(sigma.ddt()[0], rateZero)
-                         )
+    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
                        + (1-transferLocation)*massTransfer[0][1];
-    massTransfer[1][0] = transferLocation*0.5*
-                         (
-                            max(-sigma.ddt()[0], rateZero)
-                          + max(sigma.ddt()[1], rateZero)
-                         )
+    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
                        + (1-transferLocation)*massTransfer[1][0];
 }
 

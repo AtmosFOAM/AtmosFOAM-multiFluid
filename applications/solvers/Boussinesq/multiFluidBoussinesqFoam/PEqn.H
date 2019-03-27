@@ -27,16 +27,13 @@ for (int corr=0; corr<nCorr; corr++)
     }
     volFlux.updateSum();
 
-    // Surface scalar fields for hydrostatic boundary conditions
-    gradPcoeff = sigmaf.sum();
-
     // Pressure equation
     for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
     {
         fvScalarMatrix PEqn
         (
             fvc::div(volFlux.sum())
-          - offCentre*dt*fvm::laplacian(gradPcoeff, P)
+          - offCentre*dt*fvm::laplacian(P)
         );
         PEqn.setReference(0,0);
         PEqn.solve(P.name());
@@ -70,4 +67,5 @@ for (int corr=0; corr<nCorr; corr++)
     volFlux.updateSum();
 }
 u.updateSum();
+
 

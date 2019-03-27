@@ -24,7 +24,7 @@ partitionedVolScalarField sigma
 (
     "sigma", partNames, mesh, runTime.timeName()
 );
-simga.sum().write();
+sigma.sum().write();
 
 // sigma on the faces
 partitionedSurfaceScalarField sigmaf
@@ -50,6 +50,17 @@ partitionedVolVectorField u
 );
 u.mean().write();
 
+// fixed flux boundary conditions
+wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
+forAll(mesh.boundaryMesh(), patchi)
+{
+    const word btype = mesh.boundaryMesh()[patchi].type();
+    if (btype == "wall" || btype == "symmetryPlane" || btype == "empty")
+    {
+        fluxBCs[patchi] = "fixedValue";
+    }
+}
+
 Info << "Calculating the flux in each partition\n"<<endl;
 partitionedSurfaceScalarField volFlux
 (
@@ -58,7 +69,8 @@ partitionedSurfaceScalarField volFlux
     surfaceScalarField
     (
         IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
-        linearInterpolate(u[0]) & mesh.Sf()
+        linearInterpolate(u[0]) & mesh.Sf(),
+        fluxBCs
     ),
     sigmaf
 );
@@ -74,11 +86,25 @@ volFlux.storeTime();
 b.storeTime();
 sigma.storeTime();
 
+// Velocity on the faces
+partitionedSurfaceVectorField Uf
+(
+    "Uf", partNames, linearInterpolate(u[0]), sigmaf
+);
+for(label ip = 0; ip < nParts; ip++)
+{
+    Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
+    Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
+}
+Uf.updateSum();
+Uf.write();
+
 // Surface scalar fields for hydrostatic boundary conditions
-surfaceScalarField gradPcoeff
+const surfaceScalarField gradPcoeff
 (
     IOobject("gradPcoeff", runTime.timeName(), mesh),
-    sigmaf.sum()
+    mesh,
+    dimensionedScalar("1", dimless, scalar(1))
 );
 partitionedSurfaceScalarField bf
 (
