@@ -15,7 +15,7 @@ if (thetaVarTransfer)
     const dimensionedScalar internalEnergyMin("",theta.sum().dimensions(),scalar(1e-16));
     
     
-    
+    Info << "length scale " << thetaVarLengthScale << endl;
     volScalarField thetaVarTransferRate = 0*transferRate[1] + 1 / thetaVarTimescale;
     if (localThetaVarTransfer)
     {
@@ -23,6 +23,7 @@ if (thetaVarTransfer)
     }
     //Limit heat transfer to prevent instability.
     thetaVarTransferRate = min(thetaVarTransferRate, 1/dt);
+    thetaVarTransferRate *= thetaVarLengthScale;
     
     thetaVar[0] = max(thetaVar[0], 0*thetaVar[0]);
     thetaVar[1] = max(thetaVar[1], 0*thetaVar[1]);

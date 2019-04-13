@@ -15,6 +15,7 @@ IOdictionary transferProps
 const dimensionedScalar cloudRadiusMax(transferProps.lookup("cloudRadiusMax"));
 const dimensionedScalar cloudRadiusMin(transferProps.lookup("cloudRadiusMin"));
 const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
+const scalar divCoeff(readScalar(transferProps.lookup("divCoeff")));
 
 // Diffusion coefficient for inter-partition mass transfer
 const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
@@ -52,3 +53,22 @@ const Switch localThetaVarTransfer(transferProps.lookup("localThetaVarTransfer")
 // Minimum sigmaRho for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 const scalar minSigmaDiv = max(minSigma, VSMALL);
+
+IOdictionary blockMeshDict
+(
+    IOobject
+    (
+        "blockMeshDict",
+        runTime.system(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+    )
+);
+
+const scalar xmin = readScalar(blockMeshDict.lookup("xmin"));
+const scalar xmax = readScalar(blockMeshDict.lookup("xmax"));
+const scalar nx = readScalar(blockMeshDict.lookup("nx"));
+const scalar convertToMeters = readScalar(blockMeshDict.lookup("convertToMeters"));
+const scalar deltax = (xmax-xmin)/nx * convertToMeters;
+scalar thetaVarLengthScale = min(1, deltax/10000.);
