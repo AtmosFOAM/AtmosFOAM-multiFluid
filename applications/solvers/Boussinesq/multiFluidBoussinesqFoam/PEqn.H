@@ -35,8 +35,8 @@ for (int corr=0; corr<nCorr; corr++)
             fvc::div(volFlux.sum())
           - offCentre*dt*fvm::laplacian(P)
         );
-        PEqn.setReference(0,0);
-        PEqn.solve(P.name());
+        PEqn.setValues(labelList(1,0), scalarList(1,scalar(0)));
+        PEqn.solve();
     }
     
     // Back-substitutions
@@ -48,8 +48,8 @@ for (int corr=0; corr<nCorr; corr++)
     }
 
     // Include the mass transfer and drag implicitly (for nParts=2)
-    transferf[0] = fvc::interpolate(transfer[0]);
-    transferf[1] = fvc::interpolate(transfer[1]);
+    transferf[0] = fvc::interpolate(transfer[0], "transfer");
+    transferf[1] = fvc::interpolate(transfer[1], "transfer");
     transferf.updateSum();
     
     volFlux[0] =

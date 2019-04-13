@@ -35,6 +35,7 @@ for(label ip = 1; ip < nParts; ip++)
 {
     sigmaf[ip] = linearInterpolate(sigma[ip]);
 }
+sigmaf.updateSum();
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b
@@ -79,7 +80,7 @@ for(label ip = 1; ip < volFlux.size(); ip++)
     volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
 }
 volFlux.updateSum();
-volFlux.mean().write();
+volFlux.sum().write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
@@ -193,7 +194,7 @@ volScalarField dragCommon = -dragCoeff/cloudRadius* mag(u[0] - u[1]);
 uniformDimensionedScalarField Q
 (
     IOobject("Q", runTime.timeName(), mesh, 
-             IOobject::NO_READ, IOobject::AUTO_WRITE),
+             IOobject::READ_IF_PRESENT, IOobject::AUTO_WRITE),
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
 Q.write();

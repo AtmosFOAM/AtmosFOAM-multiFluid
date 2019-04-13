@@ -58,6 +58,10 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
+    Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
+         << " to "  << max(sigma[1].internalField()).value() << endl;
+    Info << "sigmaf.sum goes from " << min(sigmaf.sum()).value()
+         << " to "  << max(sigmaf.sum()).value() << endl;
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -75,6 +79,8 @@ int main(int argc, char *argv[])
         }
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
              << " to "  << max(sigma[1].internalField()).value() << endl;
+        Info << "sigmaf.sum goes from " << min(sigmaf.sum()).value()
+             << " to "  << max(sigmaf.sum()).value() << endl;
         runTime.write();
 
     for(label ip = 0; ip < nParts; ip++)

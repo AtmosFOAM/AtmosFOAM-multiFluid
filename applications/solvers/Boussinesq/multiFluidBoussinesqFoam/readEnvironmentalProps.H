@@ -15,4 +15,4 @@ IOdictionary envProps
 const dimensionedScalar Nsquared(envProps.lookup("Nsquared"));
 const dimensionedScalar nu(envProps.lookup("nu"));
 const dimensionedScalar alpha(envProps.lookup("alpha"));
-
+const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
