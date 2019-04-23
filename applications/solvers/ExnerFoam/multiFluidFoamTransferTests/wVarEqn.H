@@ -30,30 +30,20 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-wVar[0] = max(wVar[0], 0*wVar[0]);
-wVar[1] = max(wVar[1], 0*wVar[1]);
-
 wVarPreTransfer = wVar;
 
-Info << "transferRate" << ": [" << min(transferRate[0]).value() << ", " << max(transferRate[0]).value() << "]" << endl;
-
 wVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
+wVar[0] -= sqr(w[0]);
 wVar[0] += sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
-wVar[0] -= sqr(w[0]);
-
 wVar[0] -= dt*transferRate[0]*wVarPreTransfer[0] * 
     sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
-wVar[0] -= dt*transferRate[0]*sqr(wPreTransfer[0]) * 
-    sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
-
 wVar[0] += dt*transferRate[1]*wVarPreTransfer[1] *
     sigmaRhoPreTransfer[1] / max(sigmaRho[0], minSigmaDiv*rho[0]);
-
+wVar[0] -= dt*transferRate[0]*sqr(wPreTransfer[0]) * 
+    sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 wVar[0] += dt*transferRate[1]*sqr(wPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[0], minSigmaDiv*rho[0]);
-
-
     
 wVar[1] *= sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 wVar[1] -= sqr(w[1]);
@@ -67,8 +57,6 @@ wVar[1] += dt*transferRate[0]*sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
-
-
     
 wVar.updateSum();
 

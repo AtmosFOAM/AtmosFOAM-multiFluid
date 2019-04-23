@@ -77,6 +77,36 @@ if (thetaTransfer)
     );
 }
 
+if (wVarTransfer)
+{
+    wVar[0] = max(wVar[0], 0*wVar[0]);
+    wVar[1] = max(wVar[1], 0*wVar[1]);
+    massTransfer[0][1] = 0.05 * sigmaRho[1] * 0.5 / thetaVarTimescale *
+    (
+        1 + Foam::erf
+        (
+            (w[0] - w[1]) / 
+            max
+            (
+                dimensionedScalar("",w[0].dimensions(),scalar(1e-16)), 
+                Foam::sqrt( 2 * (wVar[0] + wVar[1]) ) 
+            )
+        )
+    );
+    massTransfer[1][0] = 0.05 * sigmaRho[0] * 0.5 / thetaVarTimescale *
+    (
+        1 + Foam::erf
+        (
+            (w[0] - w[1]) / 
+            max
+            (
+                dimensionedScalar("",w[0].dimensions(),scalar(1e-16)), 
+                Foam::sqrt( 2 * (wVar[0] + wVar[1]) ) 
+            )
+        )
+    );
+}
+
 sigmaRhoPreTransfer = sigmaRho;
 
 #include "applyMassTransfer.H"

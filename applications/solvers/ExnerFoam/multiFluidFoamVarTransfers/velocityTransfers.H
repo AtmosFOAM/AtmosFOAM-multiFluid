@@ -8,6 +8,7 @@ if (nParts != 2)
 }
 
 if (wVarTransfer)
+//if (0)
 {
     const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
     const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
@@ -17,16 +18,21 @@ if (wVarTransfer)
     {
         w[ip] = u[ip].component(vector::Z);
         Info << "w" << ip << " pre transfer: [" << min(w[ip]).value() << ", " << max(w[ip]).value() << "]" << endl;
+        Info << "wVar" << ip << " pre Var transfer: [" << min(wVar[ip]).value() << ", " << max(wVar[ip]).value() << "]" << endl;
     }
     
-    volScalarField wVarTransferRate = 0*transferRate[1] + 1 / thetaVarTimescale;
-    if (localThetaVarTransfer)
-    {
-        wVarTransferRate *= dt * transferRate[1];
-    }
+    //volScalarField wVarTransferRate = 0*transferRate[1] + 1 / thetaVarTimescale;
+    //if (localThetaVarTransfer)
+    //{
+    //    wVarTransferRate *= dt * transferRate[1];
+    //}
     //Limit heat transfer to prevent instability.
+    dimensionedScalar dragTime("", dimTime, scalar(1));
+    volScalarField dragRate = dragTime/cloudRadiusMin * mag(w[0] - w[1]);
+    volScalarField wVarTransferRate = sqr(dragRate)/wVarTimescale;
     wVarTransferRate = min(wVarTransferRate, 1/dt);
     
+
     wVar[0] = max(wVar[0], 0*wVar[0]);
     wVar[1] = max(wVar[1], 0*wVar[1]);
     
