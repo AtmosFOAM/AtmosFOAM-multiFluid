@@ -14,5 +14,11 @@ IOdictionary envProps
 
 const dimensionedScalar Nsquared(envProps.lookup("Nsquared"));
 const dimensionedScalar nu(envProps.lookup("nu"));
-const dimensionedScalar alpha(envProps.lookup("alpha"));
 const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
+
+uniformDimensionedScalarField alpha
+(
+    IOobject("alpha", runTime.timeName(), mesh), 
+    dimensionedScalar(envProps.lookup("alpha"))
+);
+

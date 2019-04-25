@@ -22,8 +22,7 @@ for (int corr=0; corr<nCorr; corr++)
 
         volFlux[ip] = volFlux[ip].oldTime()
                     + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
-                    + dt*offCentre*volFlux.ddt()[ip]
-                    + dt*offCentre*bf[ip];
+                    + dt*offCentre*volFlux.ddt()[ip];
     }
     volFlux.updateSum();
 
@@ -33,18 +32,18 @@ for (int corr=0; corr<nCorr; corr++)
         fvScalarMatrix PEqn
         (
             fvc::div(volFlux.sum())
+          + offCentre*dt*fvc::div(bf.sum())
           - offCentre*dt*fvm::laplacian(P)
         );
-        PEqn.setValues(labelList(1,0), scalarList(1,scalar(0)));
+        PEqn.setReference(0,0);
         PEqn.solve();
     }
     
     // Back-substitutions
-
     for(label ip = 0; ip < nParts; ip++)
     {
         volFlux.ddt()[ip] += bf[ip] - fvc::snGrad(P)*mesh.magSf();
-        volFlux[ip] -= offCentre*dt*fvc::snGrad(P)*mesh.magSf();
+        volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
     }
 
     // Include the mass transfer and drag implicitly (for nParts=2)
