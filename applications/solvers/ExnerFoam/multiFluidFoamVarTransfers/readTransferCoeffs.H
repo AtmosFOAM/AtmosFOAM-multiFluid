@@ -48,12 +48,10 @@ const dimensionedScalar wVarTimescale
     transferProps.lookup("wVarTimescale")
 );
 
-// Change velocities proportionally to amount temperatures change.
-const Switch thetaVarTransferWcoupling(transferProps.lookup("thetaVarTransferWcoupling"));
-const scalar wCouplingCoeff = readScalar(transferProps.lookup("wCouplingCoeff"));
 
 // Only do heat transfers where fluids have been mixed?
 const Switch localThetaVarTransfer(transferProps.lookup("localThetaVarTransfer"));
+const Switch varMassTransfer(transferProps.lookup("varMassTransfer"));
 
 // Minimum sigmaRho for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));

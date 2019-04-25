@@ -32,7 +32,7 @@ if (nParts != 2)
 
 thetaVarPreTransfer = thetaVar;
 
-thetaVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
+/*thetaVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 thetaVar[0] -= sqr(theta[0]);
 thetaVar[0] += sqr(thetaPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
@@ -57,12 +57,22 @@ thetaVar[1] += dt*transferRate[0]*sqr(thetaPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 thetaVar[1] -= dt*transferRate[1]*sqr(thetaPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
-
+*/
 
 /*thetaVar[0] = ((1+transfer[0])*thetaVar[0] + transfer[1]*thetaVar[1])
            /(1+transfer.sum());
 thetaVar[1] = (thetaVar[1] + transfer[0]*thetaVar[0])/(1+transfer[0]);
 */
+
+thetaVarPreTransfer = thetaVar;
+thetaVarPreTransfer[0] += sqr(thetaPreTransfer[0]);
+thetaVarPreTransfer[1] += sqr(thetaPreTransfer[1]);
+
+thetaVar[0] = ((1+transfer[0])*thetaVarPreTransfer[0] + transfer[1]*thetaVarPreTransfer[1])
+           /(1+transfer.sum()) - sqr(theta[0]);
+thetaVar[1] = ((1+transfer[1])*thetaVarPreTransfer[1] + transfer[0]*thetaVarPreTransfer[0])
+           /(1+transfer.sum()) - sqr(theta[1]);
+
 thetaVar.updateSum();
 
 

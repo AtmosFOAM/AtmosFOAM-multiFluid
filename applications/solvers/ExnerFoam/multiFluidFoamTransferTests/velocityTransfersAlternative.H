@@ -8,26 +8,12 @@ if (nParts != 2)
 }
 
 
-const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
-const dimensionedScalar wVarMin("",wVar[0].dimensions(),scalar(1e-16));
-
 for(label ip = 0; ip < partNames.size(); ip++)
 {
     w[ip] = u[ip].component(vector::Z);
     Info << "w" << ip << " pre transfer: [" << min(w[ip]).value() << ", " << max(w[ip]).value() << "]" << endl;
 }
 
-
-volScalarField wVarTransferRate = 0*transferRate[1] + 1 / wVarTimescale;
-if (localThetaVarTransfer)
-{
-    wVarTransferRate *= dt * transferRate[1];
-}
-//Limit heat transfer to prevent instability.
-wVarTransferRate = min(wVarTransferRate, 1/dt);
-/*dimensionedScalar dragTime("", dimTime, scalar(1));
-volScalarField dragRate = dragTime * dragCoeff/cloudRadiusMin * mag(w[0] - w[1]);
-volScalarField wVarTransferRate = sqr(dragRate)/wVarTimescale;*/
 
 wVar[0] = max(wVar[0], 0*wVar[0]);
 wVar[1] = max(wVar[1], 0*wVar[1]);
@@ -49,15 +35,6 @@ wTransferTerm[0][1] = wVarTransferRate * 0.5 *
 );
 wTransferTerm[1][0] = wTransferTerm[0][1];
 
-massTransferWvar[0][1] = sigmaRho[0]*wTransferTerm[0][1];
-massTransferWvar[1][0] = sigmaRho[1]*wTransferTerm[1][0];
-
-//Factor which prevents change in mass fractions.
-wTransferTerm[0][1] *= sigmaRho[1] / 
-    max(sigmaRho[0]+sigmaRho[1], minSigmaDiv*(rho[0]+rho[1]));
-wTransferTerm[1][0] *= sigmaRho[0] / 
-    max(sigmaRho[0]+sigmaRho[1], minSigmaDiv*(rho[0]+rho[1]));
-
 wVarTransferTerm[0][1] = wVarTransferRate / Foam::sqrt
 ( 
     2*M_PI * max( wVarMin, wVar[0] + wVar[1] ) 
@@ -68,12 +45,6 @@ Foam::exp
     max(wVarMin, wVar[0] + wVar[1])  
 );
 wVarTransferTerm[1][0] = wVarTransferTerm[0][1];
-
-//Factor which prevents change in mass fractions.
-wVarTransferTerm[0][1] *= sigmaRho[1] / 
-    max(sigmaRho[0]+sigmaRho[1], minSigmaDiv*(rho[0]+rho[1]));
-wVarTransferTerm[1][0] *= sigmaRho[0] / 
-    max(sigmaRho[0]+sigmaRho[1], minSigmaDiv*(rho[0]+rho[1]));
 
 //w transfer based on mean w
 w[0] -= dt*wTransferTerm[0][1]*wPreTransfer[0] * 
@@ -179,10 +150,10 @@ for(label ip = 0; ip < nParts; ip++)
 Info << "TOTAL INTERNAL ENERGY POST TRANSFER: " << sum(w.sum()).value() << endl;
 
 
-wTransferWvar[0][1] = (w[1]-wPreTransfer[1])/dt;
-wTransferWvar[1][0] = (w[0]-wPreTransfer[0])/dt;
-wVarTransferWvar[0][1] = (wVar[1]-wVarPreTransfer[1])/dt;
-wVarTransferWvar[1][0] = (wVar[0]-wVarPreTransfer[0])/dt;
+wTransferWvarAlternative[0][1] = (w[1]-wPreTransfer[1])/dt;
+wTransferWvarAlternative[1][0] = (w[0]-wPreTransfer[0])/dt;
+wVarTransferWvarAlternative[0][1] = (wVar[1]-wVarPreTransfer[1])/dt;
+wVarTransferWvarAlternative[1][0] = (wVar[0]-wVarPreTransfer[0])/dt;
 
 w[0] = wPreTransfer[0];
 w[1] = wPreTransfer[1];

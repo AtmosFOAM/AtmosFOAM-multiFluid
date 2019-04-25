@@ -38,6 +38,7 @@ if (divTransfer)
 {
     massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
     massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
+    
 // REverser it
 //    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
 //    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
@@ -77,11 +78,11 @@ if (thetaTransfer)
     );
 }
 
-if (wVarTransfer)
+if (0)
 {
     wVar[0] = max(wVar[0], 0*wVar[0]);
     wVar[1] = max(wVar[1], 0*wVar[1]);
-    massTransfer[0][1] = 0.05 * sigmaRho[1] * 0.5 / thetaVarTimescale *
+    massTransfer[0][1] += 0.05 * sigmaRho[1] * 0.5 / wVarTimescale *
     (
         1 + Foam::erf
         (
@@ -93,7 +94,7 @@ if (wVarTransfer)
             )
         )
     );
-    massTransfer[1][0] = 0.05 * sigmaRho[0] * 0.5 / thetaVarTimescale *
+    massTransfer[1][0] += 0.05 * sigmaRho[0] * 0.5 / wVarTimescale *
     (
         1 + Foam::erf
         (
@@ -110,6 +111,12 @@ if (wVarTransfer)
 sigmaRhoPreTransfer = sigmaRho;
 
 #include "applyMassTransfer.H"
+
+/*transfer[0] *= 0.;
+transfer[1] *= 0.;
+
+transferRate[0] *= 0.;
+transferRate[1] *= 0.;*/
 
 // Update the sums
 sigmaRho.updateSum();

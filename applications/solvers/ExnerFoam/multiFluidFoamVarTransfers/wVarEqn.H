@@ -18,6 +18,10 @@ for(label ip = 0; ip < nParts; ip++)
         (1-offCentre)*wVar.ddt()[ip].oldTime()
       + offCentre*wVar.ddt()[ip]
     );
+    
+    //wVar[0] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
+    //wVar[1] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
+    //wVar[ip] -= 0.12 * 2 * dt/wVarTimescale * wVar[ip];
 
     wVar[ip].correctBoundaryConditions();
 }
@@ -37,7 +41,7 @@ wVarPreTransfer = wVar;
 
 Info << "transferRate" << ": [" << min(transferRate[0]).value() << ", " << max(transferRate[0]).value() << "]" << endl;
 
-wVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
+/*wVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 wVar[0] += sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 wVar[0] -= sqr(w[0]);
@@ -67,8 +71,16 @@ wVar[1] += dt*transferRate[0]*sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
+*/
 
+wVarPreTransfer = wVar;
+wVarPreTransfer[0] += sqr(wPreTransfer[0]);
+wVarPreTransfer[1] += sqr(wPreTransfer[1]);
 
+wVar[0] = ((1+transfer[0])*wVarPreTransfer[0] + transfer[1]*wVarPreTransfer[1])
+           /(1+transfer.sum()) - sqr(w[0]);
+wVar[1] = ((1+transfer[1])*wVarPreTransfer[1] + transfer[0]*wVarPreTransfer[0])
+           /(1+transfer.sum()) - sqr(w[1]);
     
 wVar.updateSum();
 
