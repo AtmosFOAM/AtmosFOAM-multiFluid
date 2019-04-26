@@ -77,9 +77,10 @@ sigmaRhoPreTransfer = sigmaRho;
 
 
 
+massTransfer[0][1] += max((sigmaRhoExpected[1]-sigmaRho[1])/dt, massTransferZero);
+massTransfer[1][0] += max((sigmaRhoExpected[0]-sigmaRho[0])/dt, massTransferZero);
 
-
-massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
+/*massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
 massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
 
 
@@ -108,7 +109,7 @@ massTransfer[1][0] += sigmaRho[0] * 0.5 / thetaVarTimescale *
             Foam::sqrt( 2 * (wVar[0] + wVar[1]) ) 
         )
     )
-);
+);*/
 
 #include "applyMassTransfer.H"
 

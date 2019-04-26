@@ -91,9 +91,11 @@ for (int corr=0; corr<nCorr; corr++)
     }
     
     // Include the mass transfer and drag implicitly (for nParts=2)
-    transferf[0] = dt*dragCommon
+    transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
+                 + dt*dragCommon
                  *fvc::interpolate(sigma[0]/rho[1], "massTransfer");
-    transferf[1] = dt*dragCommon
+    transferf[1] = fvc::interpolate(transfer[1], "massTransfer")
+                 + dt*dragCommon
                  *fvc::interpolate(sigma[1]/rho[0], "massTransfer");
     transferf.updateSum();
     

@@ -57,6 +57,10 @@ Info << "Calculating density and density in each partition and density weighted 
 //{
 //    rho[ip] = pRef/(R*theta[ip])*pow(Exner, (1-kappa)/kappa);
 //}
+partitionedVolScalarField sigmaRhoExpected
+(
+    "sigmaRhoExpected", partNames, mesh, runTime.timeName()
+);
 rho.updateSum();
 sigmaRho = rho.timesSigma();
 sigmaRho.updateSum();
@@ -415,6 +419,32 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+PtrList<partitionedVolScalarField> thetaTransferThetaVarAlternative(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferThetaVarAlternative.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferThetaVarAlternative."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaVarTransferThetaVarAlternative(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaVarTransferThetaVarAlternative.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaVarTransferThetaVarAlternative."+partNames[jp], partNames, thetaVarTransferTmp
+        )
+    );
+}
+
 PtrList<partitionedVolScalarField> wTransferWvar(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {
@@ -437,6 +467,32 @@ for(label jp = 0; jp < nParts; jp++)
         new partitionedVolScalarField
         (
             "wVarTransferWvar."+partNames[jp], partNames, wVarTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> wTransferWvarAlternative(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    wTransferWvarAlternative.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "wTransferWvarAlternative."+partNames[jp], partNames, wTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> wVarTransferWvarAlternative(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    wVarTransferWvarAlternative.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "wVarTransferWvarAlternative."+partNames[jp], partNames, wVarTransferTmp
         )
     );
 }
