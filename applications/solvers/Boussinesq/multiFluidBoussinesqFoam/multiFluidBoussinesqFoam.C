@@ -83,12 +83,17 @@ int main(int argc, char *argv[])
              << " to "  << max(sigmaf.sum()).value() << endl;
         runTime.write();
 
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
-        Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
-    }
-    Uf.updateSum();
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
+            Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
+        }
+        Uf.updateSum();
+
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            divu[ip] = fvc::div(volFlux[ip]);
+        }
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
