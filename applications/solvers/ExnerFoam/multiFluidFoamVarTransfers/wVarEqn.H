@@ -12,6 +12,11 @@ for(label ip = 0; ip < nParts; ip++)
     }
     //wVar.ddt()[ip] += Ktheta * fvc::laplacian(wVar[ip]);
     
+    if (wVarDiffusion)
+    {
+        wVar.ddt()[ip] += fvc::laplacian(KwVar[ip], wVar[ip]);
+    }
+    
     // Update theta according to the rate of change
     wVar[ip] = wVar[ip].oldTime() + dt*
     (
@@ -21,7 +26,7 @@ for(label ip = 0; ip < nParts; ip++)
     
     //wVar[0] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
     //wVar[1] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
-    //wVar[ip] -= 0.12 * 2 * dt/wVarTimescale * wVar[ip];
+    //wVar[ip] -= 0.12 * 4 * dt/wVarTimescale * wVar[ip];
 
     wVar[ip].correctBoundaryConditions();
 }
@@ -81,6 +86,9 @@ wVar[0] = ((1+transfer[0])*wVarPreTransfer[0] + transfer[1]*wVarPreTransfer[1])
            /(1+transfer.sum()) - sqr(w[0]);
 wVar[1] = ((1+transfer[1])*wVarPreTransfer[1] + transfer[0]*wVarPreTransfer[0])
            /(1+transfer.sum()) - sqr(w[1]);
+    
+wVar[0] = max(wVar[0], 0*wVar[0]);
+wVar[1] = max(wVar[1], 0*wVar[1]);
     
 wVar.updateSum();
 

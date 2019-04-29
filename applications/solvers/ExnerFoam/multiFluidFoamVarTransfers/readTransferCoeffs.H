@@ -75,3 +75,8 @@ const scalar nx = readScalar(blockMeshDict.lookup("nx"));
 const scalar convertToMeters = readScalar(blockMeshDict.lookup("convertToMeters"));
 const scalar deltax = (xmax-xmin)/nx * convertToMeters;
 scalar thetaVarLengthScale = min(1, deltax/10000.);
+
+// Diffusion based on velocity variance (accounts for sub-filter min/max speeds)
+const Switch wVarDiffusion(transferProps.lookup("wVarDiffusion"));
+const dimensionedScalar KwVariance(transferProps.lookup("KwVariance"));
+const dimensionedScalar dz("dz", dimLength, scalar(100));
