@@ -176,6 +176,11 @@ partitionedVolScalarField wVar
     "wVar", partNames, 0*sqr(w[0])
 );
 
+partitionedVolScalarField KwVar
+(
+    "KwVar", partNames, dimensionedScalar("", dimensionSet(0,2,-1,0,0), scalar(0))*sigma[0]
+);
+
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
 theta.storeTime();

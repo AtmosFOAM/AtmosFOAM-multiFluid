@@ -87,6 +87,17 @@ volFlux.storeTime();
 b.storeTime();
 sigma.storeTime();
 
+// Divergence (for post processing)
+partitionedVolScalarField divu
+(
+    "divu", partNames, fvc::div(volFlux[0]), sigma
+);
+for(label ip = 1; ip < nParts; ip++)
+{
+    divu[ip] = fvc::div(volFlux[ip]);
+}
+divu.write();
+
 // Velocity on the faces
 partitionedSurfaceVectorField Uf
 (
