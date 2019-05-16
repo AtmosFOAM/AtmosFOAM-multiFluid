@@ -271,6 +271,25 @@ partitionedVolScalarField Stransfer
     )
 );
 
+// transferLocation = 1 where sigma is to be kept uniform
+const volScalarField transferLocation
+(
+    IOobject("transferLocation", runTime.constant(), mesh,
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
+    dimensionedScalar("", dimless, scalar(0))
+);
+
+if (uniformSigma)
+{
+    // Check that transferLocation is non-zero somewhere
+    if (abs(max(transferLocation).value()) < SMALL)
+    {
+        FatalErrorIn("multiFluidBoussinesqFoam") << " transferProperty uniformSigma set to true but no transferLocation set to non-zero"
+            << exit(FatalError);
+    }
+}
+
 // Temperature of the transferred fluid
 partitionedVolScalarField thetat
 (

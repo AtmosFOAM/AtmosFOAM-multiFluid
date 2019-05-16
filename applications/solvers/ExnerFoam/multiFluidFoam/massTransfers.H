@@ -88,6 +88,15 @@ if (thetaTransfer)
     );
 }
 
+// Transfers to keep sigma uniform at selected locations
+if (uniformSigma)
+{
+    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
+                       + (1-transferLocation)*massTransfer[0][1];
+    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
+                       + (1-transferLocation)*massTransfer[1][0];
+}
+
 #include "applyMassTransfer.H"
 
 // Update the sums

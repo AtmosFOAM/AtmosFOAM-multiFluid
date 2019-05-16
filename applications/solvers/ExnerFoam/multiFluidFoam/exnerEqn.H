@@ -27,6 +27,9 @@ for (int corr=0; corr<nCorr; corr++)
             );
         }
         
+        // Parameterisation of pressure difference (i.e. deltaP[ip] = Kw * divU)
+        volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * fvc::div(volFlux[ip]));
+        
         // Coriolis term
         if (magSqr(Omega.value()) > VSMALL)
         {
