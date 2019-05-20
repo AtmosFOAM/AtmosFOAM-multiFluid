@@ -110,11 +110,12 @@ for(label ip = 1; ip < partNames.size(); ip++)
 }
 sigmaf.updateSum();
 
-Info << "Reading in the velocity in each partition\n" << endl;
-partitionedSurfaceVectorField Uf
+Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
+partitionedVolVectorField u
 (
-    "Uf", partNames, mesh, runTime.timeName(), sigmaRhof
+    "u", partNames, mesh, runTime.timeName(), sigma
 );
+u.mean().write();
 
 // fixed flux boundary conditions
 wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
@@ -127,7 +128,7 @@ forAll(mesh.boundaryMesh(), patchi)
     }
 }
 
-Info << "Calculating the mass flux and volume flux in each partition\n"<<endl;
+Info << "Calculating the flux in each partition\n"<<endl;
 partitionedSurfaceScalarField volFlux
 (
     "volFlux",
@@ -135,16 +136,18 @@ partitionedSurfaceScalarField volFlux
     surfaceScalarField
     (
         IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
-        Uf[0] & mesh.Sf(),
+        linearInterpolate(u[0]) & mesh.Sf(),
         fluxBCs
     ),
-    sigmaRhof
+    sigmaf
 );
 for(label ip = 1; ip < volFlux.size(); ip++)
 {
-    volFlux[ip] = Uf[ip] & mesh.Sf();
+    volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
 }
 volFlux.updateSum();
+volFlux.sum().write();
+
 
 partitionedSurfaceScalarField flux
 (
@@ -158,15 +161,29 @@ flux.updateSum();
 
 partitionedSurfaceScalarField sigmaFlux = volFlux.timesSigma();
 
-Info << "Reading in BCs and calculating the cell centre velocity, u, in each partition\n" << endl;
-partitionedVolVectorField u
+// Divergence (for post processing)
+partitionedVolScalarField divu
 (
-    "u", partNames, mesh, runTime.timeName(), sigmaRho
+    "divu", partNames, fvc::div(volFlux[0]), sigma
 );
-for(label ip = 0; ip < partNames.size(); ip++)
+for(label ip = 1; ip < nParts; ip++)
 {
-    u[ip] = fvc::reconstruct(volFlux[ip]);
+    divu[ip] = fvc::div(volFlux[ip]);
 }
+divu.write();
+
+// Velocity on the faces
+partitionedSurfaceVectorField Uf
+(
+    "Uf", partNames, linearInterpolate(u[0]), sigmaf
+);
+for(label ip = 0; ip < nParts; ip++)
+{
+    Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
+    Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
+}
+Uf.updateSum();
+Uf.write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
@@ -270,6 +287,25 @@ partitionedVolScalarField Stransfer
         dimensionedScalar("", dimless, scalar(0))
     )
 );
+
+// transferLocation = 1 where sigma is to be kept uniform
+const volScalarField transferLocation
+(
+    IOobject("transferLocation", runTime.constant(), mesh,
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
+    dimensionedScalar("", dimless, scalar(0))
+);
+
+if (uniformSigma)
+{
+    // Check that transferLocation is non-zero somewhere
+    if (abs(max(transferLocation).value()) < SMALL)
+    {
+        FatalErrorIn("multiFluidBoussinesqFoam") << " transferProperty uniformSigma set to true but no transferLocation set to non-zero"
+            << exit(FatalError);
+    }
+}
 
 // Temperature of the transferred fluid
 partitionedVolScalarField thetat

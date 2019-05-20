@@ -10,7 +10,11 @@ for(label ip = 0; ip < nParts; ip++)
     {
         theta.ddt()[ip] += alpha * fvc::laplacian(theta[ip]);
     }
-    theta.ddt()[ip] += Ktheta * fvc::laplacian(theta[ip]);
+    //theta.ddt()[ip] += Ktheta * fvc::laplacian(theta[ip]);
+    if (wVarDiffusion)
+    {
+        theta.ddt()[ip] += fvc::laplacian(KwVar[ip], theta[ip]);
+    }
     
     // Update theta according to the rate of change
     theta[ip] = theta[ip].oldTime() + dt*
@@ -18,6 +22,8 @@ for(label ip = 0; ip < nParts; ip++)
         (1-offCentre)*theta.ddt()[ip].oldTime()
       + offCentre*theta.ddt()[ip]
     );
+    
+    
 
     theta[ip].correctBoundaryConditions();
 }

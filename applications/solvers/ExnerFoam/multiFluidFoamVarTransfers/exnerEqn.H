@@ -26,11 +26,14 @@ for (int corr=0; corr<nCorr; corr++)
                 nu * fvc::laplacian(u[ip]), "convection"
             );
         }
-        //volFlux.ddt()[ip] += mesh.Sf() & fvc::interpolate
-        //(
-        //    Kw * fvc::laplacian(u[ip]), "convection"
-        //);
+        
+        if (wVarDiffusion)
+        {
+            volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(KwVar[ip] * fvc::div(volFlux[ip]));
+        }
+        
         volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * fvc::div(volFlux[ip]));
+        //volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * max(fvc::div(volFlux[ip]), rateZero));
         
         // Coriolis term
         if (magSqr(Omega.value()) > VSMALL)
