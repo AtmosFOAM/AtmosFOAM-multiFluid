@@ -22,3 +22,10 @@ uniformDimensionedScalarField alpha
     dimensionedScalar(envProps.lookup("alpha"))
 );
 
+uniformDimensionedScalarField gamma
+(
+    IOobject("gamma", runTime.timeName(), mesh), 
+    dimensionedScalar(envProps.lookup("gamma"))
+);
+
+

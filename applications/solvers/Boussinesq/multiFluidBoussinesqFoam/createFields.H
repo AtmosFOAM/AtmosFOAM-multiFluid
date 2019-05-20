@@ -37,6 +37,9 @@ for(label ip = 1; ip < nParts; ip++)
 }
 sigmaf.updateSum();
 
+// Pressure in each partition
+partitionedVolScalarField Pi("Pi", partNames, P, sigma);
+
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b
 (
@@ -209,3 +212,19 @@ uniformDimensionedScalarField Q
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
 Q.write();
+
+// Volume flux difference of the transferred fluid
+partitionedSurfaceScalarField volFluxt
+(
+    "volFluxt",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("volFluxt", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", volFlux[0].dimensions(), scalar(0)),
+        fluxBCs
+    ),
+    sigmaf
+);
+
