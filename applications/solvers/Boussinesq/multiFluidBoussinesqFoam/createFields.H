@@ -213,6 +213,21 @@ uniformDimensionedScalarField Q
 );
 Q.write();
 
+// Buoyancy difference of the transferred fluid
+partitionedVolScalarField bt
+(
+    "bt",
+    partNames,
+    volScalarField
+    (
+        IOobject("bt", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", b[0].dimensions(), scalar(0)),
+        "fixedValue"
+    ),
+    sigma
+);
+
 // Volume flux difference of the transferred fluid
 partitionedSurfaceScalarField volFluxt
 (

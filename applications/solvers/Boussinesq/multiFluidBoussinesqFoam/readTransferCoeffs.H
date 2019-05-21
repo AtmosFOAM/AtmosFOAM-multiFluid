@@ -40,6 +40,8 @@ const dimensionedScalar bTransferDiffusivity
 (
     transferProps.lookup("bTransferDiffusivity")
 );
+const dimensionedScalar tauTransfer(transferProps.lookup("transferTimeScale"));
+const Switch transferAnomalies(transferProps.lookup("transferAnomalies"));
 
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));

@@ -63,14 +63,14 @@ for (int corr=0; corr<nCorr; corr++)
         (1+transferf[0])*
         (
             volFlux[0]
-          - dt*fvc::interpolate(massTransfer[0][1], "massTransfer")*volFluxt[0]
+          - dt*fvc::interpolate(massTransfer[0][1]/sigma[0], "massTransfer")*volFluxt[0]
           + transferf[1]*volFluxt[1]
         )
       + transferf[1]*
         (
             volFlux[1]
           + transferf[0]*volFluxt[0]
-          - dt*fvc::interpolate(massTransfer[1][0], "massTransfer")*volFluxt[1]
+          - dt*fvc::interpolate(massTransfer[1][0]/sigma[1], "massTransfer")*volFluxt[1]
         )
     )/(1+transferf.sum());
     volFlux[1] = 
@@ -78,7 +78,7 @@ for (int corr=0; corr<nCorr; corr++)
         volFlux[1]
       + transferf[0]*volFlux[0]
       + transferf[0]*volFluxt[0]
-      - dt*fvc::interpolate(massTransfer[1][0], "massTransfer")*volFluxt[1]
+      - dt*fvc::interpolate(massTransfer[1][0]/sigma[1], "massTransfer")*volFluxt[1]
     )
     /(1+transferf[0]);
 

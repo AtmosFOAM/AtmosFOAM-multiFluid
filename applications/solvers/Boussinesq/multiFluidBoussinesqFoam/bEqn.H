@@ -42,10 +42,42 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-b[0] = ((1+transfer[0])*b[0] + transfer[1]*b[1])
+// Bouyancy anomalies of fluid transferred
+if (transferAnomalies)
+{
+    bt[0] = -tauTransfer*bTransferDiffusivity*min
+    (
+        fvc::laplacian(b[0]),
+        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+    );
+    bt[1] = -tauTransfer*bTransferDiffusivity*max
+    (
+        fvc::laplacian(b[1]),
+        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+    );
+}
+
+b[0] = (
+           (1+transfer[0])*
+           (
+               b[0]
+             - dt*massTransfer[0][1]/sigma[0]*bt[0]
+             + transfer[1]*bt[1]
+           )
+         + transfer[1]*
+           (
+               b[1]
+             - dt*massTransfer[1][0]/sigma[1]*bt[1]
+             + transfer[0]*bt[0]
+           )
+       )
        /(1+transfer.sum());
 
-b[1] = (b[1] + transfer[0]*b[0])
+b[1] = (
+           b[1]
+         + transfer[0]*(b[0] + bt[0])
+         - dt*massTransfer[1][0]/sigma[1]*bt[1]
+       )
        /(1+transfer[0]);
 
 // bouyancy force on faces
