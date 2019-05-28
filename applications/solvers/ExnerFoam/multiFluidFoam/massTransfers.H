@@ -91,9 +91,9 @@ if (thetaTransfer)
 // Transfers to keep sigma uniform at selected locations
 if (uniformSigma)
 {
-    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
+    massTransfer[0][1] = transferLocation*max(sigmaRho.ddt()[0], massTransferZero)
                        + (1-transferLocation)*massTransfer[0][1];
-    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
+    massTransfer[1][0] = transferLocation*max(sigmaRho.ddt()[1], massTransferZero)
                        + (1-transferLocation)*massTransfer[1][0];
 }
 
