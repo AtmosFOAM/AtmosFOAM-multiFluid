@@ -113,7 +113,7 @@ sigmaf.updateSum();
 Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
 (
-    "u", partNames, mesh, runTime.timeName(), sigma
+    "u", partNames, mesh, runTime.timeName(), sigmaRho
 );
 u.mean().write();
 
@@ -139,7 +139,7 @@ partitionedSurfaceScalarField volFlux
         linearInterpolate(u[0]) & mesh.Sf(),
         fluxBCs
     ),
-    sigmaf
+    sigmaRhof
 );
 for(label ip = 1; ip < volFlux.size(); ip++)
 {
@@ -161,21 +161,21 @@ flux.updateSum();
 
 partitionedSurfaceScalarField sigmaFlux = volFlux.timesSigma();
 
-// Divergence (for post processing)
+/*// Divergence (for post processing)
 partitionedVolScalarField divu
 (
-    "divu", partNames, fvc::div(volFlux[0]), sigma
+    "divu", partNames, fvc::div(volFlux[0]), sigmaRho
 );
 for(label ip = 1; ip < nParts; ip++)
 {
     divu[ip] = fvc::div(volFlux[ip]);
 }
-divu.write();
+divu.write();*/
 
 // Velocity on the faces
 partitionedSurfaceVectorField Uf
 (
-    "Uf", partNames, linearInterpolate(u[0]), sigmaf
+    "Uf", partNames, linearInterpolate(u[0]), sigmaRhof
 );
 for(label ip = 0; ip < nParts; ip++)
 {
