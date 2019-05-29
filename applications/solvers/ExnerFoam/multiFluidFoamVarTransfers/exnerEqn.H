@@ -32,7 +32,11 @@ for (int corr=0; corr<nCorr; corr++)
             volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(KwVar[ip] * fvc::div(volFlux[ip]));
         }
         
-        volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * fvc::div(volFlux[ip]));
+        volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad
+        (
+            //scalar(1e4)/deltax *
+            Kw * fvc::div(volFlux[ip])
+        );
         //volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * max(fvc::div(volFlux[ip]), rateZero));
         
         // Coriolis term
@@ -99,12 +103,22 @@ for (int corr=0; corr<nCorr; corr++)
                  *fvc::interpolate(sigma[1]/rho[0], "massTransfer");
     transferf.updateSum();
     
+    surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
+    surfaceScalarField transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
+    
     volFlux[0] =
     (
         (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
     )/(1+transferf.sum());
     volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
                 /(1+transferf[0]);
+    /*            
+    volFlux[0] = (volFlux[0] + (transferf[1]-dt*transferRatef)*volFluxMean)
+            /(1 + transferf[1] - dt*transferRatef);
+            
+    transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
+    volFlux[1] = (volFlux[1] + (transferf[0]-dt*transferRatef)*volFluxMean)
+            /(1 + transferf[0] - dt*transferRatef);*/
 
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)

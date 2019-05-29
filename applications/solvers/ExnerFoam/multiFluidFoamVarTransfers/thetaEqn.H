@@ -42,6 +42,13 @@ theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
            /(1+transfer.sum());
 theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
 
+volScalarField thetaMean = theta.sum()/sigmaRho.sum();
+
+/*theta[0] = (theta[0] + (transfer[1]-dt*transferRate[0])*thetaMean)
+            /(1 + transfer[1] - dt*transferRate[0]);
+theta[1] = (theta[1] + (transfer[0]-dt*transferRate[1])*thetaMean)
+            /(1 + transfer[0] - dt*transferRate[1]);*/
+
 theta.updateSum();
 
 for(label ip = 0; ip < nParts; ip++)

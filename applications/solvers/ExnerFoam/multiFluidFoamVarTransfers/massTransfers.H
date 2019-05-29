@@ -36,8 +36,11 @@ if (Ksigma.value() > SMALL)
 // Mass transfer to avoid changes in sigmaRho due to partition divergence
 if (divTransfer)
 {
-    massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
+    partitionedSurfaceScalarField verticalVolFlux = volFlux;
+    verticalVolFlux[0] = (fvc::interpolate( w[0]*Foam::vector(0,0,1), "Uf") & mesh.Sf());
+    verticalVolFlux[1] = (fvc::interpolate( w[1]*Foam::vector(0,0,1), "Uf") & mesh.Sf());
+    massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(verticalVolFlux[0]), rateZero);
+    massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(verticalVolFlux[1]), rateZero);
     
 // REverser it
 //    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
@@ -76,6 +79,18 @@ if (thetaTransfer)
         fvc::laplacian(theta[1])/theta[1],
         dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
     );
+}
+
+// Mass transfer based mixing due to drag
+if (dragTransfer)
+{
+    massTransfer[0][1] += dragTransferCoeff * 
+        sigmaRho[0]/max(cloudRadiusMin, cloudRadiusMax*sigma[0]*sigma[1]) * 
+        sigmaRho.sum()/rho[1] * mag(u[0] - u[1]);
+
+    massTransfer[1][0] += dragTransferCoeff * 
+        sigmaRho[1]/max(cloudRadiusMin, cloudRadiusMax*sigma[0]*sigma[1]) * 
+        sigmaRho.sum()/rho[0] * mag(u[0] - u[1]);
 }
 
 if (0)

@@ -25,6 +25,10 @@ const dimensionedScalar Ktheta(transferProps.lookup("Ktheta"));
 // Is mass transferred based on partition divergence
 const Switch divTransfer(transferProps.lookup("divTransfer"));
 
+// Is mass transferred based on mixing (drag) at interfaces
+const Switch dragTransfer(transferProps.lookup("dragTransfer"));
+const scalar dragTransferCoeff(readScalar(transferProps.lookup("dragTransferCoeff")));
+
 // Is mass transfer decided based on vertical velocity
 const Switch wTransfer(transferProps.lookup("wTransfer"));
 
