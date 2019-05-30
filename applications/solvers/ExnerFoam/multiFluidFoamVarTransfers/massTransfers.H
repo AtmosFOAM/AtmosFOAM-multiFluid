@@ -19,11 +19,17 @@ for(label ip = 0; ip < nParts; ip++)
 // Mass tranfer terms as diffusion between partitions
 if (Ksigma.value() > SMALL)
 {
+    for(label ip = 0; ip < partNames.size(); ip++)
+    {
+        w[ip] = u[ip].component(vector::Z);
+    }
     for(label ip = 0; ip < nParts; ip++)
     {
         for(label jp=ip+1; jp < nParts; jp++)
         {
-            massTransferTmp = 0.5*Ksigma*fvc::laplacian
+            massTransferTmp = 0.5*Ksigma*
+            mag(w[ip]-w[jp])/dimensionedScalar("", dimVelocity, scalar(1)) *
+            fvc::laplacian
             (
                 sigmaRho[jp] -sigmaRho[ip]
             );
