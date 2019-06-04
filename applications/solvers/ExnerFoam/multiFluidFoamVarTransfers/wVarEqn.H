@@ -78,7 +78,7 @@ wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) *
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 */
 
-/*wVarPreTransfer = wVar;
+wVarPreTransfer = wVar;
 wVarPreTransfer[0] += sqr(wPreTransfer[0]);
 wVarPreTransfer[1] += sqr(wPreTransfer[1]);
 
@@ -88,7 +88,7 @@ wVar[1] = ((1+transfer[1])*wVarPreTransfer[1] + transfer[0]*wVarPreTransfer[0])
            /(1+transfer.sum()) - sqr(w[1]);
     
 wVar[0] = max(wVar[0], 0*wVar[0]);
-wVar[1] = max(wVar[1], 0*wVar[1]);*/
+wVar[1] = max(wVar[1], 0*wVar[1]);
     
 wVar.updateSum();
 
