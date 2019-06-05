@@ -70,14 +70,14 @@ thetaVar[1] -= dt*transferRate[1]*sqr(thetaPreTransfer[1]) *
 thetaVar[1] = (thetaVar[1] + transfer[0]*thetaVar[0])/(1+transfer[0]);
 */
 
-/*thetaVarPreTransfer = thetaVar;
+thetaVarPreTransfer = thetaVar;
 thetaVarPreTransfer[0] += sqr(thetaPreTransfer[0]);
 thetaVarPreTransfer[1] += sqr(thetaPreTransfer[1]);
 
 thetaVar[0] = ((1+transfer[0])*thetaVarPreTransfer[0] + transfer[1]*thetaVarPreTransfer[1])
            /(1+transfer.sum()) - sqr(theta[0]);
 thetaVar[1] = ((1+transfer[1])*thetaVarPreTransfer[1] + transfer[0]*thetaVarPreTransfer[0])
-           /(1+transfer.sum()) - sqr(theta[1]);*/
+           /(1+transfer.sum()) - sqr(theta[1]);
 
 thetaVar.updateSum();
 

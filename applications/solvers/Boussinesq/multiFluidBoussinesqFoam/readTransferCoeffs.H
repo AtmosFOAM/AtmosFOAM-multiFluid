@@ -40,11 +40,9 @@ const dimensionedScalar bTransferDiffusivity
 (
     transferProps.lookup("bTransferDiffusivity")
 );
-const dimensionedScalar bTransferTimeScale(transferProps.lookup("bTransferTimeScale"));
+
+// The buoyancy to transfer
 const Switch transferAnomalies(transferProps.lookup("transferAnomalies"));
-const dimensionedScalar bTransferMax = transferAnomalies ?
-      dimensionedScalar(transferProps.lookup("bTransferMax")) :
-      bZero;
 
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
