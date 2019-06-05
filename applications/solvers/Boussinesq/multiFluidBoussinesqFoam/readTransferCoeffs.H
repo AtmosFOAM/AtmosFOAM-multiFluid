@@ -41,8 +41,17 @@ const dimensionedScalar bTransferDiffusivity
     transferProps.lookup("bTransferDiffusivity")
 );
 
-// The buoyancy to transfer
+// Transfer buoyancy anomalies
 const Switch transferAnomalies(transferProps.lookup("transferAnomalies"));
+
+// Bouyany of the fluid to transfer based on the laplacian
+const Switch transferAnomaliesLaplacian(transferProps.lookup("transferAnomaliesLaplacian"));
+const dimensionedScalar bTransferTimeScale = transferAnomaliesLaplacian ?
+      dimensionedScalar(transferProps.lookup("bTransferTimeScale")) :
+      dimensionedScalar("", dimVelocity, scalar(0));
+const dimensionedScalar bTransferMax = transferAnomaliesLaplacian ?
+      dimensionedScalar(transferProps.lookup("bTransferMax")) :
+      bZero;
 
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));

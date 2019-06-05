@@ -49,6 +49,21 @@ if (transferAnomalies)
     bt[1] = -bt[0];
 }
 
+if (transferAnomaliesLaplacian)
+{
+    bt[0] = min
+    (
+        -bTransferTimeScale*bTransferDiffusivity*min
+        (
+            fvc::laplacian(b[0]),
+            dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+        ),
+        bTransferMax
+    );
+
+    // bt[1] remains zero
+}
+
 b[0] = (
            (1+transfer[0])*
            (
