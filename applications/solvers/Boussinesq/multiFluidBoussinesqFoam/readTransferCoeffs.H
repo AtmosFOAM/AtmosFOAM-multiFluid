@@ -30,8 +30,8 @@ if (divTransfer < 0 || divTransfer > 1)
 
 // Is mass transfer decided based on vertical velocity
 const Switch wTransfer(transferProps.lookup("wTransfer"));
-const dimensionedScalar transferTimeScale = wTransfer ? 
-      dimensionedScalar(transferProps.lookup("transferTimeScale")) :
+const dimensionedScalar wTransferTimeScale = wTransfer ? 
+      dimensionedScalar(transferProps.lookup("wTransferTimeScale")) :
       dimensionedScalar("transferProps", dimTime, scalar(0));
 
 // Is mass transfer decided based on grad(b)
@@ -40,8 +40,11 @@ const dimensionedScalar bTransferDiffusivity
 (
     transferProps.lookup("bTransferDiffusivity")
 );
-const dimensionedScalar tauTransfer(transferProps.lookup("transferTimeScale"));
+const dimensionedScalar bTransferTimeScale(transferProps.lookup("bTransferTimeScale"));
 const Switch transferAnomalies(transferProps.lookup("transferAnomalies"));
+const dimensionedScalar bTransferMax = transferAnomalies ?
+      dimensionedScalar(transferProps.lookup("bTransferMax")) :
+      bZero;
 
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));

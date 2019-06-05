@@ -45,20 +45,15 @@ if (divTransfer>0)
 if (wTransfer)
 {
     // Fixed transfer rate dependent on w
-    massTransfer[0][1] += max(sign(u[0].component(vector::Z)), dimlessZero)
-                         *sigma[0]/ transferTimeScale;
-    massTransfer[1][0] += max(sign(u[1].component(vector::Z)), dimlessZero)
-                         *sigma[1]/ transferTimeScale;
+    massTransfer[0][1] += sign(1+sign(u[0].component(vector::Z)))
+                         *sigma[0]/ wTransferTimeScale;
+    massTransfer[1][0] += sign(1-sign(u[1].component(vector::Z)))
+                         *sigma[1]/ wTransferTimeScale;
 }
 
 // Mass transfer based on buoyancy
 if (buoyancyTransfer)
 {
-/*    massTransfer[0][1] = sigma[0]*(1 - sign(fvc::laplacian(b[0])))
-                        /tauTransfer;
-    massTransfer[1][0] = sigma[1]*(sign(fvc::laplacian(b[1])) - 1 )
-                        /tauTransfer;
-*/
     massTransfer[0][1] -= sigma[0]*bTransferDiffusivity*min
     (
         fvc::laplacian(b[0]),

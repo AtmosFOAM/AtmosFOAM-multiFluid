@@ -243,3 +243,15 @@ partitionedSurfaceScalarField volFluxt
     sigmaf
 );
 
+/*// cell size parameter for stability of buoyancy transfers
+volScalarField cellSize
+(
+    IOobject("cellSize", runTime.timeName(), mesh),
+    mesh,
+    dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0)),
+    "zeroGradient"
+);
+cellSize.ref() = fvc::surfaceSum(mesh.magSf()*mesh.deltaCoeffs()).ref()
+                / mesh.V();
+cellSize.correctBoundaryConditions();
+*/
