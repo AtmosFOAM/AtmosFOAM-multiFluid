@@ -45,16 +45,8 @@ if (nParts != 2)
 // Bouyancy anomalies of fluid transferred
 if (transferAnomalies)
 {
-    bt[0] = -tauTransfer*bTransferDiffusivity*min
-    (
-        fvc::laplacian(b[0]),
-        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
-    );
-    bt[1] = -tauTransfer*bTransferDiffusivity*max
-    (
-        fvc::laplacian(b[1]),
-        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
-    );
+    bt[0] = 0.5*(b[1] - b[0]);
+    bt[1] = 0.5*(b[0] - b[1]);
 }
 
 b[0] = (
