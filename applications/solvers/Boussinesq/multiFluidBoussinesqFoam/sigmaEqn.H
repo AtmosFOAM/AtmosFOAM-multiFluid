@@ -12,7 +12,7 @@ for(label ip = 0; ip < nParts; ip++)
     // Update sigma based on the rate of change
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];
 
-    sigmaf[ip] = fvc::interpolate(sigma[ip]);
+    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
 }
 
 // Ensure that sum sigma = 1

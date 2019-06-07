@@ -49,39 +49,54 @@ for (int corr=0; corr<nCorr; corr++)
     // Pressure equations for each fluid separately
     #include "PiEqn.H"
 
-    // Include the mass transfer and drag implicitly (for nParts=2)
-    transferf[0] = fvc::interpolate(transfer[0], "transfer");
-    transferf[1] = fvc::interpolate(transfer[1], "transfer");
-    transferf.updateSum();
+    if (!noTransfers)
+    {
+        // Include the mass transfer and drag implicitly (for nParts=2)
+        transferf[0] = fvc::interpolate(transfer[0], "transfer");
+        transferf[1] = fvc::interpolate(transfer[1], "transfer");
+        transferf.updateSum();
     
-    // Velocity difference of fluid transferred
-    volFluxt[0] = -volFlux[0]*mesh.Sf().component(2)/mesh.magSf();
-    volFluxt[1] = -volFlux[1]*mesh.Sf().component(2)/mesh.magSf();
-    
-    volFlux[0] =
-    (
-        (1+transferf[0])*
+        // Velocity difference of fluid transferred
+        volFluxt[0] = -volFlux[0]*mesh.Sf().component(2)/mesh.magSf();
+        volFluxt[1] = -volFlux[1]*mesh.Sf().component(2)/mesh.magSf();
+        
+        volFlux[0] =
         (
-            volFlux[0]
-          - dt*fvc::interpolate(massTransfer[0][1]/sigma[0], "massTransfer")*volFluxt[0]
-          + transferf[1]*volFluxt[1]
-        )
-      + transferf[1]*
+            (1+transferf[0])*
+            (
+                volFlux[0]
+              - dt*fvc::interpolate
+                (
+                    massTransfer[0][1]/sigma[0],
+                    "massTransfer"
+                )*volFluxt[0]
+              + transferf[1]*volFluxt[1]
+            )
+          + transferf[1]*
+            (
+                volFlux[1]
+              + transferf[0]*volFluxt[0]
+              - dt*fvc::interpolate
+                (
+                    massTransfer[1][0]/sigma[1],
+                    "massTransfer"
+                )*volFluxt[1]
+            )
+        )/(1+transferf.sum());
+        volFlux[1] = 
         (
             volFlux[1]
+          + transferf[0]*volFlux[0]
           + transferf[0]*volFluxt[0]
-          - dt*fvc::interpolate(massTransfer[1][0]/sigma[1], "massTransfer")*volFluxt[1]
+          - dt*fvc::interpolate
+            (
+                massTransfer[1][0]/sigma[1],
+                "massTransfer"
+            )*volFluxt[1]
         )
-    )/(1+transferf.sum());
-    volFlux[1] = 
-    (
-        volFlux[1]
-      + transferf[0]*volFlux[0]
-      + transferf[0]*volFluxt[0]
-      - dt*fvc::interpolate(massTransfer[1][0]/sigma[1], "massTransfer")*volFluxt[1]
-    )
-    /(1+transferf[0]);
-
+        /(1+transferf[0]);
+    }
+    
     // Update velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
     {

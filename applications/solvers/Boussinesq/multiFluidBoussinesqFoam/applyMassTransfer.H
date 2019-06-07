@@ -15,6 +15,13 @@ for(label ip = 0; ip < nParts; ip++)
                     rateZero
                 )
             );
+
+            // Increase zero values
+            massTransfer[ip][jp] = max
+            (
+                massTransfer[ip][jp],
+                sigma[ip]/dt*max(minSigma-sigma[jp], dimlessZero)
+            );
         }
     }
 }

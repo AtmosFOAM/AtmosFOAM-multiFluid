@@ -59,3 +59,8 @@ const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 // Transfer to keep flagged cells uniform sigma
 const Switch uniformSigma(transferProps.lookup("uniformSigma"));
 
+// Note if there are no transfers from any sources
+const Switch noTransfers = Ksigma.value() == 0 && minSigma == 0
+         && divTransfer == 0 && !wTransfer && !buoyancyTransfer
+         && !uniformSigma;
+

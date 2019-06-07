@@ -42,50 +42,53 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-// Bouyancy anomalies of fluid transferred
-if (transferAnomalies)
+if (!noTransfers)
 {
-    bt[0] = mag(0.5*(b[1] - b[0]));
-    bt[1] = -bt[0];
-}
+    // Bouyancy anomalies of fluid transferred
+    if (transferAnomalies)
+    {
+        bt[0] = mag(0.5*(b[1] - b[0]));
+        bt[1] = -bt[0];
+    }
 
-if (transferAnomaliesLaplacian)
-{
-    bt[0] = min
-    (
-        -bTransferTimeScale*bTransferDiffusivity*min
+    if (transferAnomaliesLaplacian)
+    {
+        bt[0] = min
         (
-            fvc::laplacian(b[0]),
-            dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
-        ),
-        bTransferMax
-    );
+            -bTransferTimeScale*bTransferDiffusivity*min
+            (
+                fvc::laplacian(b[0]),
+                dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+            ),
+            bTransferMax
+        );
 
-    // bt[1] remains zero
-}
+        // bt[1] remains zero
+    }
 
-b[0] = (
-           (1+transfer[0])*
-           (
-               b[0]
-             - dt*massTransfer[0][1]/sigma[0]*bt[0]
-             + transfer[1]*bt[1]
+    b[0] = (
+               (1+transfer[0])*
+               (
+                   b[0]
+                 - dt*massTransfer[0][1]/sigma[0]*bt[0]
+                 + transfer[1]*bt[1]
+               )
+             + transfer[1]*
+               (
+                   b[1]
+                 - dt*massTransfer[1][0]/sigma[1]*bt[1]
+                 + transfer[0]*bt[0]
+               )
            )
-         + transfer[1]*
-           (
+           /(1+transfer.sum());
+
+    b[1] = (
                b[1]
+             + transfer[0]*(b[0] + bt[0])
              - dt*massTransfer[1][0]/sigma[1]*bt[1]
-             + transfer[0]*bt[0]
            )
-       )
-       /(1+transfer.sum());
-
-b[1] = (
-           b[1]
-         + transfer[0]*(b[0] + bt[0])
-         - dt*massTransfer[1][0]/sigma[1]*bt[1]
-       )
-       /(1+transfer[0]);
+           /(1+transfer[0]);
+}
 
 // bouyancy force on faces
 for(label ip = 0; ip < nParts; ip++)

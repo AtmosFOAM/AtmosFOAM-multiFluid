@@ -71,8 +71,11 @@ int main(int argc, char *argv[])
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "sigmaEqn.H"
-            #include "massTransfers.H"
-            #include "applyMassTransfer.H"
+            if (!noTransfers)
+            {
+                #include "massTransfers.H"
+                #include "applyMassTransfer.H"
+            }
             #include "calculateDrag.H"
             #include "bEqn.H"
             #include "PEqn.H"
