@@ -39,6 +39,7 @@ sigmaf.updateSum();
 
 // Pressure in each partition
 partitionedVolScalarField Pi("Pi", partNames, P, sigma);
+Pi.write();
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b

@@ -55,7 +55,7 @@ if (!noTransfers)
     {
         bt[0] = min
         (
-            -bTransferTimeScale*bTransferDiffusivity*min
+            -sigma[0]*bTransferTimeScale*bTransferDiffusivity*min
             (
                 fvc::laplacian(b[0]),
                 dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
@@ -63,7 +63,15 @@ if (!noTransfers)
             bTransferMax
         );
 
-        // bt[1] remains zero
+        bt[1] = max
+        (
+            -sigma[1]*bTransferTimeScale*bTransferDiffusivity*max
+            (
+                fvc::laplacian(b[1]),
+                dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+            ),
+            -bTransferMax
+        );
     }
 
     b[0] = (
