@@ -53,6 +53,8 @@ const dimensionedScalar bTransferMax = transferAnomaliesLaplacian ?
       dimensionedScalar(transferProps.lookup("bTransferMax")) :
       bZero;
 
+const Switch transferAnomaliesb0(transferProps.lookup("transferAnomaliesb0"));
+
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 

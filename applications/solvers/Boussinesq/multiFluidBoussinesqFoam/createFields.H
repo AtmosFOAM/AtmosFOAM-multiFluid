@@ -151,6 +151,7 @@ for(label jp = 0; jp < nParts; jp++)
             "massTransfer."+partNames[jp], partNames, massTransferTmp
         )
     );
+    massTransfer[jp].write();
 }
 
 // Transfer terms for other variables (assuming nParts == 2)
@@ -161,6 +162,19 @@ partitionedVolScalarField transfer
     volScalarField
     (
         IOobject("transfer", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimless, scalar(0))
+    )
+);
+
+// Transfer terms for other variables (assuming nParts == 2)
+partitionedVolScalarField S
+(
+    "S",
+    partNames,
+    volScalarField
+    (
+        IOobject("S", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
     )
@@ -198,12 +212,12 @@ if (uniformSigma)
 }
 
 Info << "Initialising the drag between partitions" << endl;
-volScalarField cloudRadius
+surfaceScalarField cloudRadius
 (
     "cloudRadius",
-    max(cloudRadiusMin, cloudRadiusMax*sigma[0]*sigma[1])
+    max(cloudRadiusMin, cloudRadiusMax*sigmaf[0]*sigmaf[1])
 );
-volScalarField dragCommon = -dragCoeff/cloudRadius* mag(u[0] - u[1]);
+surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
 // Rate of change of b (eg for radiative cooling)
 uniformDimensionedScalarField Q

@@ -74,28 +74,26 @@ if (!noTransfers)
         );
     }
 
-    b[0] = (
-               (1+transfer[0])*
-               (
-                   b[0]
-                 - dt*massTransfer[0][1]/sigma[0]*bt[0]
-                 + transfer[1]*bt[1]
+    if (!transferAnomaliesb0)
+    {
+        b[0] = (
+                   (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
+                 + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
                )
-             + transfer[1]*
-               (
-                   b[1]
-                 - dt*massTransfer[1][0]/sigma[1]*bt[1]
-                 + transfer[0]*bt[0]
-               )
-           )
-           /(1+transfer.sum());
+               /(1+transfer.sum());
 
-    b[1] = (
-               b[1]
-             + transfer[0]*(b[0] + bt[0])
-             - dt*massTransfer[1][0]/sigma[1]*bt[1]
-           )
-           /(1+transfer[0]);
+        b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
+               /(1+transfer[0]);
+    }
+    else
+    // Fluid transferred has zero buoyancy
+    {
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            b[ip] /= 1 - S[ip] + transfer[mag(ip-1)];
+            bt[ip] = -b[ip];
+        }
+    }
 }
 
 // bouyancy force on faces

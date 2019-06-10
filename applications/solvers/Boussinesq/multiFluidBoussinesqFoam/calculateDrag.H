@@ -11,13 +11,7 @@ if (mag(dragCoeff) > SMALL)
     }
 
     // Calculate the cloud radius and hence the drag
-    cloudRadius = max(cloudRadiusMin, cloudRadiusMax*sigma[0]*sigma[1]);
-    dragCommon = dragCoeff/cloudRadius * mag(u[0] - u[1]);
+    cloudRadius = max(cloudRadiusMin, cloudRadiusMax*sigmaf[0]*sigmaf[1]);
+    dragCommon = dragCoeff/cloudRadius * mag(Uf[0] - Uf[1]);
 }
 
-// Add the heat and momentum transfers
-for(label ip = 0; ip < nParts; ip++)
-{
-    transfer[ip] += dt*dragCommon*sigma[ip];
-}
-transfer.updateSum();

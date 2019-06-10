@@ -49,11 +49,18 @@ for (int corr=0; corr<nCorr; corr++)
     // Pressure equations for each fluid separately
     #include "PiEqn.H"
 
-    if (!noTransfers)
+
+    if (!noTransfers || dragCoeff > 0)
     {
-        // Include the mass transfer and drag implicitly (for nParts=2)
         transferf[0] = fvc::interpolate(transfer[0], "transfer");
         transferf[1] = fvc::interpolate(transfer[1], "transfer");
+
+        // Include the mass transfer and drag implicitly (for nParts=2)
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            transferf[ip] += dt*dragCommon*sigmaf[ip];
+        }
+
         transferf.updateSum();
     
         // Velocity difference of fluid transferred
@@ -65,22 +72,14 @@ for (int corr=0; corr<nCorr; corr++)
             (1+transferf[0])*
             (
                 volFlux[0]
-              - dt*fvc::interpolate
-                (
-                    massTransfer[0][1]/sigma[0],
-                    "massTransfer"
-                )*volFluxt[0]
+              - fvc::interpolate(S[0], "massTransfer")*volFluxt[0]
               + transferf[1]*volFluxt[1]
             )
           + transferf[1]*
             (
                 volFlux[1]
               + transferf[0]*volFluxt[0]
-              - dt*fvc::interpolate
-                (
-                    massTransfer[1][0]/sigma[1],
-                    "massTransfer"
-                )*volFluxt[1]
+              - fvc::interpolate(S[1], "massTransfer")*volFluxt[1]
             )
         )/(1+transferf.sum());
         volFlux[1] = 
@@ -88,11 +87,7 @@ for (int corr=0; corr<nCorr; corr++)
             volFlux[1]
           + transferf[0]*volFlux[0]
           + transferf[0]*volFluxt[0]
-          - dt*fvc::interpolate
-            (
-                massTransfer[1][0]/sigma[1],
-                "massTransfer"
-            )*volFluxt[1]
+          - fvc::interpolate(S[1], "massTransfer")*volFluxt[1]
         )
         /(1+transferf[0]);
     }
