@@ -37,6 +37,7 @@ Description
 #include "fvCFD.H"
 #include "ExnerTheta.H"
 #include "PartitionedFields.H"
+#include "errorFunctionInverse.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

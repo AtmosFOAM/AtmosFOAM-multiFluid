@@ -11,9 +11,7 @@ if (wVarTransfer)
 //if (0)
 {
     const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
-    const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
-    const dimensionedScalar wVarMin("",wVar[0].dimensions(),scalar(1e-16));
-    const dimensionedScalar wOne("",w[0].dimensions(),scalar(1));
+    
     
     for(label ip = 0; ip < partNames.size(); ip++)
     {

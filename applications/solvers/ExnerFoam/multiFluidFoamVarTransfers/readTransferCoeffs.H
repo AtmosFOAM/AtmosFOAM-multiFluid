@@ -84,3 +84,6 @@ scalar thetaVarLengthScale = min(1, deltax/10000.);
 const Switch wVarDiffusion(transferProps.lookup("wVarDiffusion"));
 const dimensionedScalar KwVariance(transferProps.lookup("KwVariance"));
 const dimensionedScalar dz("dz", dimLength, scalar(100));
+
+
+

@@ -415,3 +415,12 @@ partitionedVolScalarField transferRate
         dimensionedScalar("", dimensionSet(0,0,-1,0,0), scalar(0))
     )
 );
+
+
+//Additional coefficients
+const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
+const dimensionedScalar thetaMin("",theta[0].dimensions(),scalar(1e-16));
+const dimensionedScalar thetaVarMin("",thetaVar[0].dimensions(),scalar(1e-16));
+const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
+const dimensionedScalar wVarMin("",wVar[0].dimensions(),scalar(1e-16));
+const dimensionedScalar wOne("",w[0].dimensions(),scalar(1));
