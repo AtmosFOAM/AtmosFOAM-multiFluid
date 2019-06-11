@@ -9,9 +9,6 @@ if (nParts != 2)
 
 if (thetaVarTransfer)
 {
-    const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
-    const dimensionedScalar thetaMin("",theta[0].dimensions(),scalar(1e-16));
-    const dimensionedScalar thetaVarMin("",thetaVar[0].dimensions(),scalar(1e-16));
     const dimensionedScalar internalEnergyMin("",theta.sum().dimensions(),scalar(1e-16));
     
     
