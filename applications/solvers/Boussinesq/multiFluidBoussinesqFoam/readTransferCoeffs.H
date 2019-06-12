@@ -12,15 +12,21 @@ IOdictionary transferProps
     )
 );
 
+// Drag parameters
 const dimensionedScalar cloudRadiusMax(transferProps.lookup("cloudRadiusMax"));
 const dimensionedScalar cloudRadiusMin(transferProps.lookup("cloudRadiusMin"));
 const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 
+// Note if there are no transfers from any sources
+const Switch noTransfers(transferProps.lookup("noTransfers"));
+
 // Diffusion coefficient for inter-partition mass transfer
-const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
+const dimensionedScalar Ksigma = noTransfers? dimlessZero : 
+      dimensionedScalar(transferProps.lookup("Ksigma"));
 
 // The amount of divergence transfer used (between zero and one)
-const scalar divTransfer(readScalar(transferProps.lookup("divTransfer")));
+const scalar divTransfer = noTransfers? scalar(0) :
+      readScalar(transferProps.lookup("divTransfer"));
 if (divTransfer < 0 || divTransfer > 1)
 {
     FatalErrorIn("multiFluidBoussinesqFoam")
@@ -29,28 +35,27 @@ if (divTransfer < 0 || divTransfer > 1)
 }
 
 // Is mass transfer decided based on vertical velocity
-const Switch wTransfer(transferProps.lookup("wTransfer"));
+const Switch wTransfer = noTransfers? Switch(false) : 
+      transferProps.lookup("wTransfer");
 const dimensionedScalar wTransferTimeScale = wTransfer ? 
       dimensionedScalar(transferProps.lookup("wTransferTimeScale")) :
       dimensionedScalar("transferProps", dimTime, scalar(0));
 
 // Is mass transfer decided based on grad(b)
-const Switch buoyancyTransfer(transferProps.lookup("buoyancyTransfer"));
+const Switch buoyancyTransfer = noTransfers? Switch(false) : 
+      transferProps.lookup("buoyancyTransfer");
 const dimensionedScalar bTransferDiffusivity
 (
     transferProps.lookup("bTransferDiffusivity")
 );
 
 // Minimum sigma for each partition
-const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
+const scalar minSigma = noTransfers? scalar(0) :
+      readScalar(transferProps.lookup("minSigma"));
 
 // Transfer to keep flagged cells uniform sigma
-const Switch uniformSigma(transferProps.lookup("uniformSigma"));
-
-// Note if there are no transfers from any sources
-const Switch noTransfers = Ksigma.value() == 0 && minSigma == 0
-         && divTransfer == 0 && !wTransfer && !buoyancyTransfer
-         && !uniformSigma;
+const Switch uniformSigma = noTransfers? Switch(false) :
+      Switch(transferProps.lookup("uniformSigma"));
 
 // Transfer buoyancy anomalies
 const Switch transferAnomalies = noTransfers? Switch(false) :
