@@ -135,7 +135,7 @@ bf.updateSum();
 Info << "Initialising the mass transfer between partitions\n" << endl;
 volScalarField massTransferTmp
 (
-    IOobject("massTransfer", runTime.timeName(), mesh,
+    IOobject("massTransferTmp", runTime.timeName(), mesh,
              IOobject::NO_READ, IOobject::NO_WRITE),
     mesh,
     rateZero

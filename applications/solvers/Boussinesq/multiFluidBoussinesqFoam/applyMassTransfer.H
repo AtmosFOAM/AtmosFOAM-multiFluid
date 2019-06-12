@@ -32,6 +32,8 @@ transfer[0] = dt*massTransfer[0][1]/max(sigma[1], minSigmaDiv);
 transfer[1] = dt*massTransfer[1][0]/max(sigma[0], minSigmaDiv);
 S[0] = dt*massTransfer[0][1]/max(sigma[0], minSigmaDiv);
 S[1] = dt*massTransfer[1][0]/max(sigma[1], minSigmaDiv);
+transfer.updateSum();
+S.updateSum();
 
 // Apply mass transfer terms (operator split) to sigma equation
 for(label ip = 0; ip < nParts; ip++)

@@ -86,13 +86,12 @@ if (!noTransfers)
                /(1+transfer[0]);
     }
     else
-    // Fluid transferred has zero buoyancy
+    // Fluid transferred from 1 to zero has zero buoyancy
     {
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            b[ip] /= 1 - S[ip] + transfer[mag(ip-1)];
-            bt[ip] = -b[ip];
-        }
+        b[0] /= 1 + transfer[1];
+        //bt[0] =  remains zero
+        b[1] = (b[1] + transfer[0]*b[0])/(1+transfer[0] - S[1]);
+        bt[1] = -b[1];
     }
 }
 
