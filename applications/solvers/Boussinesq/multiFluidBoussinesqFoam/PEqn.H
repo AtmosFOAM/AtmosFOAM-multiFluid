@@ -24,7 +24,9 @@ for (int corr=0; corr<nCorr; corr++)
                     + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
                     + dt*offCentre*volFlux.ddt()[ip];
     }
-    volFlux.updateSum();
+
+    // Pressure equations for each fluid separately
+    #include "PiEqn.H"
 
     // Pressure equation
     for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
@@ -46,9 +48,7 @@ for (int corr=0; corr<nCorr; corr++)
         volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
     }
     
-    // Pressure equations for each fluid separately
-    #include "PiEqn.H"
-
+    volFlux.updateSum();
 
     if (!noTransfers || dragCoeff > 0)
     {
@@ -66,7 +66,7 @@ for (int corr=0; corr<nCorr; corr++)
         // Velocity difference of fluid transferred
         volFluxt[0] = -volFlux[0]*mesh.Sf().component(2)/mesh.magSf();
         volFluxt[1] = -volFlux[1]*mesh.Sf().component(2)/mesh.magSf();
-        
+
         volFlux[0] =
         (
             (1+transferf[0])*
@@ -91,13 +91,13 @@ for (int corr=0; corr<nCorr; corr++)
         )
         /(1+transferf[0]);
     }
+    volFlux.updateSum();
     
     // Update velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
     {
         u[ip] = fvc::reconstruct(volFlux[ip]);
     }
-    volFlux.updateSum();
 }
 u.updateSum();
 

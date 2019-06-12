@@ -10,6 +10,7 @@ if (gamma.value() > VSMALL)
             (
                 fvm::Sp(1/gamma,Pi[ip])
               + fvc::div(volFlux[ip])
+              + offCentre*dt*fvc::div(bf[ip])
               - offCentre*dt*fvm::laplacian(Pi[ip])
     //            fvm::ddt(Pi[ip])
     //          + gamma*fvc::div(volFlux[ip])
