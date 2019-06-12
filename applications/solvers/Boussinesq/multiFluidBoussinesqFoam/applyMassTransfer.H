@@ -35,6 +35,17 @@ S[1] = dt*massTransfer[1][0]/max(sigma[1], minSigmaDiv);
 transfer.updateSum();
 S.updateSum();
 
+// Transfer terms on faces
+massTransferf[0] = fvc::interpolate(massTransfer[0][1], "transfer");
+massTransferf[1] = fvc::interpolate(massTransfer[1][0], "transfer");
+
+Sf[0] = dt*massTransferf[0]/max(sigmaf[0], minSigmaDiv);
+Sf[1] = dt*massTransferf[1]/max(sigmaf[1], minSigmaDiv);
+
+transferf[0] = dt*massTransferf[0]/max(sigmaf[1], minSigmaDiv);
+transferf[1] = dt*massTransferf[1]/max(sigmaf[0],minSigmaDiv);
+transferf.updateSum();
+
 // Apply mass transfer terms (operator split) to sigma equation
 for(label ip = 0; ip < nParts; ip++)
 {

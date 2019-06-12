@@ -79,24 +79,22 @@ int main(int argc, char *argv[])
             #include "calculateDrag.H"
             #include "bEqn.H"
             #include "PEqn.H"
+            #include "momentumTransfers.H"
         }
-        Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
-             << " to "  << max(sigma[1].internalField()).value() << endl;
-        Info << "sigmaf.sum goes from " << min(sigmaf.sum()).value()
-             << " to "  << max(sigmaf.sum()).value() << endl;
-        runTime.write();
 
+        // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)
         {
-            Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
-            Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
+            sigmaf[ip] = linearInterpolate(sigma[ip]);
+            u[ip] = fvc::reconstruct(volFlux[ip]);
+            Uf[ip] = linearInterpolate(u[ip]);
+            Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
+                      *mesh.Sf()/sqr(mesh.magSf());
         }
         Uf.updateSum();
+        sigmaf.updateSum();
 
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            divu[ip] = fvc::div(volFlux[ip]);
-        }
+        runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

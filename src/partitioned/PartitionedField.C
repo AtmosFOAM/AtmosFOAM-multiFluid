@@ -147,7 +147,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
 (
     const word& baseName__,
     const wordList& partNames__,
-    const GeometricField<Type, PatchField, GeoMesh>& field
+    const GeometricField<Type, PatchField, GeoMesh>& field,
+    IOobject::writeOption writeOpt
 )
 :
     PtrList<GeometricField<Type, PatchField, GeoMesh> >(partNames__.size()),
@@ -158,7 +159,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            IOobject::NO_READ, writeOpt
         ),
         field.mesh(),
         dimensioned<Type>("sum", dimless, pTraits<Type>::zero)
@@ -189,7 +190,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
                     baseName() + '.' + partNames()[ip],
                     field.mesh().time().timeName(),
                     field.mesh(),
-                    IOobject::NO_READ, IOobject::AUTO_WRITE
+                    IOobject::NO_READ, writeOpt
                 ),
                 field
             )
@@ -205,7 +206,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     const word& baseName__,
     const wordList& partNames__,
     const GeometricField<Type, PatchField, GeoMesh>& field,
-    const PartitionedField<scalar, PatchField, GeoMesh>& sigma__
+    const PartitionedField<scalar, PatchField, GeoMesh>& sigma__,
+    IOobject::writeOption writeOpt
 )
 :
     PtrList<GeometricField<Type, PatchField, GeoMesh> >(partNames__.size()),
@@ -226,7 +228,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_, field.time().timeName(), field.mesh(),
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            IOobject::NO_READ, writeOpt
         ),
         field.mesh(),
         dimensioned<Type>("mean", dimless, pTraits<Type>::zero)
@@ -247,7 +249,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
                     baseName_+'.'+partNames_[ip],
                     field.mesh().time().timeName(),
                     field.mesh(),
-                    IOobject::NO_READ, IOobject::AUTO_WRITE
+                    IOobject::NO_READ, writeOpt
                 ),
                 field
             )
@@ -436,7 +438,8 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::storeTime()
             (operator[](0) - operator[](0).oldTime())
                 /operator[](0).time().deltaT(),
             "fixedValue"
-        )
+        ),
+        IOobject::NO_WRITE
     );
     ddt()[0].oldTime();
     for(label ip = 1; ip < size(); ip++)

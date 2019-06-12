@@ -29,7 +29,7 @@ sigma.sum().write();
 // sigma on the faces
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, linearInterpolate(sigma[0])
+    "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -84,23 +84,12 @@ for(label ip = 1; ip < volFlux.size(); ip++)
     volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
 }
 volFlux.updateSum();
-volFlux.sum().write();
+volFlux.mean().write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
 b.storeTime();
 sigma.storeTime();
-
-// Divergence (for post processing)
-partitionedVolScalarField divu
-(
-    "divu", partNames, fvc::div(volFlux[0]), sigma
-);
-for(label ip = 1; ip < nParts; ip++)
-{
-    divu[ip] = fvc::div(volFlux[ip]);
-}
-divu.write();
 
 // Velocity on the faces
 partitionedSurfaceVectorField Uf
@@ -124,7 +113,8 @@ const surfaceScalarField gradPcoeff
 );
 partitionedSurfaceScalarField bf
 (
-    "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2), sigmaf
+    "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
+    sigmaf, IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -164,7 +154,8 @@ partitionedVolScalarField transfer
         IOobject("transfer", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
-    )
+    ),
+    IOobject::NO_WRITE
 );
 
 // Transfer terms for other variables (assuming nParts == 2)
@@ -177,19 +168,8 @@ partitionedVolScalarField S
         IOobject("S", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
-    )
-);
-
-partitionedSurfaceScalarField transferf
-(
-    "transferf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("transfer", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    )
+    ),
+    IOobject::NO_WRITE
 );
 
 // transferLocation = 1 where sigma is to be kept uniform
@@ -255,18 +235,45 @@ partitionedSurfaceScalarField volFluxt
         dimensionedScalar("", volFlux[0].dimensions(), scalar(0)),
         fluxBCs
     ),
-    sigmaf
+    sigmaf,
+    IOobject::NO_WRITE
 );
 
-/*// cell size parameter for stability of buoyancy transfers
-volScalarField cellSize
+// Transfer terms on the faces
+partitionedSurfaceScalarField massTransferf
 (
-    IOobject("cellSize", runTime.timeName(), mesh),
-    mesh,
-    dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0)),
-    "zeroGradient"
+    "massTransferf",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("massTransferf", runTime.timeName(), mesh),
+        mesh,
+        rateZero
+    ),
+    IOobject::NO_WRITE
 );
-cellSize.ref() = fvc::surfaceSum(mesh.magSf()*mesh.deltaCoeffs()).ref()
-                / mesh.V();
-cellSize.correctBoundaryConditions();
-*/
+partitionedSurfaceScalarField transferf
+(
+    "transferf",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("transferf", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimless, scalar(0))
+    ),
+    IOobject::NO_WRITE
+);
+partitionedSurfaceScalarField Sf
+(
+    "Sf",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("Sf", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimless, scalar(0))
+    ),
+    IOobject::NO_WRITE
+);
+

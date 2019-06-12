@@ -118,7 +118,8 @@ public:
         (
             const word& baseName__,
             const wordList& partNames__,
-            const GeometricField<Type, PatchField, GeoMesh>& field
+            const GeometricField<Type, PatchField, GeoMesh>& field,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
 
         //- Initialise all parts to "field", with sigma
@@ -127,7 +128,8 @@ public:
             const word& baseName__,
             const wordList& partNames__,
             const GeometricField<Type, PatchField, GeoMesh>& field,
-            const PartitionedField<scalar, PatchField, GeoMesh>& sigma__
+            const PartitionedField<scalar, PatchField, GeoMesh>& sigma__,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
 
 
