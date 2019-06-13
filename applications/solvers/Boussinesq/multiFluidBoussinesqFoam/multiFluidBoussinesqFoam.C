@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
             }
             #include "calculateDrag.H"
             #include "bEqn.H"
+            #include "PiEqn.H"
             #include "PEqn.H"
             #include "momentumTransfers.H"
         }

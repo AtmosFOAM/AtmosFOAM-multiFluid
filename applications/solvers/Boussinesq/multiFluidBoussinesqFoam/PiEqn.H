@@ -10,11 +10,7 @@ if (gamma.value() > VSMALL)
             (
                 fvm::Sp(1/gamma,Pi[ip])
               + fvc::div(volFlux[ip])
-              + offCentre*dt*fvc::div(bf[ip])
               - offCentre*dt*fvm::laplacian(Pi[ip])
-    //            fvm::ddt(Pi[ip])
-    //          + gamma*fvc::div(volFlux[ip])
-    //          - gamma*offCentre*dt*fvm::laplacian(Pi[ip])
             );
             PEqn.setReference(0,0);
             PEqn.solve();
@@ -22,7 +18,8 @@ if (gamma.value() > VSMALL)
         
         // Back substitutions
         volFlux[ip] -= offCentre*dt*fvc::snGrad(Pi[ip])*mesh.magSf();
-        volFlux.ddt()[ip] -= fvc::snGrad(Pi[ip])*mesh.magSf();
+
+        u[ip] = fvc::reconstruct(volFlux[ip]);
     }
 }
 

@@ -4,10 +4,10 @@ for (int corr=0; corr<nCorr; corr++)
     for(label ip = 0; ip < nParts; ip++)
     {
         // Compact vector Laplacian of the velocity
-        surfaceVectorField Uf = linearInterpolate(u[ip]);
+        Uf[ip] = linearInterpolate(u[ip]);
         surfaceScalarField laplacianU
             = fvc::snGrad(fvc::div(volFlux[ip]))*mesh.magSf()
-            - (linearInterpolate(fvc::curl(fvc::curl(Uf))) & mesh.Sf());
+            - (linearInterpolate(fvc::curl(fvc::curl(Uf[ip]))) & mesh.Sf());
         
         // Rate of change of flux without pressure gradient
         volFlux.ddt()[ip] = (mesh.Sf() &
@@ -18,15 +18,14 @@ for (int corr=0; corr<nCorr; corr++)
              - u[ip]*fvc::div(volFlux[ip]),
                "convection"
            )
-        )) + nu*laplacianU;
+        ))
+      + nu*laplacianU
+      - fvc::snGrad(Pi[ip])*mesh.magSf();
 
         volFlux[ip] = volFlux[ip].oldTime()
                     + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
                     + dt*offCentre*volFlux.ddt()[ip];
     }
-
-    // Pressure equations for each fluid separately
-    #include "PiEqn.H"
 
     volFlux.updateSum();
     // Pressure equation
