@@ -106,13 +106,16 @@ for (int corr=0; corr<nCorr; corr++)
     surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
     surfaceScalarField transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
     
-    /*volFlux[0] =
-    (
-        (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
-    )/(1+transferf.sum());
-    volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
-                /(1+transferf[0]);*/
-
+    if ( !(directVarianceTransfer) )
+    {
+        volFlux[0] =
+        (
+            (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
+        )/(1+transferf.sum());
+        volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
+                    /(1+transferf[0]);
+    }
+    
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
     {

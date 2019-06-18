@@ -39,6 +39,9 @@ const dimensionedScalar thetaTransferDiffusivity
     transferProps.lookup("thetaTransferDiffusivity")
 );
 
+// When mixing occurs, mix according to mean values or variance of profiles?
+const Switch directVarianceTransfer(transferProps.lookup("directVarianceTransfer"));
+
 // Is heat transferred based on overlapping theta profiles
 const Switch thetaVarTransfer(transferProps.lookup("thetaVarTransfer"));
 const dimensionedScalar thetaVarTimescale
