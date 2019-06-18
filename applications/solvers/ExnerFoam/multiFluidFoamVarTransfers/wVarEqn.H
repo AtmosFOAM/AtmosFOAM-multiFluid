@@ -1,5 +1,11 @@
 // advective form w equation
 
+for (label ip=0; ip<nParts; ip++)
+{
+    w[ip] = u[ip].component(vector::Z);
+}
+
+
 for(label ip = 0; ip < nParts; ip++)
 {
     wVar.ddt()[ip] = -fvc::div(volFlux[ip], wVar[ip], "theta")
@@ -25,11 +31,37 @@ for(label ip = 0; ip < nParts; ip++)
     );
     
     //wVar[0] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
-    //wVar[1] += 0.12 * 0.5*dt/wVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
-    //wVar[ip] -= 0.12 * 4 * dt/wVarTimescale * wVar[ip];
+    //wVar[ip] += 0.12 * 0.5*dt/thetaVarTimescale * ( (u[0]-u[1]) & (u[0]-u[1]) );
+    //wVar[ip] -= 0.12 * 4 * dt/thetaVarTimescale * wVar[ip];
+    
+    
 
     wVar[ip].correctBoundaryConditions();
 }
+
+wVar[0] = max(wVar[0], 0*wVar[0]);
+wVar[1] = max(wVar[1], 0*wVar[1]);
+wVarPreTransfer = wVar;
+
+wVar[0] += dt/thetaVarTimescale * 4*sigma[0]*sigma[1] * 
+(
+    sqr
+    (
+        (w[1]-w[0])/1.8
+      - sqrt(wVarPreTransfer[1])
+    )
+  - wVarPreTransfer[0]
+);
+wVar[1] += dt/thetaVarTimescale * 4*sigma[0]*sigma[1] * 
+(
+    sqr
+    (
+        (w[1]-w[0])/1.8
+      - sqrt(wVarPreTransfer[0])
+    )
+  - wVarPreTransfer[1]
+);
+
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
 if (nParts != 2)
@@ -83,7 +115,6 @@ if (directVarianceTransfer)
 {
     for(label ip = 0; ip < partNames.size(); ip++)
     {
-        w[ip] = u[ip].component(vector::Z);
         Info << "w" << ip << " pre transfer: [" << min(w[ip]).value() << ", " << max(w[ip]).value() << "]" << endl;
         Info << "wVar" << ip << " pre Var transfer: [" << min(wVar[ip]).value() << ", " << max(wVar[ip]).value() << "]" << endl;
     }
