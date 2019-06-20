@@ -39,29 +39,31 @@ for(label ip = 0; ip < nParts; ip++)
     wVar[ip].correctBoundaryConditions();
 }
 
-wVar[0] = max(wVar[0], 0*wVar[0]);
-wVar[1] = max(wVar[1], 0*wVar[1]);
-wVarPreTransfer = wVar;
+if (wVarProduction)
+{
+    wVar[0] = max(wVar[0], 0*wVar[0]);
+    wVar[1] = max(wVar[1], 0*wVar[1]);
+    wVarPreTransfer = wVar;
 
-wVar[0] += dt/thetaVarTimescale * 4*sigma[0]*sigma[1] * 
-(
-    sqr
+    wVar[0] += dt/wVarProductionTimescale * 4*sigma[0]*sigma[1] * 
     (
-        (w[1]-w[0])/1.8
-      - sqrt(wVarPreTransfer[1])
-    )
-  - wVarPreTransfer[0]
-);
-wVar[1] += dt/thetaVarTimescale * 4*sigma[0]*sigma[1] * 
-(
-    sqr
+        sqr
+        (
+            (w[1]-w[0])/wVarProductionSeparation
+          - sqrt(wVarPreTransfer[1])
+        )
+      - wVarPreTransfer[0]
+    );
+    wVar[1] += dt/wVarProductionTimescale * 4*sigma[0]*sigma[1] * 
     (
-        (w[1]-w[0])/1.8
-      - sqrt(wVarPreTransfer[0])
-    )
-  - wVarPreTransfer[1]
-);
-
+        sqr
+        (
+            (w[1]-w[0])/wVarProductionSeparation
+          - sqrt(wVarPreTransfer[0])
+        )
+      - wVarPreTransfer[1]
+    );
+}
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
 if (nParts != 2)

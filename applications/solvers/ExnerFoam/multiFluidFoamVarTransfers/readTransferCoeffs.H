@@ -60,6 +60,17 @@ const dimensionedScalar wVarTimescale
 const Switch localThetaVarTransfer(transferProps.lookup("localThetaVarTransfer"));
 const Switch varMassTransfer(transferProps.lookup("varMassTransfer"));
 
+// Source term for velocity variance based on wind shear
+const Switch wVarProduction(transferProps.lookup("wVarProduction"));
+const dimensionedScalar wVarProductionTimescale
+(
+    transferProps.lookup("wVarProductionTimescale")
+);
+const scalar wVarProductionSeparation
+(
+    readScalar(transferProps.lookup("wVarProductionSeparation"))
+);
+
 // Minimum sigmaRho for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 const scalar minSigmaDiv = max(minSigma, VSMALL);
