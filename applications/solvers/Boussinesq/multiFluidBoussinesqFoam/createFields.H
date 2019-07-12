@@ -191,6 +191,22 @@ if (uniformSigma)
     }
 }
 
+// Write out initial massTransfer for uniformSigma
+if (uniformSigma)
+{
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        sigma.ddt()[ip] = -fvc::div(volFlux[ip], sigma[ip], "sigma");
+    }
+
+    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
+                       + (1-transferLocation)*massTransfer[0][1];
+    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
+                       + (1-transferLocation)*massTransfer[1][0];
+    massTransfer[0].write();
+    massTransfer[1].write();
+}
+
 Info << "Initialising the drag between partitions" << endl;
 surfaceScalarField cloudRadius
 (
@@ -207,6 +223,15 @@ uniformDimensionedScalarField Q
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
 Q.write();
+// Total initial heat in the domain
+dimensionedScalar totalHeat0
+(
+    "totalHeat0", dimensionSet(0,1,-2,0,0), scalar(0)
+);
+for(label ip = 0; ip < nParts; ip++)
+{
+    totalHeat0 += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
+}
 
 // Buoyancy difference of the transferred fluid
 partitionedVolScalarField bt

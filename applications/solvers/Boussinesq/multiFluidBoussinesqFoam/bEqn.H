@@ -8,18 +8,12 @@ for(label ip = 0; ip < nParts; ip++)
                 + alpha*fvc::laplacian(b[ip]);
 }
 
-if (adjustQ)
+if (!adjustQ)
 {
-    Q = dimensionedScalar("zeroQ", Q.dimensions(), scalar(0));
     for(label ip = 0; ip < nParts; ip++)
     {
-        Q -= fvc::domainIntegrate(sigma[ip]*b.ddt()[ip])/sum(mesh.V());
+        b.ddt()[ip] += Q;
     }
-}
-
-for(label ip = 0; ip < nParts; ip++)
-{
-    b.ddt()[ip] += Q;
 }
 
 for(label ip = 0; ip < nParts; ip++)
@@ -103,4 +97,17 @@ for(label ip = 0; ip < nParts; ip++)
 
 b.updateSum();
 bf.updateSum();
+
+if (adjustQ)
+{
+    dimensionedScalar totalHeat("totalHeat", dimensionSet(0, 1,-2,0,0), scalar(0));
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
+    }
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        b[ip] += (totalHeat0 - totalHeat);
+    }
+}
 

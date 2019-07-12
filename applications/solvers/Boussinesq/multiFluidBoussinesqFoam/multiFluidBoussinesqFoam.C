@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
         }
         Uf.updateSum();
         sigmaf.updateSum();
+        u.updateSum();
 
         runTime.write();
 
