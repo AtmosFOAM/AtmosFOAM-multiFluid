@@ -39,6 +39,9 @@ const dimensionedScalar thetaTransferDiffusivity
     transferProps.lookup("thetaTransferDiffusivity")
 );
 
+// When mixing occurs, mix according to mean values or variance of profiles?
+const Switch directVarianceTransfer(transferProps.lookup("directVarianceTransfer"));
+
 // Is heat transferred based on overlapping theta profiles
 const Switch thetaVarTransfer(transferProps.lookup("thetaVarTransfer"));
 const dimensionedScalar thetaVarTimescale
@@ -56,6 +59,17 @@ const dimensionedScalar wVarTimescale
 // Only do heat transfers where fluids have been mixed?
 const Switch localThetaVarTransfer(transferProps.lookup("localThetaVarTransfer"));
 const Switch varMassTransfer(transferProps.lookup("varMassTransfer"));
+
+// Source term for velocity variance based on wind shear
+const Switch wVarProduction(transferProps.lookup("wVarProduction"));
+const dimensionedScalar wVarProductionTimescale
+(
+    transferProps.lookup("wVarProductionTimescale")
+);
+const scalar wVarProductionSeparation
+(
+    readScalar(transferProps.lookup("wVarProductionSeparation"))
+);
 
 // Minimum sigmaRho for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
