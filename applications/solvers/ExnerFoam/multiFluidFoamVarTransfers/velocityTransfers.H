@@ -7,7 +7,7 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-if (wVarTransfer)
+if ((wVarTransfer) and (!(directVarianceTransfer)))
 //if (0)
 {
     const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));

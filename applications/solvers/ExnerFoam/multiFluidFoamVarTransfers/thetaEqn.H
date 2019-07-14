@@ -48,7 +48,7 @@ theta[1] = (theta[1] + (transfer[0]-dt*transferRate[1])*thetaMean)
             /(1 + transfer[0] - dt*transferRate[1]);*/
 
 
-if ( !(directVarianceTransfer) )
+if ( !((directVarianceTransfer) and (thetaVarTransfer)) )
 {
     theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
                /(1+transfer.sum());
