@@ -20,7 +20,7 @@ for(label ip = 0; ip < partNames.size(); ip++)
     energyFieldPreTransfer += energyTmp;
     PE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     
-    energyTmp = sigmaRho[ip]*theta[ip]*sigmaRho.sum()/Psi*Cv;
+    energyTmp = sigmaRho[ip]*theta[ip]*Exner*Cv;;
     energyFieldPreTransfer += energyTmp;
     IE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     
