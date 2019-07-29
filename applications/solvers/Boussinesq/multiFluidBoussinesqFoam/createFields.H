@@ -215,14 +215,23 @@ surfaceScalarField cloudRadius
 );
 surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
-// Rate of change of b (eg for radiative cooling)
-uniformDimensionedScalarField Q
+// Brunt-Vaisala frequency
+volScalarField Nsquared
 (
-    IOobject("Q", runTime.timeName(), mesh, 
-             IOobject::READ_IF_PRESENT, IOobject::AUTO_WRITE),
+    IOobject("Nsquared", runTime.constant(), mesh, 
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
+    dimensionedScalar(envProps.lookup("Nsquared"))
+);
+
+// Rate of change of b (eg for radiative cooling)
+volScalarField Q
+(
+    IOobject("Q", runTime.constant(), mesh, 
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
-Q.write();
 // Total initial heat in the domain
 dimensionedScalar totalHeat0
 (

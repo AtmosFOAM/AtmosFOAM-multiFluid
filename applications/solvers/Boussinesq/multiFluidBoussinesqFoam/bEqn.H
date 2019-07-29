@@ -16,6 +16,14 @@ if (!adjustQ)
     }
 }
 
+if (relaxbTime.value() > 0)
+{
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        b.ddt()[ip] -= b[ip]/relaxbTime;
+    }
+}
+
 for(label ip = 0; ip < nParts; ip++)
 {
     // Update b according to the rate of change

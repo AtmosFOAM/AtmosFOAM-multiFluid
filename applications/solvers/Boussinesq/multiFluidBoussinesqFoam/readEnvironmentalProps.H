@@ -12,9 +12,16 @@ IOdictionary envProps
     )
 );
 
-const dimensionedScalar Nsquared(envProps.lookup("Nsquared"));
 const dimensionedScalar nu(envProps.lookup("nu"));
 const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
+const dimensionedScalar relaxbTime
+(
+    envProps.lookupOrDefault<dimensionedScalar>
+    (
+        "relaxBuoyancyTimeScale", 
+        dimensionedScalar("relaxbTime", dimTime, scalar(0))
+    )
+);
 
 uniformDimensionedScalarField alpha
 (
