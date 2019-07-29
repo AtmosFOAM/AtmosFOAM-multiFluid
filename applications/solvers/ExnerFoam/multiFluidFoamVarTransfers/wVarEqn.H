@@ -113,7 +113,7 @@ wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) *
 */
 
     
-if (directVarianceTransfer)
+if ((directVarianceTransfer) and (wVarTransfer))
 {
     for(label ip = 0; ip < partNames.size(); ip++)
     {

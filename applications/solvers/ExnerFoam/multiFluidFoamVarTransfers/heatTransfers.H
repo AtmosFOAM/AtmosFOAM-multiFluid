@@ -7,7 +7,7 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-if (thetaVarTransfer)
+if ( thetaVarTransfer and (!(directVarianceTransfer)) )
 {
     const dimensionedScalar internalEnergyMin("",theta.sum().dimensions(),scalar(1e-16));
     

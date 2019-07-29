@@ -45,8 +45,10 @@ if (divTransfer)
     partitionedSurfaceScalarField verticalVolFlux = volFlux;
     verticalVolFlux[0] = (fvc::interpolate( w[0]*Foam::vector(0,0,1), "Uf") & mesh.Sf());
     verticalVolFlux[1] = (fvc::interpolate( w[1]*Foam::vector(0,0,1), "Uf") & mesh.Sf());
-    massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(verticalVolFlux[0]), rateZero);
-    massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(verticalVolFlux[1]), rateZero);
+    //massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(verticalVolFlux[0]), rateZero);
+    //massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(verticalVolFlux[1]), rateZero);
+    massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
+    massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
     
 // REverser it
 //    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);

@@ -72,7 +72,7 @@ thetaVar[1] -= dt*transferRate[1]*sqr(thetaPreTransfer[1]) *
 thetaVar[1] = (thetaVar[1] + transfer[0]*thetaVar[0])/(1+transfer[0]);
 */
 
-if (directVarianceTransfer)
+if ((directVarianceTransfer) and (thetaVarTransfer))
 {
     partitionedVolScalarField thetaTransferBound = theta;
     thetaTransferBound[0] -= sqrt(2*max(thetaVar[0], thetaVarMin)) * erfinv(2*dt*transferRate[0]-1);
