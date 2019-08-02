@@ -47,9 +47,6 @@ const dimensionedScalar thetaTransferDiffusivity2
 // Minimum sigma for each partition
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
-// Transfer to keep flagged cells uniform sigma
-const Switch uniformSigma(transferProps.lookup("uniformSigma"));
-
 // Max and min temperature perturbation - the difference in temperature of
 // the transferred variable. thetat[0] > 0 and thetat[1] < 0
 const dimensionedScalar thetatMin
