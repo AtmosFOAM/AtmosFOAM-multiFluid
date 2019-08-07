@@ -38,7 +38,18 @@ for(label ip = 1; ip < nParts; ip++)
 sigmaf.updateSum();
 
 // Pressure in each partition
-partitionedVolScalarField Pi("Pi", partNames, P, sigma);
+partitionedVolScalarField Pi
+(
+    "Pi",
+    partNames,
+    volScalarField
+    (
+        IOobject("Pi", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", P.dimensions(), scalar(0)),
+        "zeroGradient"
+    )
+);
 Pi.write();
 
 Info << "Reading in b in each partition\n" << endl;
@@ -215,14 +226,23 @@ surfaceScalarField cloudRadius
 );
 surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
-// Rate of change of b (eg for radiative cooling)
-uniformDimensionedScalarField Q
+// Background buoyance field
+const volScalarField bBar
 (
-    IOobject("Q", runTime.timeName(), mesh, 
-             IOobject::READ_IF_PRESENT, IOobject::AUTO_WRITE),
+    IOobject("bBar", runTime.constant(), mesh, 
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
+    dimensionedScalar("bBar", b[0].dimensions(), scalar(0))
+);
+
+// Rate of change of b (eg for radiative cooling)
+volScalarField Q
+(
+    IOobject("Q", runTime.constant(), mesh, 
+             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    mesh,
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
-Q.write();
 // Total initial heat in the domain
 dimensionedScalar totalHeat0
 (
@@ -302,3 +322,15 @@ partitionedSurfaceScalarField Sf
     IOobject::NO_WRITE
 );
 
+partitionedSurfaceScalarField dPdz
+(
+    "dPdz",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("dPdz", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimensionSet(0,1,-2,0,0), scalar(0))
+    )
+);
+dPdz.write();

@@ -1,0 +1,3 @@
+dpdz/dpdz.C
+
+LIB = $(FOAM_USER_LIBBIN)/libAtmosFoamFieldFunctionObjects
