@@ -104,6 +104,22 @@ for(label ip = 1; ip < partNames.size(); ip++)
 }
 sigmaf.updateSum();
 
+Info << "Initialising pressure for each partition\n" << endl;
+partitionedVolScalarField Exneri
+(
+    "Exneri",
+    partNames,
+    volScalarField
+    (
+        IOobject("Exneri", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", Exner.dimensions(), scalar(0)),
+        "zeroGradient"
+    )
+);
+Exneri.write();
+
+
 Info << "Reading in the velocity in each partition\n" << endl;
 partitionedSurfaceVectorField Uf
 (

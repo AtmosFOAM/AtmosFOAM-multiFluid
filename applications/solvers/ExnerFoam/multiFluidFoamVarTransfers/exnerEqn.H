@@ -32,11 +32,13 @@ for (int corr=0; corr<nCorr; corr++)
             volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(KwVar[ip] * fvc::div(volFlux[ip]));
         }
         
-        volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad
-        (
-            //scalar(1e4)/deltax *
-            Kw * fvc::div(volFlux[ip])
-        );
+        //volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad
+        //(
+        //    Kw * fvc::div(volFlux[ip])
+        //);
+
+        volFlux.ddt()[ip] += -Cp*thetaf[ip]*fvc::snGrad(Exneri[ip])*mesh.magSf();
+
         //volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(Kw * max(fvc::div(volFlux[ip]), rateZero));
         
         // Coriolis term
@@ -94,6 +96,13 @@ for (int corr=0; corr<nCorr; corr++)
         wPreTransfer[ip] = u[ip].component(vector::Z);
     }
     
+    // Velocity difference of fluid transferred
+    partitionedSurfaceScalarField volFluxt = volFlux;
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        volFluxt[ip] = -0*volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
+    }
+
     // Include the mass transfer and drag implicitly (for nParts=2)
     transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
                  + dt*dragCommon
@@ -110,8 +119,20 @@ for (int corr=0; corr<nCorr; corr++)
     {
         volFlux[0] =
         (
-            (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
-        )/(1+transferf.sum());
+            (1+transferf[0])*
+            (
+                volFlux[0]
+              - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
+              + fvc::interpolate(transfer[1], "massTransfer")*volFluxt[1]
+            )
+          + transferf[1]*
+            (
+                volFlux[1]
+              - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
+              + fvc::interpolate(transfer[0], "massTransfer")*volFluxt[0]
+            )
+        ) /
+        (1+transferf.sum());
         volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
                     /(1+transferf[0]);
     }
