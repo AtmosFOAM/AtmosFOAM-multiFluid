@@ -21,6 +21,7 @@ const scalar divCoeff(readScalar(transferProps.lookup("divCoeff")));
 const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
 const dimensionedScalar Kw(transferProps.lookup("Kw"));
 const dimensionedScalar Ktheta(transferProps.lookup("Ktheta"));
+//const dimensionedScalar gamma(transferProps.lookup("gamma"));
 
 // Is mass transferred based on partition divergence
 const Switch divTransfer(transferProps.lookup("divTransfer"));

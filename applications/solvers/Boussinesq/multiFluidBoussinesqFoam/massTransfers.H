@@ -56,14 +56,14 @@ if (buoyancyTransfer)
 {
     massTransfer[0][1] -= sigma[0]*bTransferDiffusivity*min
     (
-        fvc::laplacian(b[0]),
-        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+        fvc::laplacian(b[0])/b[0],
+        dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
     );
 
     massTransfer[1][0] += sigma[1]*bTransferDiffusivity*max
     (
-        fvc::laplacian(b[1]),
-        dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+        fvc::laplacian(b[1])/b[1],
+        dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
     );
 }
 

@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
             #include "thetaVarEqn.H"
             #include "sigma.H"
             #include "calculateDrag.H"
+            #include "exneriEqn.H"
             #include "exnerEqn.H"
             #include "wVarEqn.H"
             #include "heatTransfers.H"
