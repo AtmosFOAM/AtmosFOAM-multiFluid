@@ -20,7 +20,7 @@ if (gamma.value() > VSMALL)
         
         // Back substitutions
         volFlux[ip] -= offCentre*dt*fvc::snGrad(Pi[ip])*mesh.magSf();
-
+        volFlux.ddt()[ip] -= fvc::snGrad(Pi[ip])*mesh.magSf();
         u[ip] = fvc::reconstruct(volFlux[ip]);
     }
 }

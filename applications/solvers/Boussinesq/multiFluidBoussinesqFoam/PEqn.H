@@ -19,8 +19,8 @@ for (int corr=0; corr<nCorr; corr++)
                "convection"
            )
         ))
-      + nu*laplacianU
-      - fvc::snGrad(Pi[ip])*mesh.magSf();
+      + nu*laplacianU;
+//      - fvc::snGrad(Pi[ip])*mesh.magSf();
 
         volFlux[ip] = volFlux[ip].oldTime()
                     + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
