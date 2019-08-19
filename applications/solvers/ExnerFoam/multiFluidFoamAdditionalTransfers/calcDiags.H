@@ -10,7 +10,11 @@ scalarList IE(nParts, scalar(0));
 for(label ip = 0; ip < partNames.size(); ip++)
 {
     volScalarField energyTmp = 0.5*sigmaRho[ip]*magSqr(u[ip]);
-    KE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
+    //KE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
+    
+    //surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*magSqr(Uf[ip]);
+    surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*sqr(volFlux[ip]/mesh.magSf());
+    KE[ip] = 0.5*sum(energyTmpf).value();
     
     energyTmp = - sigmaRho[ip]*(g & mesh.C());
     PE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
