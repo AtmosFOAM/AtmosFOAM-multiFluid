@@ -104,12 +104,12 @@ for (int corr=0; corr<nCorr; corr++)
     }
 
     // Include the mass transfer and drag implicitly (for nParts=2)
-    transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
-                 + dt*dragCommon
-                 *fvc::interpolate(sigma[0]/rho[1], "massTransfer");
-    transferf[1] = fvc::interpolate(transfer[1], "massTransfer")
-                 + dt*dragCommon
-                 *fvc::interpolate(sigma[1]/rho[0], "massTransfer");
+    transferf[0] = fvc::interpolate(transfer[0], "massTransfer");
+                 //+ dt*dragCommon
+                 //*fvc::interpolate(sigma[0]/rho[1], "massTransfer");
+    transferf[1] = fvc::interpolate(transfer[1], "massTransfer");
+                 //+ dt*dragCommon
+                 //*fvc::interpolate(sigma[1]/rho[0], "massTransfer");
     transferf.updateSum();
     
     surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
@@ -123,18 +123,25 @@ for (int corr=0; corr<nCorr; corr++)
             (
                 volFlux[0]
               - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
-              + fvc::interpolate(transfer[1], "massTransfer")*volFluxt[1]
+              + transferf[1]*volFluxt[1]
             )
           + transferf[1]*
             (
                 volFlux[1]
               - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
-              + fvc::interpolate(transfer[0], "massTransfer")*volFluxt[0]
+              + transferf[0]*volFluxt[0]
             )
         ) /
         (1+transferf.sum());
-        volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
-                    /(1+transferf[0]);
+
+        volFlux[1] = 
+        (
+            volFlux[1] 
+          + transferf[0]*volFlux[0]
+          + transferf[0]*volFluxt[0]
+          - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
+        ) / 
+        (1+transferf[0]);
     }
     
     // Update mass flux and velocities based on the flux

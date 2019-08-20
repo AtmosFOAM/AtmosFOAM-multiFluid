@@ -31,8 +31,11 @@ const scalar IEBack = (fvc::domainIntegrate(energyTmp)/Vtot).value();
 // Caclulate the initial energy in each partition
 for(label ip = 0; ip < partNames.size(); ip++)
 {
-    energyTmp = 0.5*sigmaRho[ip]*magSqr(u[ip]);
-    KEInit[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
+    //energyTmp = 0.5*sigmaRho[ip]*magSqr(u[ip]);
+    //KEInit[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
+    surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*sqr(volFlux[ip]/mesh.magSf());
+    KEInit[ip] = 0.5*sum(energyTmpf).value();
+    
     energyTmp = - sigmaRho[ip]*(g & mesh.C());
     PEInit[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     energyTmp = sigmaRho[ip]*theta[ip]*Exner*Cv;
