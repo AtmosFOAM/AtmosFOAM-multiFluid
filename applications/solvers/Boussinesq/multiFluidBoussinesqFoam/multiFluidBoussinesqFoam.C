@@ -91,10 +91,12 @@ int main(int argc, char *argv[])
             Uf[ip] = linearInterpolate(u[ip]);
             Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
                       *mesh.Sf()/sqr(mesh.magSf());
+            divu[ip] = fvc::div(volFlux[ip]);
         }
         Uf.updateSum();
         sigmaf.updateSum();
         u.updateSum();
+        divu.updateSum();
 
         runTime.write();
 

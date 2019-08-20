@@ -40,17 +40,9 @@ sigmaf.updateSum();
 // Pressure in each partition
 partitionedVolScalarField Pi
 (
-    "Pi",
-    partNames,
-    volScalarField
-    (
-        IOobject("Pi", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", P.dimensions(), scalar(0)),
-        "zeroGradient"
-    )
+    "Pi", partNames, mesh, runTime.timeName(), sigma
 );
-Pi.write();
+Pi.mean().write();
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b
@@ -125,7 +117,7 @@ const surfaceScalarField gradPcoeff
 partitionedSurfaceScalarField bf
 (
     "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
-    sigmaf, IOobject::NO_WRITE
+    sigmaf/*, IOobject::NO_WRITE*/
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -334,3 +326,11 @@ partitionedSurfaceScalarField dPdz
     )
 );
 dPdz.write();
+
+partitionedVolScalarField divu
+(
+    "divu", partNames, fvc::div(volFlux[0]), sigma
+);
+divu[1] = fvc::div(volFlux[1]);
+divu.write();
+
