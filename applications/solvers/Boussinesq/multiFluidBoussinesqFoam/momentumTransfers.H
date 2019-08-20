@@ -13,19 +13,12 @@ if (!noTransfers || dragCoeff > 0)
         (
             volFlux[0] - Sf[0]*volFluxt[0] + transferf[1]*volFluxt[1]
         )
-      + transferf[1]*
+      + (transferf[1] + dt*dragCommon*sigmaf[1])*
         (
             volFlux[1] + transferf[0]*volFluxt[0] - Sf[1]*volFluxt[1]
         )
     )/
-    (
-        1 + transferf.sum()
-      + dt*dragCommon*
-        (
-            1 + sigmaf[1]*transferf[0] + sigmaf[0]*transferf[1]
-          + sigmaf[0]*sigmaf[1]*dt*dragCommon
-        )
-    );
+    (1 + transferf.sum() + dt*dragCommon);
 
     volFlux[1] = 
     (
