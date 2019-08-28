@@ -432,6 +432,18 @@ partitionedVolScalarField transferRate
     )
 );
 
+partitionedSurfaceScalarField dExnerdz
+(
+    "dExnerdz",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("dExnerdz", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimensionSet(0,1,-2,0,0), scalar(0))
+    )
+);
+
 
 //Additional coefficients
 const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));

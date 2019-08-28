@@ -13,6 +13,9 @@ volScalarField P
     mesh
 );
 
+// Lagged mean pressure
+volScalarField POld = P;
+
 // The partition names
 const label nParts = 2;
 wordList partNames(nParts);

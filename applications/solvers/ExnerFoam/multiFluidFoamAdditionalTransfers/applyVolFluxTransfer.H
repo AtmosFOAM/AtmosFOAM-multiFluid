@@ -11,18 +11,18 @@ for(label ip = 0; ip < nParts; ip++)
             (
                 transfer[ip][jp] *
                 (
-                    sigmaRhoNumerator[ip] / sigmaRhoDenominator[jp]
+                    sigmaRhoNumerator[ip]
                 ),
                 "massTransfer"
-            );
+            ) / fvc::interpolate(sigmaRhoDenominator[jp], "massTransfer");
             surfaceScalarField transferfJI = fvc::interpolate
             (
                 transfer[jp][ip] *
                 (
-                    sigmaRhoNumerator[jp] / sigmaRhoDenominator[ip]
+                    sigmaRhoNumerator[jp]
                 ),
                 "massTransfer"
-            );
+            ) / fvc::interpolate(sigmaRhoDenominator[ip], "massTransfer");
         
             volFluxTransferTerm[ip][jp] = 1/dt * transferfIJ /
             (
