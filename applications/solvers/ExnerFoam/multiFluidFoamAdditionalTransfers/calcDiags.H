@@ -14,7 +14,8 @@ for(label ip = 0; ip < partNames.size(); ip++)
     
     //surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*magSqr(Uf[ip]);
     surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*sqr(volFlux[ip]/mesh.magSf());
-    KE[ip] = 0.5*sum(energyTmpf).value();
+    //KE[ip] = 0.5*sum(energyTmpf).value();
+    KE[ip] = sum(energyTmpf).value()/sigmaRhof[ip].size();
     
     energyTmp = - sigmaRho[ip]*(g & mesh.C());
     PE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();

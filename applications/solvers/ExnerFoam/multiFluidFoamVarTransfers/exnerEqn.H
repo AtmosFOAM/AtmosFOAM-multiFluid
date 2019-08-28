@@ -119,29 +119,29 @@ for (int corr=0; corr<nCorr; corr++)
     {
         volFlux[0] =
         (
-            (1+transferf[0])*
+            (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"))*
             (
                 volFlux[0]
               - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
               + transferf[1]*volFluxt[1]
             )
-          + transferf[1]*
+          + (transferf[1] + dt*dragCommon*sigmaf[1]/fvc::interpolate(rho[0],"rho"))*
             (
                 volFlux[1]
               - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
               + transferf[0]*volFluxt[0]
             )
         ) /
-        (1+transferf.sum());
+        (1 + transferf.sum() + dt*dragCommon/sigmaRhof.sum());
 
         volFlux[1] = 
         (
             volFlux[1] 
-          + transferf[0]*volFlux[0]
+          + (transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"))*volFlux[0]
           + transferf[0]*volFluxt[0]
           - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
         ) / 
-        (1+transferf[0]);
+        (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"));
     }
     
     // Update mass flux and velocities based on the flux
