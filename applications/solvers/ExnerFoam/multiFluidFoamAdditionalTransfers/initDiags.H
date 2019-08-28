@@ -33,8 +33,11 @@ for(label ip = 0; ip < partNames.size(); ip++)
 {
     //energyTmp = 0.5*sigmaRho[ip]*magSqr(u[ip]);
     //KEInit[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
+    
+    //surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*magSqr(Uf[ip]);
     surfaceScalarField energyTmpf = 0.5*sigmaRhof[ip]*sqr(volFlux[ip]/mesh.magSf());
-    KEInit[ip] = 0.5*sum(energyTmpf).value();
+    //KE[ip] = 0.5*sum(energyTmpf).value();
+    KEInit[ip] = sum(energyTmpf).value()/sigmaRhof[ip].size();
     
     energyTmp = - sigmaRho[ip]*(g & mesh.C());
     PEInit[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
