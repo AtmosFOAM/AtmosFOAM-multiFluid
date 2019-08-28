@@ -43,7 +43,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, timeName, mesh,
+            baseName_+".sum", timeName, mesh,
             IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         mesh,
@@ -53,7 +53,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_+".mean", timeName, mesh,
+            baseName_, timeName, mesh,
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         mesh,
@@ -158,7 +158,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_, field.time().timeName(), field.mesh(),
+            baseName_+".sum", field.time().timeName(), field.mesh(),
             IOobject::NO_READ, writeOpt
         ),
         field.mesh(),
@@ -168,7 +168,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     (
         IOobject
         (
-            baseName_+".mean", field.time().timeName(), field.mesh(),
+            baseName_, field.time().timeName(), field.mesh(),
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         field.mesh(),
