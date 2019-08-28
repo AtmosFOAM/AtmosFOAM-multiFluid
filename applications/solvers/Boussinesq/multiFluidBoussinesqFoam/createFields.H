@@ -32,7 +32,7 @@ sigma.sum().write();
 // sigma on the faces
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
+    "sigmaf", partNames, linearInterpolate(sigma[0])//, IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -332,8 +332,8 @@ dPdz.write();
 
 partitionedVolScalarField divu
 (
-    "divu", partNames, fvc::div(volFlux[0]), sigma
+    "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])//, sigma
 );
-divu[1] = fvc::div(volFlux[1]);
+divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
 divu.write();
 
