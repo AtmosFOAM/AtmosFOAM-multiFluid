@@ -100,7 +100,7 @@ for (int corr=0; corr<nCorr; corr++)
     partitionedSurfaceScalarField volFluxt = volFlux;
     for(label ip = 0; ip < nParts; ip++)
     {
-        volFluxt[ip] = -0*volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
+        volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
     }
 
     // Include the mass transfer and drag implicitly (for nParts=2)
