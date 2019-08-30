@@ -32,7 +32,7 @@ sigma.sum().write();
 // sigma on the faces
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, linearInterpolate(sigma[0])//, IOobject::NO_WRITE
+    "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -328,7 +328,6 @@ partitionedSurfaceScalarField dPdz
         dimensionedScalar("", dimensionSet(0,1,-2,0,0), scalar(0))
     )
 );
-dPdz.write();
 
 partitionedVolScalarField divu
 (

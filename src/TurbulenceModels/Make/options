@@ -18,7 +18,6 @@ LIB_LIBS = \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lsolidThermo \
-    -lsolidSpecie \
     -lcompressibleTurbulenceModels \
     -lturbulenceModels \
     -lspecie \

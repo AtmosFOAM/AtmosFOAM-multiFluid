@@ -96,9 +96,6 @@ int main(int argc, char *argv[])
         Uf.updateSum();
         sigmaf.updateSum();
         u.updateSum();
-        volFlux.updateSum();
-        volVectorField uSum("uSum", fvc::reconstruct(volFlux.mean()));
-        uSum.write();
         divu.updateSum();
 
         runTime.write();
