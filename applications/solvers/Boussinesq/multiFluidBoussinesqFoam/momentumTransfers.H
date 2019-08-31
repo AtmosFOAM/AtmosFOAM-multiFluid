@@ -28,5 +28,17 @@ if (!noTransfers || dragCoeff > 0)
       - Sf[1]*volFluxt[1]
     )
     /(1 + transferf[0] + dt*sigmaf[0]*dragCommon);
+
+    u[0] = fvc::reconstruct(volFlux[0]);
+    u[1] = fvc::reconstruct(volFlux[1]);
 }
+
+// Apply mass transfer terms (operator split) to sigmaf
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigmaf[ip] += dt*(massTransferf[1-ip] - massTransferf[ip]);
+}
+sigmaf.updateSum();
+volFlux.updateSum();
+u.updateSum();
 

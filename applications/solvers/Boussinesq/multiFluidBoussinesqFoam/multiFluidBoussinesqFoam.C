@@ -86,16 +86,12 @@ int main(int argc, char *argv[])
         // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)
         {
-            //sigmaf[ip] = linearInterpolate(sigma[ip]);
-            u[ip] = fvc::reconstruct(volFlux[ip]);
             Uf[ip] = linearInterpolate(u[ip]);
             Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
                       *mesh.Sf()/sqr(mesh.magSf());
             divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
         }
         Uf.updateSum();
-        sigmaf.updateSum();
-        u.updateSum();
         divu.updateSum();
 
         runTime.write();
