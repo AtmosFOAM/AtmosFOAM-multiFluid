@@ -78,10 +78,19 @@ int main(int argc, char *argv[])
             }
             #include "calculateDrag.H"
             #include "bEqn.H"
-            #include "PiEqn.H"
-//            #include "PEqn.H"
             #include "momentumTransfers.H"
+            #include "PEqn.H"
+            #include "PiEqn.H"
         }
+
+        // Apply mass transfer terms (operator split) to sigmaf
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            sigmaf[ip] += dt*(massTransferf[1-ip] - massTransferf[ip]);
+        }
+        sigmaf.updateSum();
+        volFlux.updateSum();
+        u.updateSum();
 
         // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)
@@ -90,6 +99,14 @@ int main(int argc, char *argv[])
             Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
                       *mesh.Sf()/sqr(mesh.magSf());
             divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
+
+            // Pressure gradient in each fluid including drag
+            dPdz[ip] = mesh.Sf().component(2)/mesh.magSf()*
+            (
+                fvc::snGrad(P+Pi[ip])
+              + (1-sigmaf[ip])*dragCommon*(volFlux[ip] - volFlux[1-ip])
+                /mesh.magSf()
+            );
         }
         Uf.updateSum();
         divu.updateSum();

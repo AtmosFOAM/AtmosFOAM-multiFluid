@@ -13,9 +13,6 @@ volScalarField P
     mesh
 );
 
-// Lagged mean pressure
-volScalarField POld = P;
-
 // The partition names
 const label nParts = 2;
 wordList partNames(nParts);
@@ -43,9 +40,17 @@ sigmaf.updateSum();
 // Pressure in each partition
 partitionedVolScalarField Pi
 (
-    "Pi", partNames, mesh, runTime.timeName(), sigma
+    "Pi",
+    partNames,
+    volScalarField
+    (
+        IOobject("Pi.tmp", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", P.dimensions(), scalar(0)),
+        "zeroGradient"
+    ),
+    sigma
 );
-Pi.mean().write();
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b

@@ -4,8 +4,7 @@ for(label ip = 0; ip < nParts; ip++)
     sigma.ddt()[ip] = -fvc::div
     (
         ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip]),
-        //*sigmaf[ip]
-        sigma[ip], //.oldTime(),
+        sigma[ip].oldTime(),
         "sigma"
     );
 

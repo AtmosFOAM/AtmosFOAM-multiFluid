@@ -74,7 +74,6 @@ if (!noTransfers)
             -bTransferMax
         );
     }
-    volScalarField bOld = b[0];
     if (!transferAnomaliesb0)
     {
         b[0] = (
@@ -85,11 +84,6 @@ if (!noTransfers)
 
         b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
                /(1+transfer[0]);
-        /*b[1] = (
-                    transfer[0]*(bOld - S[0]*bt[0] + transfer[1]*bt[1])
-                  + (1 + transfer[1])*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
-               )
-               /(1 + transfer.sum());*/
     }
     else
     // Fluid transferred from 1 to zero has zero buoyancy
