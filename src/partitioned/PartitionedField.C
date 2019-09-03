@@ -255,6 +255,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             )
         );
     }
+    
     updateMean();
 }
 

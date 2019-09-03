@@ -78,9 +78,18 @@ int main(int argc, char *argv[])
             }
             #include "calculateDrag.H"
             #include "bEqn.H"
-            #include "momentumTransfers.H"
-            #include "PEqn.H"
-            #include "PiEqn.H"
+            // Pressure and velocity updates
+            for (int corr=0; corr<nCorr; corr++)
+            {
+                #include "PEqn.H"
+                #include "momentumTransfers.H"
+                #include "PiEqn.H"
+                // Update velocities based on the flux
+                for(label ip = 0; ip < nParts; ip++)
+                {
+                    u[ip] = fvc::reconstruct(volFlux[ip]);
+                }
+            }
         }
 
         // Apply mass transfer terms (operator split) to sigmaf
@@ -90,7 +99,6 @@ int main(int argc, char *argv[])
         }
         sigmaf.updateSum();
         volFlux.updateSum();
-        u.updateSum();
 
         // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)
@@ -110,6 +118,7 @@ int main(int argc, char *argv[])
         }
         Uf.updateSum();
         divu.updateSum();
+        u.updateSum();
 
         runTime.write();
 
