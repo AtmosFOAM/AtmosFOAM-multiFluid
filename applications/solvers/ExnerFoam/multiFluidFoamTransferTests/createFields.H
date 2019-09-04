@@ -40,6 +40,7 @@ partitionedVolScalarField rho
 );
 partitionedVolScalarField sigmaRho = rho.timesSigma();
 
+
 Info << "Reading in theta in each partition\n" << endl;
 partitionedVolScalarField theta
 (
@@ -57,12 +58,23 @@ Info << "Calculating density and density in each partition and density weighted 
 //{
 //    rho[ip] = pRef/(R*theta[ip])*pow(Exner, (1-kappa)/kappa);
 //}
+partitionedVolScalarField sigmaRhoInitial
+(
+    "sigmaRhoInitial", partNames, mesh, runTime.timeName()
+);
 partitionedVolScalarField sigmaRhoExpected
 (
     "sigmaRhoExpected", partNames, mesh, runTime.timeName()
 );
+
+for(label ip = 0; ip < partNames.size(); ip++)
+{
+    sigmaRho[ip] = sigmaRhoInitial[ip];
+    sigma[ip] = sigmaRho[ip]/rho[ip];
+}
+
 rho.updateSum();
-sigmaRho = rho.timesSigma();
+//sigmaRho = rho.timesSigma();
 sigmaRho.updateSum();
 theta.updateSum();
 sigmaRho.write();

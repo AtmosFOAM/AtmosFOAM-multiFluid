@@ -91,7 +91,7 @@ for (int corr=0; corr<nCorr; corr++)
     }
     
     // Include the mass transfer and drag implicitly (for nParts=2)
-    transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
+    /*transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
                  + dt*dragCommon
                  *fvc::interpolate(sigma[0]/rho[1], "massTransfer");
     transferf[1] = fvc::interpolate(transfer[1], "massTransfer")
@@ -112,7 +112,48 @@ for (int corr=0; corr<nCorr; corr++)
         (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
     )/(1+transferf.sum());
     volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
-                /(1+transferf[0]);
+                /(1+transferf[0]);*/
+                
+    // Velocity difference of fluid transferred
+    partitionedSurfaceScalarField volFluxt = volFlux;
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
+    }
+
+    // Include the mass transfer and drag implicitly (for nParts=2)
+    transferf[0] = fvc::interpolate(transfer[0], "massTransfer");
+    transferf[1] = fvc::interpolate(transfer[1], "massTransfer");
+    transferf.updateSum();
+    
+    surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
+    surfaceScalarField transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
+    
+    volFlux[0] =
+    (
+        (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"))*
+        (
+            volFlux[0]
+          - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
+          + transferf[1]*volFluxt[1]
+        )
+      + (transferf[1] + dt*dragCommon*sigmaf[1]/fvc::interpolate(rho[0],"rho"))*
+        (
+            volFlux[1]
+          - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
+          + transferf[0]*volFluxt[0]
+        )
+    ) /
+    (1 + transferf.sum() + dt*dragCommon/sigmaRhof.sum());
+
+    volFlux[1] = 
+    (
+        volFlux[1] 
+      + (transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"))*volFlux[0]
+      + transferf[0]*volFluxt[0]
+      - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
+    ) / 
+    (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"));
     
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)

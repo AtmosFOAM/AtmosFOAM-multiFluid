@@ -20,6 +20,16 @@ if (alphaM == scalar(0))
                         massTransferZero
                     )
                 );
+                
+                massTransfer[ip][jp] = max
+                (
+                    massTransfer[ip][jp],
+                    max
+                    (
+                        -(max(sigmaRho[jp], densityZero)-minSigma*rho[jp])/dt,
+                        massTransferZero
+                    )
+                );
             }
         }
     }
