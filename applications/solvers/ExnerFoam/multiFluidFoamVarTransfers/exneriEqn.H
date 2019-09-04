@@ -32,7 +32,8 @@ for(label ip = 0; ip < nParts; ip++)
 {
     dExnerdz[ip] = mesh.Sf().component(2)/mesh.magSf()*
     (
-        Cp*thetaf[ip]*fvc::snGrad(Exner + Exneri[ip])
+        //Cp*thetaf[ip]*fvc::snGrad(Exner + Exneri[ip])
+        Cp*thetaf[ip]*fvc::snGrad(Exneri[ip])
       + dragCommon*sigmaf[1-ip]/fvc::interpolate(rho[ip],"rho") * 
             (volFlux[ip]-volFlux[1-ip])/mesh.magSf()
     );

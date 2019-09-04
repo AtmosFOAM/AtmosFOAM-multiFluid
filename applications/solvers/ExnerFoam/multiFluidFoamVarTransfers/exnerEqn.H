@@ -132,7 +132,12 @@ for (int corr=0; corr<nCorr; corr++)
               + transferf[0]*volFluxt[0]
             )
         ) /
-        (1 + transferf.sum() + dt*dragCommon/sigmaRhof.sum());
+        (
+            1 
+          + transferf.sum() 
+          + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho")
+          + dt*dragCommon*sigmaf[1]/fvc::interpolate(rho[0],"rho")
+        );
 
         volFlux[1] = 
         (
