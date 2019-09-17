@@ -222,6 +222,26 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+surfaceScalarField massTransferfTmp
+(
+    IOobject("massTransferf", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::NO_WRITE),
+    mesh,
+    massTransferZero
+);
+PtrList<partitionedSurfaceScalarField> massTransferf(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    massTransferf.set
+    (
+        jp, 
+        new partitionedSurfaceScalarField
+        (
+            partNames[jp]+'.'+"massTransferf", partNames, massTransferfTmp
+        )
+    );
+}
+
 Info << "Initialising the theta transfer between partitions\n" << endl;
 const dimensionedScalar thetaTransferTermZero
 (

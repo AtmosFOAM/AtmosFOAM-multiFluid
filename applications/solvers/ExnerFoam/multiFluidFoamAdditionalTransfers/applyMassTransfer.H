@@ -1,42 +1,38 @@
 {
+const scalar minSigmaDiv = max(minSigma, VSMALL);
 partitionedVolScalarField sigmaRhoPreTransfer = sigmaRho;
 partitionedSurfaceScalarField sigmaRhofPreTransfer = sigmaRhof;
 
-if (alphaM == scalar(0))
+// Constraint to keep min(sigma[ip]) >= minSigma
+for(label ip = 0; ip < nParts; ip++)
 {
-    // Constraint to keep sigmaRho > 0
-    for(label ip = 0; ip < nParts; ip++)
+    for(label jp = 0; jp < nParts; jp++)
     {
-        for(label jp = 0; jp < nParts; jp++)
+        if (ip != jp)
         {
-            if (ip != jp)
-            {
-                massTransfer[ip][jp] = min
+            massTransfer[ip][jp] = min
+            (
+                massTransfer[ip][jp],
+                max
                 (
-                    massTransfer[ip][jp],
-                    max
-                    (
-                        (max(sigmaRho[ip], densityZero)-minSigma*rho[ip])/dt,
-                        massTransferZero
-                    )
-                );
-                
-                massTransfer[ip][jp] = max
+                    (max(sigmaRho[ip], densityZero)-minSigma*rho[ip])/dt,
+                    massTransferZero
+                )
+            );
+            
+            massTransfer[ip][jp] = max
+            (
+                massTransfer[ip][jp],
+                max
                 (
-                    massTransfer[ip][jp],
-                    max
-                    (
-                        -(max(sigmaRho[jp], densityZero)-minSigma*rho[jp])/dt,
-                        massTransferZero
-                    )
-                );
-            }
+                    -(max(sigmaRho[jp], densityZero)-minSigma*rho[jp])/dt,
+                    massTransferZero
+                )
+            );
         }
     }
 }
 
-// Transfer terms for other variables
-const scalar minSigmaDiv = max(minSigma, VSMALL);
 for(label ip = 0; ip < nParts; ip++)
 {
     for(label jp=0; jp < nParts; jp++)
@@ -59,40 +55,49 @@ for(label ip = 0; ip < nParts; ip++)
     {
         if (ip != jp)
         {
-            Info << "Transfer min: " << min(transfer[ip][jp]).value() << endl;
-            Info << "Transfer max: " << max(transfer[ip][jp]).value() << endl;
-            massTransfer[ip][jp] = 1/dt * transfer[ip][jp] * 
-            //max
-            //(
-                sigmaRho[ip]
-            //    , minSigmaDiv*rho[ip]
-            //) 
-            /
+            //Info << "Transfer min: " << min(transfer[ip][jp]).value() << endl;
+            //Info << "Transfer max: " << max(transfer[ip][jp]).value() << endl;
+            massTransfer[ip][jp] = 1/dt * transfer[ip][jp] * sigmaRho[ip] /
             (
                 1 + alphaM*(transfer[ip][jp] + transfer[jp][ip])
             );
             
+            massTransferf[ip][jp] = 1/dt * transferf[ip][jp] * sigmaRhof[ip] /
+            (
+                1 + alphaM*(transferf[ip][jp] + transferf[jp][ip])
+            );
         }
     }
 }
 
+
+
+
 // Apply mass transfer terms (operator split) to sigmaRho equation
 for(label ip = 0; ip < nParts; ip++)
 {
-    Info << "Min before transfer sigmaRho " << ip << ": " << min(sigmaRho[ip]).value() << endl;
     for(label jp=0; jp < nParts; jp++)
     {
         if (ip != jp)
         {
             sigmaRho[ip] += dt*(massTransfer[jp][ip] - massTransfer[ip][jp]);
+            //sigmaRho[ip] += dt*(sigmaRho[jp]*transfer[jp][ip] - sigmaRho[ip]*transfer[ip][jp]);
         }
     }
-    Info << "Min after transfer sigmaRho " << ip << ": " << min(sigmaRho[ip]).value() << endl;
 
     // Update the face values
     sigmaRhof[ip] = fvc::interpolate(sigmaRho[ip], "sigmaRho");
-}
+}    
+sigmaRho.updateSum();
+sigmaRhof.updateSum();
 
+for(label ip = 0; ip < nParts; ip++)
+{   
+    sigma[ip] = sigmaRho[ip]/sigmaRho.sum();
+    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
+}
+sigma.updateSum();
+sigmaf.updateSum();
 
 
 //Conditions for the treatment of sigmaRho in the transfer terms.
@@ -112,8 +117,8 @@ if (transferDenominatorOld)
 //Ensure denominator not zero
 for(label ip = 0; ip < nParts; ip++)
 {
-    sigmaRhoNumerator[ip] = max(sigmaRhoNumerator[ip], minSigmaDiv*rho[ip]);
-    sigmaRhoDenominator[ip] = max(sigmaRhoDenominator[ip], minSigmaDiv*rho[ip]);
+    sigmaRhoNumerator[ip] = max(sigmaRhoNumerator[ip], min(SMALL, minSigma)*rho[ip]);
+    sigmaRhoDenominator[ip] = max(sigmaRhoDenominator[ip], min(SMALL, minSigma)*rho[ip]);
     sigmaRhofNumerator[ip] = fvc::interpolate
     (
         sigmaRhoNumerator[ip], "massTransfer"

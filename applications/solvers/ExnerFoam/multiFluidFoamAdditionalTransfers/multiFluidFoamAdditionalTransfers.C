@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         #include "partitionedCourantNo.H"
-
+        
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "rhoSigmaEqn.H"
@@ -81,10 +81,12 @@ int main(int argc, char *argv[])
         #include "compressibleContinuityErrs.H"
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
              << " to " << max(sigma[1].internalField()).value() << endl;
+             
+        
         
         #include "calcDiagsPreTransfer.H"
         #include "massTransfers.H"
-        #include "sigma.H"
+        //#include "sigma.H"
         #include "calcDiagsPostTransfer.H"
         
         runTime.write();

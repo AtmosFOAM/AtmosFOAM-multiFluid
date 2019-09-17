@@ -33,7 +33,7 @@ for(label ip = 0; ip < nParts; ip++)
                     sigmaRhoPreTransfer[jp] * thetaPreTransfer[jp] * thetaTransferTerm[jp][ip]
                   - sigmaRhoPreTransfer[ip] * thetaPreTransfer[ip] * thetaTransferTerm[ip][jp]
                 )
-            ) / max(sigmaRho[ip], minSigmaDiv*rho[ip]);
+            ) / max(sigmaRho[ip], min(SMALL, minSigma)*rho[ip]);
         }
     }
 }

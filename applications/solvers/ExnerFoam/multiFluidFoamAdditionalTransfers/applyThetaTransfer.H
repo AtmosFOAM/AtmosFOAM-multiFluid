@@ -35,7 +35,7 @@ for(label ip = 0; ip < nParts; ip++)
     {
         if (ip != jp)
         {
-            Info << "min/max theta transfer: " << min(thetaTransferTerm[jp][ip]).value() << " , " << max(thetaTransferTerm[jp][ip]).value() << endl;
+            //Info << "min/max theta transfer: " << min(thetaTransferTerm[jp][ip]).value() << " , " << max(thetaTransferTerm[jp][ip]).value() << endl;
             theta[ip] += dt * thetaTransferTerm[jp][ip] *
             (
                 thetaPreTransfer[jp]

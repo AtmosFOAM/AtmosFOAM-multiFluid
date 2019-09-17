@@ -38,15 +38,27 @@ for(label ip = 0; ip < nParts; ip++)
     }
 }
 
+partitionedSurfaceScalarField sigmaRhofConsistent = sigmaRhofPreTransfer;
+for(label ip = 0; ip < nParts; ip++)
+{
+    for(label jp=0; jp < nParts; jp++)
+    {
+        if (ip != jp)
+        {
+            sigmaRhofConsistent[ip] += dt*(massTransferf[jp][ip] - massTransferf[ip][jp]);
+        }
+    }
+}
+
 // Update mass flux and velocities based on the flux
 for(label ip = 0; ip < nParts; ip++)
 {
     volFlux[ip] = massFlux[ip] / max
     (
-        sigmaRhof[ip], 
-        minSigmaDiv*fvc::interpolate(rho[ip], "massTransfer")
+        sigmaRhofConsistent[ip], 
+        min(SMALL, minSigma)*fvc::interpolate(rho[ip], "massTransfer")
     );
-    sigmaFlux[ip] = sigmaRhof[ip]*volFlux[ip];
+    sigmaFlux[ip] = massFlux[ip];
     u[ip] = fvc::reconstruct(volFlux[ip]);
     Uf[ip] = fvc::interpolate(u[ip], "Uf");
 }

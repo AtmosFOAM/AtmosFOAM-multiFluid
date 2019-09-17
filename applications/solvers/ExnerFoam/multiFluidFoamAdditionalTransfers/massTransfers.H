@@ -88,11 +88,20 @@ if (thetaTransfer)
     );
 }
 
+Info << endl;
+Info << "Pre-transfer diagnostics" << endl;
+#include "printDiags.H"
 
 #include "applyMassTransfer.H"
 
+Info << "Post-transfer diagnostics" << endl;
+Info << "transfer01 minmax: [" << min(transfer[0][1]).value() << ", " 
+                               << max(transfer[0][1]).value() << "]" << endl;
+Info << "transfer10 minmax: [" << min(transfer[1][0]).value() << ", " 
+                               << max(transfer[1][0]).value() << "]" << endl;
+#include "printDiags.H"
+
 // Update the sums
-sigmaRho.updateSum();
 transfer[0].updateSum();
 transfer[1].updateSum();
 

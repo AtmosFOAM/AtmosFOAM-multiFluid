@@ -40,6 +40,9 @@ scalar PEsum = sum(PE);
 scalar IEsum = sum(IE);
 scalar energyTot = sum(energy);
 
+Info << "Init Energy: " << energyInitTot << endl;
+Info << "Energy Change: " << energyTot-energyInitTot << endl;
+
 diags << runTime.timeName() << "  "
       << maxCoNums[0] << "  " << maxCoNums[1] << "  "
       << min(sigma[1]).value() << "  "
