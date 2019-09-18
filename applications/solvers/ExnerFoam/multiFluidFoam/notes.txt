@@ -1,0 +1,16 @@
+18 Sept
+
+This looks as if it will introduce a mass conservation error. The inconsistecy between sum(sigma rho theta) and Exner should not lead to a conservation error but currently sigmaRho is recalculated based on Exner. sigma.H needs to be redone like this:
+
+rhoTheta = theta.sum();
+
+and no need to do:
+sigma.updateSum();
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigma[ip] /= sigma.sum();
+    sigmaRho[ip] = sigma[ip]*rho[ip];
+}
+sigma.updateSum();
+
+Also better diagnostics of mass conservation errors

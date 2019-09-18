@@ -238,8 +238,8 @@ const volScalarField bBar
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
 (
-    IOobject("Q", runTime.constant(), mesh, 
-             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
+    IOobject("Q", runTime.timeName(), mesh, 
+             IOobject::READ_IF_PRESENT, IOobject::AUTO_WRITE),
     mesh,
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );

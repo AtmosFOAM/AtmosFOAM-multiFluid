@@ -46,12 +46,14 @@ if (nParts != 2)
 if (!noTransfers)
 {
     // Bouyancy anomalies of fluid transferred
+    // Bouyancy transferred is half way between the two fluids
     if (transferAnomalies)
     {
         bt[0] = mag(0.5*(b[1] - b[0]));
         bt[1] = -bt[0];
     }
 
+    // The bouyancy of the fluid transferred depends on the laplacian of b
     if (transferAnomaliesLaplacian)
     {
         bt[0] = min
@@ -74,7 +76,8 @@ if (!noTransfers)
             -bTransferMax
         );
     }
-    if (!transferAnomaliesb0)
+    // Normal transfers
+    if (!transferAnomaliesb0 && !transferZeroAnomalies)
     {
         b[0] = (
                    (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
@@ -85,13 +88,19 @@ if (!noTransfers)
         b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
                /(1+transfer[0]);
     }
-    else
+    else if (transferAnomaliesb0)
     // Fluid transferred from 1 to zero has zero buoyancy
     {
         b[0] /= 1 + transfer[1];
         //bt[0] =  remains zero
         b[1] = (b[1] + transfer[0]*b[0])/(1+transfer[0] - S[1]);
         bt[1] = -b[1];
+    }
+    else // transferZeroAnomalies
+    // Fluid transferred has zero buoyancy
+    {
+        b[0] /= 1 - S[0] + transfer[1];
+        b[1] /= 1 - S[1] + transfer[0];
     }
 }
 
@@ -111,9 +120,10 @@ if (adjustQ)
     {
         totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
     }
+    Q = (totalHeat0 - totalHeat)/dt;
     for(label ip = 0; ip < nParts; ip++)
     {
-        b[ip] += (totalHeat0 - totalHeat);
+        b[ip] += dt*Q;
     }
 }
 

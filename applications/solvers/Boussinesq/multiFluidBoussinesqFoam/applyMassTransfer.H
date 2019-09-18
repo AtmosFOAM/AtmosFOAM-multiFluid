@@ -56,6 +56,6 @@ for(label ip = 0; ip < nParts; ip++)
             sigma[ip] += dt*(massTransfer[jp][ip] - massTransfer[ip][jp]);
         }
     }
+    sigma[ip].correctBoundaryConditions();
 }
-
 }

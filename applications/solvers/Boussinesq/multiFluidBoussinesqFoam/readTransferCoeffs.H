@@ -73,4 +73,9 @@ const dimensionedScalar bTransferMax = transferAnomaliesLaplacian ?
 
 const Switch transferAnomaliesb0 = noTransfers? Switch(false) :
         Switch(transferProps.lookup("transferAnomaliesb0"));
+const Switch transferZeroAnomalies = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "transferZeroAnomalies", Switch(false)
+        );
 
