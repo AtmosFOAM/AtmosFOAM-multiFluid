@@ -14,3 +14,10 @@ for(label ip = 0; ip < nParts; ip++)
 sigma.updateSum();
 
 Also better diagnostics of mass conservation errors
+
+Also there is a problem with minSigma in applyMassTransfers.H
+const scalar minSigmaDiv = max(minSigma, VSMALL);
+
+should be SMALL
+
+Also check multiFluidBuossinesq
