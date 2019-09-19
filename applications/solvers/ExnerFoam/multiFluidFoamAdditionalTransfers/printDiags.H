@@ -1,4 +1,8 @@
 {
+    Info << "rho minmax: [" << min(sigmaRho.sum()).value() << ", " 
+                               << max(sigmaRho.sum()).value() << "]" << endl;
+    Info << "rho Tot: " << (fvc::domainIntegrate(sigmaRho.sum())/Vtot).value() << endl;
+    
     Info << "sigma0 minmax: [" << min(sigmaRho[0]/sigmaRho.sum()).value() << ", " 
                                << max(sigmaRho[0]/sigmaRho.sum()).value() << "]" << endl;
     Info << "sigma0 minmax: [" << min(sigma[0]).value() << ", " 
@@ -16,6 +20,14 @@
                                  << max(volFlux[0]).value() << "]" << endl;
     Info << "volFlux1 minmax: [" << min(volFlux[1]).value() << ", " 
                                  << max(volFlux[1]).value() << "]" << endl;
+    
+    volScalarField PE0 = -sigmaRho[0]*(g & mesh.C());
+    volScalarField PE1 = -sigmaRho[1]*(g & mesh.C());
+    Info << "PE0 minmax: [" << min(PE0).value() << ", " 
+                               << max(PE0).value() << "]" << endl;
+    Info << "PE1 minmax: [" << min(PE1).value() << ", " 
+                               << max(PE1).value() << "]" << endl;
+    Info << "PE Tot: " << (fvc::domainIntegrate(PE0+PE1)/Vtot).value() << endl;
     
     volScalarField IE0 = sigmaRho[0]*theta[0]*Exner*Cv;
     volScalarField IE1 = sigmaRho[1]*theta[1]*Exner*Cv;

@@ -13,6 +13,8 @@ for(label ip = 0; ip < nParts; ip++)
 }
 sigma.updateSum();
 
+--------------------------------------------------------------------------------
+
 Also better diagnostics of mass conservation errors
 
 Also there is a problem with minSigma in applyMassTransfers.H
@@ -21,3 +23,13 @@ const scalar minSigmaDiv = max(minSigma, VSMALL);
 should be SMALL
 
 Also check multiFluidBuossinesq
+
+--------------------------------------------------------------------------------
+
+The conservation error in sigma.H only occurs when internal energy is
+not conserved (such as when minSigmaDiv instead of SMALL is used 
+in transfer terms). If IE is not conserved then it will cause PE not to
+conserve. Using rhoTheta=theta.sum() ensures PE remains conserved.
+
+The effect of using rhoTheta=theta.sum() on exner.H still needs to be
+investigated.
