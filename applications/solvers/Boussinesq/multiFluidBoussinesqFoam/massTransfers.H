@@ -33,6 +33,21 @@ if (Ksigma.value() > SMALL)
     }
 }
 
+// Entrainment based on plume radius
+if (entrainmentCoefficient > 0 && cloudRadiusMax.value() > 0)
+{
+    massTransfer[0][1] += max
+    (
+        sigma[0]*u[1].component(2)*entrainmentCoefficient/cloudRadiusMax,
+        rateZero
+    );
+    massTransfer[1][0] += max
+    (
+        sigma[1]*u[0].component(2)*entrainmentCoefficient/cloudRadiusMax,
+        rateZero
+    );
+}
+
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (divTransfer>0)
 {

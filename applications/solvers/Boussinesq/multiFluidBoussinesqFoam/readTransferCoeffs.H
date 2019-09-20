@@ -79,3 +79,9 @@ const Switch transferZeroAnomalies = noTransfers? Switch(false) :
             "transferZeroAnomalies", Switch(false)
         );
 
+// Coefficient for entrainment rate proportional to 1/r
+const scalar entrainmentCoefficient = transferProps.lookupOrDefault<scalar>
+(
+    "entrainmentCoefficient", scalar(0)
+);
+
