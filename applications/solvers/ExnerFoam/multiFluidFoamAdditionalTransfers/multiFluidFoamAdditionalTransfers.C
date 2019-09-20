@@ -86,7 +86,6 @@ int main(int argc, char *argv[])
         
         #include "calcDiagsPreTransfer.H"
         #include "massTransfers.H"
-        //#include "sigma.H"
         #include "calcDiagsPostTransfer.H"
         
         runTime.write();

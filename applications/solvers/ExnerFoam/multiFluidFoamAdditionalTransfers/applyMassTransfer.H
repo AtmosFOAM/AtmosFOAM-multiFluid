@@ -91,13 +91,13 @@ for(label ip = 0; ip < nParts; ip++)
 sigmaRho.updateSum();
 sigmaRhof.updateSum();
 
-for(label ip = 0; ip < nParts; ip++)
+/*for(label ip = 0; ip < nParts; ip++)
 {   
     sigma[ip] = sigmaRho[ip]/sigmaRho.sum();
     sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
 }
 sigma.updateSum();
-sigmaf.updateSum();
+sigmaf.updateSum();*/
 
 
 //Conditions for the treatment of sigmaRho in the transfer terms.

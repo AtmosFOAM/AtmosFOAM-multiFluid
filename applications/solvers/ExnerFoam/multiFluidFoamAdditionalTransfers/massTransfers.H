@@ -93,12 +93,15 @@ Info << "Pre-transfer diagnostics" << endl;
 #include "printDiags.H"
 
 #include "applyMassTransfer.H"
+#include "sigma.H"
 
-Info << "Post-transfer diagnostics" << endl;
 Info << "transfer01 minmax: [" << min(transfer[0][1]).value() << ", " 
                                << max(transfer[0][1]).value() << "]" << endl;
 Info << "transfer10 minmax: [" << min(transfer[1][0]).value() << ", " 
                                << max(transfer[1][0]).value() << "]" << endl;
+
+Info << endl;
+Info << "Post-transfer diagnostics" << endl;
 #include "printDiags.H"
 
 // Update the sums
