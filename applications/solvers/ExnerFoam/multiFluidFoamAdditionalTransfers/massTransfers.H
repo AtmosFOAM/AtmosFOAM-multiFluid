@@ -93,7 +93,7 @@ Info << "Pre-transfer diagnostics" << endl;
 #include "printDiags.H"
 
 #include "applyMassTransfer.H"
-#include "sigma.H"
+//#include "sigma.H"
 
 Info << "transfer01 minmax: [" << min(transfer[0][1]).value() << ", " 
                                << max(transfer[0][1]).value() << "]" << endl;
