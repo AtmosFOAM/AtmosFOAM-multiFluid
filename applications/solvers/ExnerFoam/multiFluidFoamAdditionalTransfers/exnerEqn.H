@@ -77,6 +77,16 @@ for (int corr=0; corr<nCorr; corr++)
         volFlux.ddt()[ip] -= Cp*thetaf[ip]
                             *fvc::snGrad(ExnerPrime)*mesh.magSf();
     }
+    
+    //Transfer velocity
+    if (useVolFluxTransfer)
+    {
+        #include "applyVolFluxTransfer.H"
+    }
+    else if (useFluxTransfer)
+    {
+        #include "applyFluxTransfer.H"
+    }
 
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)

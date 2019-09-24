@@ -75,6 +75,11 @@ int main(int argc, char *argv[])
             #include "rhoSigmaEqn.H"
             #include "thetaEqn.H"
             #include "sigma.H"
+            
+            #include "calcDiagsPreTransfer.H"
+            #include "massTransfers.H"
+            #include "calcDiagsPostTransfer.H"
+            
             #include "calculateDrag.H"
             #include "exnerEqn.H"
         }
@@ -84,9 +89,7 @@ int main(int argc, char *argv[])
              
         
         
-        #include "calcDiagsPreTransfer.H"
-        #include "massTransfers.H"
-        #include "calcDiagsPostTransfer.H"
+        
         
         runTime.write();
 
