@@ -8,12 +8,19 @@ if (gamma.value() > VSMALL)
     {
         for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
         {
-            fvScalarMatrix PEqn
+/*            fvScalarMatrix PEqn
             (
                 fvm::Sp(sigma[ip]/gamma, Pi[ip])
               + fvc::div(sigmaf[ip]*volFlux[ip])
               + offCentre*dt*fvc::laplacian(sigmaf[ip],Pi[ip])
               - offCentre*dt*fvm::laplacian(sigmaf[ip],Pi[ip])
+            );*/
+            fvScalarMatrix PEqn
+            (
+                fvm::Sp(1/gamma, Pi[ip])
+              + fvc::div(volFlux[ip])
+              + offCentre*dt*fvc::laplacian(Pi[ip])
+              - offCentre*dt*fvm::laplacian(Pi[ip])
             );
             PEqn.solve();
         }
