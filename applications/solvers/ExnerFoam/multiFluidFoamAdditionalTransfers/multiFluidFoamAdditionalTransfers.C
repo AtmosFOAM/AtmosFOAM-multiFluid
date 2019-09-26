@@ -76,9 +76,7 @@ int main(int argc, char *argv[])
             #include "thetaEqn.H"
             #include "sigma.H"
             
-            #include "calcDiagsPreTransfer.H"
-            #include "massTransfers.H"
-            #include "calcDiagsPostTransfer.H"
+            
             
             #include "calculateDrag.H"
             #include "exnerEqn.H"
@@ -88,7 +86,9 @@ int main(int argc, char *argv[])
              << " to " << max(sigma[1].internalField()).value() << endl;
              
         
-        
+        #include "calcDiagsPreTransfer.H"
+        #include "massTransfers.H"
+        #include "calcDiagsPostTransfer.H"        
         
         
         runTime.write();

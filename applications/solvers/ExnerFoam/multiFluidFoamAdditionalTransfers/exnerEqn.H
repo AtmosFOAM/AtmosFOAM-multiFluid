@@ -79,14 +79,14 @@ for (int corr=0; corr<nCorr; corr++)
     }
     
     //Transfer velocity
-    if (useVolFluxTransfer)
+    /*if (useVolFluxTransfer)
     {
         #include "applyVolFluxTransfer.H"
     }
     else if (useFluxTransfer)
     {
         #include "applyFluxTransfer.H"
-    }
+    }*/
 
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)

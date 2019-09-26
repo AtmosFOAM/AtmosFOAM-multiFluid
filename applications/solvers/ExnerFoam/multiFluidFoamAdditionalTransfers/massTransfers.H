@@ -77,13 +77,13 @@ if (thetaTransfer)
 {
     massTransfer[0][1] -= sigmaRho[0]*thetaTransferDiffusivity*min
     (
-        fvc::laplacian(theta[0])/theta[0],
+        fvc::laplacian(theta[0])/max(theta[0], minThetaDiv),
         dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
     );
 
     massTransfer[1][0] += sigmaRho[1]*thetaTransferDiffusivity*max
     (
-        fvc::laplacian(theta[1])/theta[1],
+        fvc::laplacian(theta[1])/max(theta[1], minThetaDiv),
         dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
     );
 }

@@ -1,5 +1,3 @@
-partitionedVolScalarField thetaPreTransfer = theta;
-
 // Set theta transfer terms to be either explicit or implicit based on alphaT
 for(label ip = 0; ip < nParts; ip++)
 {
@@ -40,6 +38,12 @@ for(label ip = 0; ip < nParts; ip++)
             (
                 thetaPreTransfer[jp]
               - thetaPreTransfer[ip]
+            );
+
+            theta.ddt()[ip] += dt * thetaTransferTerm[jp][ip] *
+            (
+                thetaPreTransfer.ddt()[jp]
+              - thetaPreTransfer.ddt()[ip]
             );
         }
     }

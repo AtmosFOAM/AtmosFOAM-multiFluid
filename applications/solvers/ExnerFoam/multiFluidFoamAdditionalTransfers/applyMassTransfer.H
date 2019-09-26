@@ -129,7 +129,9 @@ for(label ip = 0; ip < nParts; ip++)
     );
 }
 
+
 //Transfer theta 
+partitionedVolScalarField thetaPreTransfer = theta;
 if (useAdvectiveThetaTransfer)
 {
     #include "applyThetaTransfer.H"
@@ -138,10 +140,28 @@ else if (useFluxThetaTransfer)
 {
     #include "applyThetaFluxTransfer.H"
 }
+/*for(label ip = 0; ip < nParts; ip++)
+{
+    theta.ddt()[ip] += (theta[ip]-thetaPreTransfer[ip])/dt;
+}*/
 
+//Transfer velocity
+partitionedSurfaceScalarField volFluxPreTransfer = volFlux;
+if (useVolFluxTransfer)
+{
+    #include "applyVolFluxTransfer.H"
+}
+else if (useFluxTransfer)
+{
+    #include "applyFluxTransfer.H"
+}
+/*for(label ip = 0; ip < nParts; ip++)
+{
+    volFlux.ddt()[ip] += (volFlux[ip]-volFluxPreTransfer[ip])/dt;
+}*/
 
-
-rhoTheta = theta.sum();
+#include "sigma.H"
+/*rhoTheta = theta.sum();
 for(label ip = 0; ip < nParts; ip++)
 {
     // Update the density so that pressure matches in both partitions
@@ -159,7 +179,7 @@ for(label ip = 0; ip < nParts; ip++)
 sigma.updateSum();
 rho.updateSum();
 sigmaRho.updateSum();
-theta.updateSum();
+theta.updateSum();*/
 
 // Update sigma on the face and limit to between zero and one
 for(label ip = 0; ip < nParts; ip++)

@@ -1,5 +1,3 @@
-partitionedSurfaceScalarField volFluxPreTransfer = volFlux;
-
 // Set theta transfer terms to be either explicit or implicit based on alphaT
 for(label ip = 0; ip < nParts; ip++)
 {
@@ -47,6 +45,12 @@ for(label ip = 0; ip < nParts; ip++)
             (
                 volFluxPreTransfer[jp]
               - volFluxPreTransfer[ip]
+            );
+
+            volFlux.ddt()[ip] += dt * volFluxTransferTerm[jp][ip] * 
+            (
+                volFluxPreTransfer.ddt()[jp]
+              - volFluxPreTransfer.ddt()[ip]
             );
         }
     }

@@ -1,11 +1,11 @@
 // Updating sigma and rho in each partition and sigma on the face
 
-//rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
-rhoTheta = theta.sum();
+rhoTheta = pRef/R*pow(Exner, (1-kappa)/kappa);
+//rhoTheta = theta.sum();
 for(label ip = 0; ip < nParts; ip++)
 {
     // Update the density so that pressure matches in both partitions
-    rho[ip] = rhoTheta/theta[ip];
+    rho[ip] = rhoTheta/max(theta[ip], minThetaDiv);
 
     // update sigma from rho and sigmaRho
     sigma[ip] = sigmaRho[ip]/rho[ip];

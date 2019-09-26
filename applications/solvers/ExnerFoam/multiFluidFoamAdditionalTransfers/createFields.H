@@ -66,9 +66,10 @@ partitionedVolScalarField theta
 
 
 Info << "Calculating density and density in each partition and density weighted theta sum\n" << endl;
+dimensionedScalar minThetaDiv = dimensionedScalar("",dimensionSet(0,0,0,1,0),SMALL);
 for(label ip = 0; ip < partNames.size(); ip++)
 {
-    rho[ip] = pRef/(R*theta[ip])*pow(Exner, (1-kappa)/kappa);
+    rho[ip] = pRef/(R*max(theta[ip],minThetaDiv))*pow(Exner, (1-kappa)/kappa);
 }
 rho.updateSum();
 sigmaRho = rho.timesSigma();
@@ -170,6 +171,7 @@ for(label ip = 1; ip < partNames.size(); ip++)
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
+massFlux.storeTime();
 theta.storeTime();
 sigmaRho.storeTime();
 flux.sum().oldTime();
