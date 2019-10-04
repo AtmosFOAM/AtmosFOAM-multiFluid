@@ -418,6 +418,110 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+PtrList<partitionedVolScalarField> thetaTransferDivMEAN(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferDivMEAN.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferDivMEAN."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferDivHALF(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferDivHALF.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferDivHALF."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferDivVAR(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferDivVAR.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferDivVAR."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferDivMEANVAR(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferDivMEANVAR.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferDivMEANVAR."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferSigmaDiffMEAN(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferSigmaDiffMEAN.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferSigmaDiffMEAN."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferSigmaDiffHALF(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferSigmaDiffHALF.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferSigmaDiffHALF."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferSigmaDiffVAR(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferSigmaDiffVAR.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferDivVAR."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
+PtrList<partitionedVolScalarField> thetaTransferSigmaDiffMEANVAR(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    thetaTransferDivMEANVAR.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "thetaTransferSigmaDiffMEANVAR."+partNames[jp], partNames, thetaTransferTmp
+        )
+    );
+}
+
 PtrList<partitionedVolScalarField> thetaVarTransferThetaVar(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {
