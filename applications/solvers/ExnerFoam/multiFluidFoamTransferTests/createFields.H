@@ -214,6 +214,11 @@ partitionedVolScalarField thetaVarPreTransfer = thetaVar;
 partitionedVolScalarField wPreTransfer = w;
 partitionedVolScalarField wVarPreTransfer = wVar;
 
+partitionedVolScalarField thetaPreTransferTot = theta;
+partitionedVolScalarField thetaVarPreTransferTot = thetaVar;
+partitionedVolScalarField wPreTransferTot = w;
+partitionedVolScalarField wVarPreTransferTot = wVar;
+
 Info << "The compressibility\n" << endl;
 /*partitionedVolScalarField Psi
 (
@@ -340,6 +345,19 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+PtrList<partitionedVolScalarField> massTransferAnalytic(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    massTransferAnalytic.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "massTransferAnalytic."+partNames[jp], partNames, massTransferTmp
+        )
+    );
+}
+
 PtrList<partitionedVolScalarField> massTransferDivTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {
@@ -405,239 +423,280 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
-PtrList<partitionedVolScalarField> thetaTransferThetaVar(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferThetaVar.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferThetaVar."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
 
-PtrList<partitionedVolScalarField> thetaTransferDivMEAN(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferDivMEAN.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferDivMEAN."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaTransferChange
+(
+    "thetaTransferChange", partNames, 0*theta[0]/dt
+);
 
-PtrList<partitionedVolScalarField> thetaTransferDivHALF(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferDivHALF.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferDivHALF."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaTransferAnalyticMean
+(
+    "thetaTransferAnalyticMean", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferAnalyticVar
+(
+    "thetaTransferAnalyticVar", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferAnalyticMeanVar
+(
+    "thetaTransferAnalyticMeanVar", partNames, thetaTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferDivVAR(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferDivVAR.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferDivVAR."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaTransferDivMean
+(
+    "thetaTransferDivMean", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferDivVar
+(
+    "thetaTransferDivVar", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferDivMeanVar
+(
+    "thetaTransferDivMeanVar", partNames, thetaTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferDivMEANVAR(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferDivMEANVAR.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferDivMEANVAR."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaTransferSigmaDiffMean
+(
+    "thetaTransferSigmaDiffMean", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferSigmaDiffVar
+(
+    "thetaTransferSigmaDiffVar", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferSigmaDiffMeanVar
+(
+    "thetaTransferSigmaDiffMeanVar", partNames, thetaTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferSigmaDiffMEAN(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferSigmaDiffMEAN.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferSigmaDiffMEAN."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaTransferThetaDiffMean
+(
+    "thetaTransferThetaDiffMean", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferThetaDiffVar
+(
+    "thetaTransferThetaDiffVar", partNames, thetaTransferChange[0]
+);
+partitionedVolScalarField thetaTransferThetaDiffMeanVar
+(
+    "thetaTransferThetaDiffMeanVar", partNames, thetaTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferSigmaDiffHALF(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferSigmaDiffHALF.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferSigmaDiffHALF."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaVarTransferChange
+(
+    "thetaVarTransferChange", partNames, 0*thetaVar[0]/dt
+);
 
-PtrList<partitionedVolScalarField> thetaTransferSigmaDiffVAR(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferSigmaDiffVAR.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferDivVAR."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaVarTransferAnalyticMean
+(
+    "thetaVarTransferAnalyticMean", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferAnalyticVar
+(
+    "thetaVarTransferAnalyticVar", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferAnalyticMeanVar
+(
+    "thetaVarTransferAnalyticMeanVar", partNames, thetaVarTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferSigmaDiffMEANVAR(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferDivMEANVAR.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferSigmaDiffMEANVAR."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaVarTransferDivMean
+(
+    "thetaVarTransferDivMean", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferDivVar
+(
+    "thetaVarTransferDivVar", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferDivMeanVar
+(
+    "thetaVarTransferDivMeanVar", partNames, thetaVarTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaVarTransferThetaVar(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaVarTransferThetaVar.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaVarTransferThetaVar."+partNames[jp], partNames, thetaVarTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaVarTransferSigmaDiffMean
+(
+    "thetaVarTransferSigmaDiffMean", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferSigmaDiffVar
+(
+    "thetaVarTransferSigmaDiffVar", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferSigmaDiffMeanVar
+(
+    "thetaVarTransferSigmaDiffMeanVar", partNames, thetaVarTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaTransferThetaVarAlternative(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaTransferThetaVarAlternative.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaTransferThetaVarAlternative."+partNames[jp], partNames, thetaTransferTmp
-        )
-    );
-}
+partitionedVolScalarField thetaVarTransferThetaDiffMean
+(
+    "thetaVarTransferThetaDiffMean", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferThetaDiffVar
+(
+    "thetaVarTransferThetaDiffVar", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferThetaDiffMeanVar
+(
+    "thetaVarTransferThetaDiffMeanVar", partNames, thetaVarTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> thetaVarTransferThetaVarAlternative(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    thetaVarTransferThetaVarAlternative.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "thetaVarTransferThetaVarAlternative."+partNames[jp], partNames, thetaVarTransferTmp
-        )
-    );
-}
 
-PtrList<partitionedVolScalarField> wTransferWvar(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wTransferWvar.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wTransferWvar."+partNames[jp], partNames, wTransferTmp
-        )
-    );
-}
+partitionedVolScalarField wTransferChange
+(
+    "wTransferChange", partNames, 0*w[0]/dt
+);
 
-PtrList<partitionedVolScalarField> wVarTransferWvar(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wVarTransferWvar.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wVarTransferWvar."+partNames[jp], partNames, wVarTransferTmp
-        )
-    );
-}
+partitionedVolScalarField wTransferAnalyticMean
+(
+    "wTransferAnalyticMean", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferAnalyticVar
+(
+    "wTransferAnalyticVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferAnalyticMeanVar
+(
+    "wTransferAnalyticMeanVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferAnalyticZero
+(
+    "wTransferAnalyticZero", partNames, wTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> wTransferWvarAlternative(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wTransferWvarAlternative.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wTransferWvarAlternative."+partNames[jp], partNames, wTransferTmp
-        )
-    );
-}
+partitionedVolScalarField wTransferDivMean
+(
+    "wTransferDivMean", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferDivVar
+(
+    "wTransferDivVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferDivMeanVar
+(
+    "wTransferDivMeanVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferDivZero
+(
+    "wTransferDivZero", partNames, wTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> wVarTransferWvarAlternative(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wVarTransferWvarAlternative.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wVarTransferWvarAlternative."+partNames[jp], partNames, wVarTransferTmp
-        )
-    );
-}
+partitionedVolScalarField wTransferSigmaDiffMean
+(
+    "wTransferSigmaDiffMean", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferSigmaDiffVar
+(
+    "wTransferSigmaDiffVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferSigmaDiffMeanVar
+(
+    "wTransferSigmaDiffMeanVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferSigmaDiffZero
+(
+    "wTransferSigmaDiffZero", partNames, wTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> wTransferGradDiv(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wTransferGradDiv.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wTransferGradDiv."+partNames[jp], partNames, wTransferTmp
-        )
-    );
-}
+partitionedVolScalarField wTransferThetaDiffMean
+(
+    "wTransferThetaDiffMean", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferThetaDiffVar
+(
+    "wTransferThetaDiffVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferThetaDiffMeanVar
+(
+    "wTransferThetaDiffMeanVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferThetaDiffZero
+(
+    "wTransferThetaDiffZero", partNames, wTransferChange[0]
+);
 
-PtrList<partitionedVolScalarField> wTransferDrag(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    wTransferDrag.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "wTransferDrag."+partNames[jp], partNames, wTransferTmp
-        )
-    );
-}
+
+partitionedVolScalarField wVarTransferChange
+(
+    "wVarTransferChange", partNames, 0*wVar[0]/dt
+);
+
+partitionedVolScalarField wVarTransferAnalyticMean
+(
+    "wVarTransferAnalyticMean", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferAnalyticVar
+(
+    "wVarTransferAnalyticVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferAnalyticMeanVar
+(
+    "wVarTransferAnalyticMeanVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferAnalyticZero
+(
+    "wVarTransferAnalyticZero", partNames, wVarTransferChange[0]
+);
+
+partitionedVolScalarField wVarTransferDivMean
+(
+    "wVarTransferDivMean", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferDivVar
+(
+    "wVarTransferDivVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferDivMeanVar
+(
+    "wVarTransferDivMeanVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferDivZero
+(
+    "wVarTransferDivZero", partNames, wVarTransferChange[0]
+);
+
+partitionedVolScalarField wVarTransferSigmaDiffMean
+(
+    "wVarTransferSigmaDiffMean", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferSigmaDiffVar
+(
+    "wVarTransferSigmaDiffVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferSigmaDiffMeanVar
+(
+    "wVarTransferSigmaDiffMeanVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferSigmaDiffZero
+(
+    "wVarTransferSigmaDiffZero", partNames, wVarTransferChange[0]
+);
+
+partitionedVolScalarField wVarTransferThetaDiffMean
+(
+    "wVarTransferThetaDiffMean", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferThetaDiffVar
+(
+    "wVarTransferThetaDiffVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferThetaDiffMeanVar
+(
+    "wVarTransferThetaDiffMeanVar", partNames, wVarTransferChange[0]
+);
+partitionedVolScalarField wVarTransferThetaDiffZero
+(
+    "wVarTransferThetaDiffZero", partNames, wVarTransferChange[0]
+);
+
+
+partitionedVolScalarField wTransferGradDiv
+(
+    "wTransferGradDiv", partNames, 0*w[0]/dt
+);
+
+partitionedVolScalarField wTransferDrag
+(
+    "wTransferDrag", partNames, 0*w[0]/dt
+);
+
 
 Info << "Initialising the theta transfer between partitions\n" << endl;
 const dimensionedScalar thetaTransferTermZero

@@ -5,6 +5,11 @@ if (nParts != 2)
         << " mass transfer terms only formulated for nParts = 2, not nParts = "
         << nParts << exit(FatalError);
 }
+const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
+const dimensionedScalar thetaMin("",theta[0].dimensions(),scalar(1e-16));
+const dimensionedScalar thetaVarMin("",thetaVar[0].dimensions(),scalar(1e-16));
+const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
+const dimensionedScalar wVarMin("",wVar[0].dimensions(),scalar(1e-16));
 
 // Set all mass transfers to zero
 for(label ip = 0; ip < nParts; ip++)
@@ -29,14 +34,14 @@ for(label ip = 0; ip < nParts; ip++)
         massTransferSigmaDiffusion[jp][ip] = -min(massTransferTmp, massTransferZero);
     }
 }
+massTransferSigmaDiffusion[0].write();
+massTransferSigmaDiffusion[1].write();
 
 // Mass transfer to avoid changes in sigmaRho due to partition divergence
 massTransferDivTransfer[0][1] = divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
 massTransferDivTransfer[1][0] = divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
-// REverser it
-//    massTransfer[0][1] += sigmaRho[0]*max(-fvc::div(volFlux[1]), rateZero);
-//    massTransfer[1][0] += sigmaRho[1]*max(-fvc::div(volFlux[0]), rateZero);
-
+massTransferDivTransfer[0].write();
+massTransferDivTransfer[1].write();
 
 // Mass transfer based on vertical velocity and horizontal divergence
 if (wTransfer)
@@ -68,6 +73,8 @@ massTransferThetaDiffusion[1][0] = sigmaRho[1]*thetaTransferDiffusivity*max
     fvc::laplacian(theta[1])/theta[1],
     dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
 );
+massTransferThetaDiffusion[0].write();
+massTransferThetaDiffusion[1].write();
 
 sigmaRhoPreTransfer = sigmaRho;
 
@@ -77,9 +84,11 @@ sigmaRhoPreTransfer = sigmaRho;
 
 
 
-massTransfer[0][1] += max((sigmaRhoExpected[1]-sigmaRho[1])/dt, massTransferZero);
-//massTransfer[1][0] += max((sigmaRhoExpected[0]-sigmaRho[0])/dt, massTransferZero);
-massTransfer[1][0] += max(-(sigmaRhoExpected[1]-sigmaRho[1])/dt, massTransferZero);
+massTransferAnalytic[0][1] += max((sigmaRhoExpected[1]-sigmaRho[1])/dt, massTransferZero);
+//massTransferAnalytic[1][0] += max((sigmaRhoExpected[0]-sigmaRho[0])/dt, massTransferZero);
+massTransferAnalytic[1][0] += max(-(sigmaRhoExpected[1]-sigmaRho[1])/dt, massTransferZero);
+massTransferAnalytic[0].write();
+massTransferAnalytic[1].write();
 
 /*massTransfer[0][1] += divCoeff*sigmaRho[0]*max(-fvc::div(volFlux[0]), rateZero);
 massTransfer[1][0] += divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), rateZero);
@@ -117,6 +126,6 @@ massTransfer[1][0] += sigmaRho[0] * 0.5 / thetaVarTimescale *
 // Update the sums
 sigmaRho.updateSum();
 transfer.updateSum();
-massTransferSigmaDiffusion[0].write();
-massTransferSigmaDiffusion[1].write();
+
+
 

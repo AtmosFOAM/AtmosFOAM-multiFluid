@@ -37,6 +37,7 @@ Description
 #include "fvCFD.H"
 #include "ExnerTheta.H"
 #include "PartitionedFields.H"
+#include "errorFunctionInverse.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,23 +76,22 @@ int main(int argc, char *argv[])
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "rhoSigmaEqn.H"
-            #include "massTransfers.H"
             #include "thetaEqn.H"
             #include "thetaVarEqn.H"
+
             #include "sigma.H"
             #include "calculateDrag.H"
             #include "exnerEqn.H"
             #include "wVarEqn.H"
-            #include "heatTransfers.H"
-            #include "heatTransfersAlternative.H"
-            #include "velocityTransfers.H"
-            #include "velocityTransfersAlternative.H"
         }
         #include "compressibleContinuityErrs.H"
         Info << "sigma[1] goes from " << min(sigma[1].internalField()).value()
              << " to " << max(sigma[1].internalField()).value() << endl;
         #include "calcDiags.H"
         runTime.write();
+        
+        #include "massTransfers.H"
+        #include "applyTransferTests.H"
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

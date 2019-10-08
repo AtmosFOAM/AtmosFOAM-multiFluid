@@ -1,32 +1,45 @@
-Info << "Theta transfers based on theta variance:" << endl;
-// The transfer terms are only formulated for nParts == 2
-if (nParts != 2)
 {
-    FatalErrorIn("heatTransfer.H")
-        << " heat transfer terms only formulated for nParts = 2, not nParts = "
-        << nParts << exit(FatalError);
-}
 
-
-const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
-const dimensionedScalar thetaMin("",theta[0].dimensions(),scalar(1e-16));
-const dimensionedScalar thetaVarMin("",thetaVar[0].dimensions(),scalar(1e-16));
-const dimensionedScalar internalEnergyMin("",theta.sum().dimensions(),scalar(1e-16));
-
-
-Info << "length scale " << thetaVarLengthScale << endl;
 volScalarField thetaVarTransferRate = 0*transferRate[1] + 1 / thetaVarTimescale;
-if (localThetaVarTransfer)
-{
-    thetaVarTransferRate *= dt * transferRate[1];
-}
-//Limit heat transfer to prevent instability.
 thetaVarTransferRate = min(thetaVarTransferRate, 1/dt);
 thetaVarTransferRate *= thetaVarLengthScale;
 
 thetaVar[0] = max(thetaVar[0], 0*thetaVar[0]);
 thetaVar[1] = max(thetaVar[1], 0*thetaVar[1]);
+thetaPreTransfer = theta;
+thetaVarPreTransfer = thetaVar;
+thetaPreTransferTot = theta;
+thetaVarPreTransferTot = thetaVar;
 
+//theta transfer
+theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
+           /(1+transfer.sum());
+theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
+
+
+//thetaVar transfer
+thetaVar[0] = 
+(
+    (1 + transfer[0]) * (thetaVarPreTransfer[0] + sqr(thetaPreTransfer[0])) 
+  + transfer[1] * (thetaVarPreTransfer[1] + sqr(thetaPreTransfer[1]))
+) / 
+(
+    1 + transfer.sum()
+) - sqr(theta[0]);
+
+thetaVar[1] = 
+(
+    (1 + transfer[1]) * (thetaVarPreTransfer[1] + sqr(thetaPreTransfer[1]))
+  + transfer[0] * (thetaVarPreTransfer[0] + sqr(thetaPreTransfer[0]))
+) / 
+(
+    1 + transfer.sum()
+) - sqr(theta[1]);
+
+
+//Apply corrections due to theta variance.
+thetaVar[0] = max(thetaVar[0], 0*thetaVar[0]);
+thetaVar[1] = max(thetaVar[1], 0*thetaVar[1]);
 thetaPreTransfer = theta;
 thetaVarPreTransfer = thetaVar;
 
@@ -161,12 +174,13 @@ for(label ip = 0; ip < nParts; ip++)
 Info << "TOTAL INTERNAL ENERGY POST TRANSFER: " << sum(theta.sum()).value() << endl;
 
 
-thetaTransferThetaVar[0][1] = (theta[1]-thetaPreTransfer[1])/dt;
-thetaTransferThetaVar[1][0] = (theta[0]-thetaPreTransfer[0])/dt;
-thetaVarTransferThetaVar[0][1] = (thetaVar[1]-thetaVarPreTransfer[1])/dt;
-thetaVarTransferThetaVar[1][0] = (thetaVar[0]-thetaVarPreTransfer[0])/dt;
+thetaTransferChange[1] = (theta[1]-thetaPreTransferTot[1])/dt;
+thetaTransferChange[0] = (theta[0]-thetaPreTransferTot[0])/dt;
 
-theta[0] = thetaPreTransfer[0];
-theta[1] = thetaPreTransfer[1];
-thetaVar[0] = thetaVarPreTransfer[0];
-thetaVar[1] = thetaVarPreTransfer[1];   
+thetaVarTransferChange[1] = (thetaVar[1]-thetaVarPreTransferTot[1])/dt;
+thetaVarTransferChange[0] = (thetaVar[0]-thetaVarPreTransferTot[0])/dt;
+
+theta = thetaPreTransferTot;
+thetaVar = thetaVarPreTransferTot;
+
+}

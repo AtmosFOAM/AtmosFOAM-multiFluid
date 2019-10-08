@@ -30,12 +30,12 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-thetaPreTransfer = theta;
+/*thetaPreTransfer = theta;
 
 theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
            /(1+transfer.sum());
 theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
-
+*/
 theta.updateSum();
 
 for(label ip = 0; ip < nParts; ip++)

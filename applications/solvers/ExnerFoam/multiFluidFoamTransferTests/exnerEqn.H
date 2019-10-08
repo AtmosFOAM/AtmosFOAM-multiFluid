@@ -33,7 +33,7 @@ for (int corr=0; corr<nCorr; corr++)
         //    Kw * fvc::laplacian(u[ip]), "convection"
         //);
         volVectorField wTemp = fvc::reconstruct( mesh.magSf() * fvc::snGrad(Kw * fvc::div(volFlux[ip])) );
-        wTransferGradDiv[ip][ip] =  wTemp.component(2);
+        wTransferGradDiv[ip] =  wTemp.component(2);
         
         // Coriolis term
         if (magSqr(Omega.value()) > VSMALL)
@@ -91,7 +91,7 @@ for (int corr=0; corr<nCorr; corr++)
     }
     
     // Include the mass transfer and drag implicitly (for nParts=2)
-    /*transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
+    transferf[0] = fvc::interpolate(transfer[0], "massTransfer")
                  + dt*dragCommon
                  *fvc::interpolate(sigma[0]/rho[1], "massTransfer");
     transferf[1] = fvc::interpolate(transfer[1], "massTransfer")
@@ -100,19 +100,20 @@ for (int corr=0; corr<nCorr; corr++)
     transferf.updateSum();
     
     
-    
-    volVectorField wTemp = fvc::reconstruct( transferf[0]/dt * volFlux[0] );
-    wTransferDrag[0][1] = wTemp.component(2);
-    wTemp = fvc::reconstruct( transferf[1]/dt * volFlux[1] );
-    wTransferDrag[1][0] = wTemp.component(2);
-    
-    
-    volFlux[0] =
+    partitionedSurfaceScalarField volFluxDrag = volFlux;
+    volFluxDrag[0] =
     (
-        (1+transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
+        (1+transferf[0])*volFluxDrag[0] + transferf[1]*volFluxDrag[1]
     )/(1+transferf.sum());
-    volFlux[1] = (volFlux[1] + transferf[0]*volFlux[0])
-                /(1+transferf[0]);*/
+    volFluxDrag[1] = (volFluxDrag[1] + transferf[0]*volFluxDrag[0])
+                /(1+transferf[0]);
+                
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        u[ip] = fvc::reconstruct(volFluxDrag[ip]);
+        wTransferDrag[ip] = (u[ip].component(vector::Z) - wPreTransfer[ip])/dt;
+        u[ip] = fvc::reconstruct(volFlux[ip]);
+    }
                 
     // Velocity difference of fluid transferred
     partitionedSurfaceScalarField volFluxt = volFlux;
@@ -129,7 +130,7 @@ for (int corr=0; corr<nCorr; corr++)
     surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
     surfaceScalarField transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
     
-    volFlux[0] =
+    /*volFlux[0] =
     (
         (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"))*
         (
@@ -154,7 +155,7 @@ for (int corr=0; corr<nCorr; corr++)
       - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
     ) / 
     (1 + transferf[0] + dt*dragCommon*sigmaf[0]/fvc::interpolate(rho[1],"rho"));
-    
+    */
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
     {

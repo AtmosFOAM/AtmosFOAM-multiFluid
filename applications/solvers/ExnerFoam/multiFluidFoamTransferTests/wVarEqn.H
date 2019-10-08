@@ -30,7 +30,7 @@ if (nParts != 2)
         << nParts << exit(FatalError);
 }
 
-wVarPreTransfer = wVar;
+/*wVarPreTransfer = wVar;
 
 wVar[0] *= sigmaRhoPreTransfer[0] / max(sigmaRho[0], minSigmaDiv*rho[0]);
 wVar[0] -= sqr(w[0]);
@@ -57,7 +57,7 @@ wVar[1] += dt*transferRate[0]*sqr(wPreTransfer[0]) *
     sigmaRhoPreTransfer[0] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 wVar[1] -= dt*transferRate[1]*sqr(wPreTransfer[1]) * 
     sigmaRhoPreTransfer[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
-    
+*/
 wVar.updateSum();
 
 

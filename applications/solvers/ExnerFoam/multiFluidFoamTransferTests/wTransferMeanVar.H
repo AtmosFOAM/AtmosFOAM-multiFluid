@@ -1,39 +1,78 @@
-Info << "Velocity transfers based on vertical velocity variance:" << endl;
-// The transfer terms are only formulated for nParts == 2
-if (nParts != 2)
 {
-    FatalErrorIn("velocityTransfer.H")
-        << " heat transfer terms only formulated for nParts = 2, not nParts = "
-        << nParts << exit(FatalError);
-}
 
-
-const dimensionedScalar wMin("",w[0].dimensions(),scalar(1e-16));
-const dimensionedScalar wVarMin("",wVar[0].dimensions(),scalar(1e-16));
-
-for(label ip = 0; ip < partNames.size(); ip++)
+for (label ip=0; ip<nParts; ip++)
 {
     w[ip] = u[ip].component(vector::Z);
-    Info << "w" << ip << " pre transfer: [" << min(w[ip]).value() << ", " << max(w[ip]).value() << "]" << endl;
 }
-
-
-volScalarField wVarTransferRate = 0*transferRate[1] + 1 / wVarTimescale;
-if (localThetaVarTransfer)
-{
-    wVarTransferRate *= dt * transferRate[1];
-}
-//Limit heat transfer to prevent instability.
-wVarTransferRate = min(wVarTransferRate, 1/dt);
-/*dimensionedScalar dragTime("", dimTime, scalar(1));
-volScalarField dragRate = dragTime * dragCoeff/cloudRadiusMin * mag(w[0] - w[1]);
-volScalarField wVarTransferRate = sqr(dragRate)/wVarTimescale;*/
-
+//Prevent rounding errors coursing negative variance.
 wVar[0] = max(wVar[0], 0*wVar[0]);
 wVar[1] = max(wVar[1], 0*wVar[1]);
 
 wPreTransfer = w;
 wVarPreTransfer = wVar;
+wPreTransferTot = w;
+wVarPreTransferTot = wVar;
+
+//theta transfer
+transferf[0] = fvc::interpolate(transfer[0], "massTransfer");
+transferf[1] = fvc::interpolate(transfer[1], "massTransfer");
+transferf.updateSum();
+
+volFlux[0] =
+(
+    (1 + transferf[0])*volFlux[0] + transferf[1]*volFlux[1]
+) / 
+(
+    1 + transferf.sum()
+);
+
+volFlux[1] = 
+(
+    volFlux[1] + transferf[0]*volFlux[0]
+) / 
+(
+    1 + transferf[0]
+);
+
+for (label ip=0; ip<nParts; ip++)
+{
+    sigmaFlux[ip] = sigmaRhof[ip]*volFlux[ip];
+    u[ip] = fvc::reconstruct(volFlux[ip]);
+    Uf[ip] = fvc::interpolate(u[ip], "Uf");
+    w[ip] = u[ip].component(vector::Z);
+}
+
+
+//thetaVar transfer
+wVarPreTransfer = wVar;
+
+wVar[0] = 
+(
+    (1+transfer[0]) * (wVarPreTransfer[0] + sqr(wPreTransfer[0])) 
+  + transfer[1] * (wVarPreTransfer[1] + sqr(wPreTransfer[1]))
+) / 
+(
+    1 + transfer.sum()
+) - sqr(w[0]);
+
+wVar[1] = 
+(
+    (1+transfer[1]) * (wVarPreTransfer[1] + sqr(wPreTransfer[1])) 
+  + transfer[0] * (wVarPreTransfer[0] + sqr(wPreTransfer[0]))
+) / 
+(
+    1 + transfer.sum()
+) - sqr(w[1]);
+
+
+//Apply corrections according to variances
+wPreTransfer = w;
+wVarPreTransfer = wVar;
+wVar[0] = max(wVar[0], 0*wVar[0]);
+wVar[1] = max(wVar[1], 0*wVar[1]);
+
+volScalarField wVarTransferRate = 0*transferRate[1] + 1 / wVarTimescale;
+wVarTransferRate = min(wVarTransferRate, 1/dt);
 
 wTransferTerm[0][1] = wVarTransferRate * 0.5 *
 (
@@ -146,47 +185,20 @@ wVar[1] +=   dt*wVarTransferTerm[1][0]*wVarPreTransfer[1] *
     wVarPreTransfer[1] / max(wVarPreTransfer[0] + wVarPreTransfer[1], wVarMin) * 
     sigmaRho[1] / max(sigmaRho[1], minSigmaDiv*rho[1]);
 
-
-// Update the sum
-w.updateSum();
-
 //Prevent rounding errors coursing negative variance.
 wVar[0] = max(wVar[0], 0*wVar[0]);
 wVar[1] = max(wVar[1], 0*wVar[1]);
 
-/*for(label ip = 0; ip < partNames.size(); ip++)
-{
-    volVectorField du = (w[ip] - wPreTransfer[ip]) * Foam::vector(0,0,1);
-    volFlux[ip] += (fvc::interpolate( du, "Uf") & mesh.Sf());
-    sigmaFlux[ip] = sigmaRhof[ip]*volFlux[ip];
-    u[ip] = fvc::reconstruct(volFlux[ip]);
-    Uf[ip] = fvc::interpolate(u[ip], "Uf");
-}*/
+//Update diagnostics
+wTransferChange[1] = (w[1]-wPreTransferTot[1])/dt;
+wTransferChange[0] = (w[0]-wPreTransferTot[0])/dt;
 
-sigmaFlux.updateSum();
-volFlux.updateSum();
-u.updateSum();
-Uf.updateSum();
+wVarTransferChange[1] = (wVar[1]-wVarPreTransferTot[1])/dt;
+wVarTransferChange[0] = (wVar[0]-wVarPreTransferTot[0])/dt;
 
-for(label ip = 0; ip < nParts; ip++)
-{
-    Info << "w" << ip << " post Var transfer: [" << min(w[ip]).value() << ", " << max(w[ip]).value() << "]" << endl;
+
+//Reset prognostic variables
+w = wPreTransfer;
+wVar = wVarPreTransfer;
+
 }
-for(label ip = 0; ip < nParts; ip++)
-{
-    Info << "wVar" << ip << " post Var transfer: [" << min(wVar[ip]).value() << ", " << max(wVar[ip]).value() << "]" << endl;
-}
-Info << "TOTAL INTERNAL ENERGY POST TRANSFER: " << sum(w.sum()).value() << endl;
-
-
-wTransferWvar[0][1] = (w[1]-wPreTransfer[1])/dt;
-wTransferWvar[1][0] = (w[0]-wPreTransfer[0])/dt;
-wVarTransferWvar[0][1] = (wVar[1]-wVarPreTransfer[1])/dt;
-wVarTransferWvar[1][0] = (wVar[0]-wVarPreTransfer[0])/dt;
-
-w[0] = wPreTransfer[0];
-w[1] = wPreTransfer[1];
-wVar[0] = wVarPreTransfer[0];
-wVar[1] = wVarPreTransfer[1];   
-
-
