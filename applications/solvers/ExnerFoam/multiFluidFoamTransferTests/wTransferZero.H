@@ -6,6 +6,7 @@ for (label ip=0; ip<nParts; ip++)
 }
 wPreTransfer = w;
 wVarPreTransfer = wVar;
+partitionedSurfaceScalarField volFluxPreTransfer = volFlux;
 
 //Velocity transfer
 transferf[0] = fvc::interpolate(transfer[0], "massTransfer");
@@ -22,27 +23,44 @@ volFlux[0] =
 (
     (1 + transferf[0]) *
     (
-        volFlux[0]
+        volFluxPreTransfer[0]
       - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
       + transferf[1]*volFluxt[1]
     )
   + transferf[1] *
     (
-        volFlux[1]
+        volFluxPreTransfer[1]
       - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
       + transferf[0]*volFluxt[0]
     )
 ) /
 (1 + transferf.sum());
 
-volFlux[1] = 
+volFlux[1] =
+(
+    (1 + transferf[1]) *
+    (
+        volFluxPreTransfer[1]
+      - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
+      + transferf[0]*volFluxt[0]
+    )
+  + transferf[0] *
+    (
+        volFluxPreTransfer[0]
+      - dt*fvc::interpolate(transferRate[0], "massTransfer")*volFluxt[0]
+      + transferf[1]*volFluxt[1]
+    )
+) /
+(1 + transferf.sum());
+
+/*volFlux[1] = 
 (
     volFlux[1] 
   + transferf[0]*volFlux[0]
   + transferf[0]*volFluxt[0]
   - dt*fvc::interpolate(transferRate[1], "massTransfer")*volFluxt[1]
 ) / 
-(1 + transferf[0]);
+(1 + transferf[0]);*/
 
 for (label ip=0; ip<nParts; ip++)
 {

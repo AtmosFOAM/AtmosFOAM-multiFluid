@@ -47,6 +47,11 @@ partitionedVolScalarField theta
     "theta", partNames, mesh, runTime.timeName(), sigmaRho
 );
 
+partitionedVolScalarField thetaT
+(
+    "thetaT", partNames, 0*theta[0]
+);
+
 Info << "Reading in thetaVar in each partition\n" << endl;
 partitionedVolScalarField thetaVar
 (
@@ -189,6 +194,11 @@ for(label ip = 0; ip < partNames.size(); ip++)
 {
     w[ip] = u[ip].component(vector::Z);
 }
+
+partitionedVolScalarField wT
+(
+    "wT", partNames, 0*w[0]
+);
 
 partitionedVolScalarField wVar
 (

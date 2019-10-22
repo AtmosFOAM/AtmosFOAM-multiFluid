@@ -29,6 +29,13 @@ expTheta[1] = Foam::exp
     max(thetaVarMin, thetaVar[1])
 );
 
+thetaT[0] = theta[0] + sqrt(0.5*thetaVar[0]/M_PI) / max(scalar(1e-10), dt*transferRate[0]) * 
+    expTheta[0];
+thetaT[1] = theta[1] - sqrt(0.5*thetaVar[1]/M_PI) / max(scalar(1e-10), dt*transferRate[1]) * 
+    expTheta[1];
+thetaT.write();
+    
+
 theta[0] *= max(sigmaRhoPreTransfer[0], minSigmaDiv*rho[0]) / 
     max(sigmaRho[0], minSigmaDiv*rho[0]);
 theta[0] -= dt*transferRate[0]*thetaPreTransfer[0] * sigmaRhoPreTransfer[0] / 

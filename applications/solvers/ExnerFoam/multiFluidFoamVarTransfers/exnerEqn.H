@@ -100,7 +100,8 @@ for (int corr=0; corr<nCorr; corr++)
     partitionedSurfaceScalarField volFluxt = volFlux;
     for(label ip = 0; ip < nParts; ip++)
     {
-        volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
+        volFluxt[ip] *= 0;
+        //volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
     }
 
     // Include the mass transfer and drag implicitly (for nParts=2)
@@ -115,7 +116,7 @@ for (int corr=0; corr<nCorr; corr++)
     surfaceScalarField volFluxMean = volFlux.sum()/sigmaRhof.sum();
     surfaceScalarField transferRatef = fvc::interpolate(transferRate[0], "massTransfer");
     
-    if ( !(directVarianceTransfer) )
+    if ( !((directVarianceTransfer) and (wVarTransfer)) )
     {
         volFlux[0] =
         (
