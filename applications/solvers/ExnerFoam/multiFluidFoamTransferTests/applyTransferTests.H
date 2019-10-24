@@ -45,6 +45,7 @@ wTransferAnalyticZero.write();
 wVarTransferAnalyticZero = wVarTransferChange;
 wVarTransferAnalyticZero.write();
 
+wT.write();
 sigmaRho = sigmaRhoPreTransfer;
 
 

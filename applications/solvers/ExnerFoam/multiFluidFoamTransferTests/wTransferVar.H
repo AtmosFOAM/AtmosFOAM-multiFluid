@@ -33,7 +33,6 @@ wT[0] = w[0] + sqrt(0.5*wVar[0]/M_PI) / max(scalar(1e-10), dt*transferRate[0]) *
     expw[0];
 wT[1] = w[1] - sqrt(0.5*wVar[1]/M_PI) / max(scalar(1e-10), dt*transferRate[1]) * 
     expw[1];
-wT.write();
 
 w[0] *= max(sigmaRhoPreTransfer[0], sigmaRhoMin) / max(sigmaRho[0], sigmaRhoMin);
 w[0] -= dt*transferRate[0]*wPreTransfer[0] * sigmaRhoPreTransfer[0] / 

@@ -43,6 +43,20 @@ massTransferDivTransfer[1][0] = divCoeff*sigmaRho[1]*max(-fvc::div(volFlux[1]), 
 massTransferDivTransfer[0].write();
 massTransferDivTransfer[1].write();
 
+// Mass transfer representing entrainment into plume
+massTransferEntrainment[0][1] = max
+(
+    0.2*sigmaRho[0]*u[1].component(2)/cloudRadiusMax,
+    massTransferZero
+);
+massTransferEntrainment[1][0] = max
+(
+    0.2*sigmaRho[1]*u[0].component(2)/cloudRadiusMax,
+    massTransferZero
+);
+massTransferEntrainment[0].write();
+massTransferEntrainment[1].write();
+
 // Mass transfer based on vertical velocity and horizontal divergence
 if (wTransfer)
 {

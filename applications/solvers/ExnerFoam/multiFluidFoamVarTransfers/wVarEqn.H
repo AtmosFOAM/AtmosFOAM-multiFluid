@@ -45,7 +45,10 @@ if (wVarProduction)
     wVar[1] = max(wVar[1], 0*wVar[1]);
     wVarPreTransfer = wVar;
 
-    wVar[0] += dt/wVarProductionTimescale * 4*sigma[0]*sigma[1] * 
+    wVar[0] += dt/wVarProductionTimescale * sigma[1] * mag(w[1]-w[0]);
+    wVar[1] += dt/wVarProductionTimescale * sigma[0] * mag(w[1]-w[0]);
+
+    /*wVar[0] += dt/wVarProductionTimescale * 4*sigma[0]*sigma[1] * 
     (
         sqr
         (
@@ -62,7 +65,7 @@ if (wVarProduction)
           - sqrt(wVarPreTransfer[0])
         )
       - wVarPreTransfer[1]
-    );
+    );*/
 }
 
 // Mass transfer terms (for nParts = 2 only) block implicit solution
@@ -230,7 +233,7 @@ if ((directVarianceTransfer) and (wVarTransfer))
     u.updateSum();
     Uf.updateSum();
 }
-else
+else if (!(wZeroTransfer))
 {
     wVarPreTransfer = wVar;
     wVarPreTransfer[0] += sqr(wPreTransfer[0]);

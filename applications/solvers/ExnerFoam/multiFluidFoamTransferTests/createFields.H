@@ -368,6 +368,19 @@ for(label jp = 0; jp < nParts; jp++)
     );
 }
 
+PtrList<partitionedVolScalarField> massTransferEntrainment(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    massTransferEntrainment.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "massTransferEntrainment."+partNames[jp], partNames, massTransferTmp
+        )
+    );
+}
+
 PtrList<partitionedVolScalarField> massTransferDivTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {

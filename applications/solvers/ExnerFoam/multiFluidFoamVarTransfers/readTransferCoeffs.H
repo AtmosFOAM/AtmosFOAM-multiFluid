@@ -50,6 +50,7 @@ const dimensionedScalar thetaVarTimescale
     transferProps.lookup("thetaVarTimescale")
 );
 
+const Switch wZeroTransfer(transferProps.lookup("wZeroTransfer"));
 const Switch wVarTransfer(transferProps.lookup("wVarTransfer"));
 const dimensionedScalar wVarTimescale
 (
