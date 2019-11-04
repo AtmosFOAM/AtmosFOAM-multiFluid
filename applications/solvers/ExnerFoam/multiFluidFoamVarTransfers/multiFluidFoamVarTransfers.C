@@ -78,12 +78,18 @@ int main(int argc, char *argv[])
             #include "rhoSigmaEqn.H"
             #include "massTransfers.H"
             #include "thetaEqn.H"
-            #include "thetaVarEqn.H"
+            if (thetaVarTransfer)
+            {
+                #include "thetaVarEqn.H"
+            }
             #include "sigma.H"
             #include "calculateDrag.H"
             #include "exneriEqn.H"
             #include "exnerEqn.H"
-            #include "wVarEqn.H"
+//            if (wVarTransfer)
+//            {
+                #include "wVarEqn.H"
+//            }
             #include "heatTransfers.H"
             #include "velocityTransfers.H"
         }

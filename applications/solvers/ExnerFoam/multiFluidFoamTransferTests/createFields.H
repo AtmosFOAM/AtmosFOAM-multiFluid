@@ -456,6 +456,10 @@ partitionedVolScalarField thetaTransferAnalyticMean
 (
     "thetaTransferAnalyticMean", partNames, thetaTransferChange[0]
 );
+partitionedVolScalarField thetaTransferAnalyticZero
+(
+    "thetaTransferAnalyticZero", partNames, thetaTransferChange[0]
+);
 partitionedVolScalarField thetaTransferAnalyticVar
 (
     "thetaTransferAnalyticVar", partNames, thetaTransferChange[0]
@@ -512,6 +516,10 @@ partitionedVolScalarField thetaVarTransferChange
 partitionedVolScalarField thetaVarTransferAnalyticMean
 (
     "thetaVarTransferAnalyticMean", partNames, thetaVarTransferChange[0]
+);
+partitionedVolScalarField thetaVarTransferAnalyticZero
+(
+    "thetaVarTransferAnalyticZero", partNames, thetaVarTransferChange[0]
 );
 partitionedVolScalarField thetaVarTransferAnalyticVar
 (
