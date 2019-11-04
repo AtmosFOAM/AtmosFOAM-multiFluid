@@ -86,10 +86,10 @@ int main(int argc, char *argv[])
             #include "calculateDrag.H"
             #include "exneriEqn.H"
             #include "exnerEqn.H"
-//            if (wVarTransfer)
-//            {
+            if (wVarTransfer)
+            {
                 #include "wVarEqn.H"
-//            }
+            }
             #include "heatTransfers.H"
             #include "velocityTransfers.H"
         }
