@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         #include "partitionedCourantNo.H"
-
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "rhoSigmaEqn.H"

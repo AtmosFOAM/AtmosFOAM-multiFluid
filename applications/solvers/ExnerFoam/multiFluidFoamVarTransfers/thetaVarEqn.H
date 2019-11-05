@@ -12,11 +12,6 @@ for(label ip = 0; ip < nParts; ip++)
     }
     //thetaVar.ddt()[ip] += Ktheta * fvc::laplacian(thetaVar[ip]);
     
-    if (wVarDiffusion)
-    {
-        thetaVar.ddt()[ip] += fvc::laplacian(KwVar[ip], thetaVar[ip]);
-    }
-    
     // Update theta according to the rate of change
     thetaVar[ip] = thetaVar[ip].oldTime() + dt*
     (

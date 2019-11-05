@@ -26,6 +26,8 @@ scalar PEsum = sum(PE);
 scalar IEsum = sum(IE);
 scalar energyTot = sum(energy);
 
+//Info << "INTERNAL ENERGY: " << IEsum << endl;
+
 diags << runTime.timeName() << "  "
       << maxCoNums[0] << "  " << maxCoNums[1] << "  "
       << min(sigma[1]).value() << "  "
