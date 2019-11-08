@@ -8,11 +8,24 @@ massTransfer[1] = massTransferAnalytic[1];
 
 #include "applyMassTransfer.H"
 
+/*forAll(transfer[0], celli)
+{
+if ((transfer[0][celli] == 0) or (transfer[1][celli] == 0))
+{
+Info << "Transfer ratio: " << transfer[0][celli] << " " << transfer[1][celli] << " " << (1+transfer[1][celli])/(1+transfer.sum()[celli]) << endl;
+}
+}*/
+
 #include "thetaTransferMean.H"
 thetaTransferAnalyticMean = thetaTransferChange;
 thetaTransferAnalyticMean.write();
 thetaVarTransferAnalyticMean = thetaVarTransferChange;
 thetaVarTransferAnalyticMean.write();
+#include "thetaTransferZero.H"
+thetaTransferAnalyticZero = thetaTransferChange;
+thetaTransferAnalyticZero.write();
+thetaVarTransferAnalyticZero = thetaVarTransferChange;
+thetaVarTransferAnalyticZero.write();
 #include "thetaTransferVar.H"
 thetaTransferAnalyticVar = thetaTransferChange;
 thetaTransferAnalyticVar.write();

@@ -12,9 +12,11 @@ thetaPreTransferTot = theta;
 thetaVarPreTransferTot = thetaVar;
 
 //theta transfer
-theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
+theta[0] = ((1+transfer[0])*thetaPreTransfer[0] + transfer[1]*thetaPreTransfer[1])
            /(1+transfer.sum());
-theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
+theta[1] = ((1+transfer[1])*thetaPreTransfer[1] + transfer[0]*thetaPreTransfer[0])
+           /(1+transfer.sum());
+//theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
 
 
 //thetaVar transfer

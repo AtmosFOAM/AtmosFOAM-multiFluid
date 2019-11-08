@@ -20,7 +20,7 @@ for(label ip = 0; ip < nParts; ip++)
     
     if (wVarDiffusion)
     {
-        wVar.ddt()[ip] += fvc::laplacian(KwVar[ip], wVar[ip]);
+        wVar.ddt()[ip] += fvc::laplacian(KwVariance, wVar[ip]);
     }
     
     // Update w according to the rate of change

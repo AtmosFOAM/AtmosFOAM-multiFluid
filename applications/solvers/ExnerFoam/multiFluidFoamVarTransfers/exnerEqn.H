@@ -27,11 +27,7 @@ for (int corr=0; corr<nCorr; corr++)
             );
         }
         
-        if (wVarDiffusion)
-        {
-            volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad(KwVar[ip] * fvc::div(volFlux[ip]));
-        }
-        
+
         //volFlux.ddt()[ip] += mesh.magSf() * fvc::snGrad
         //(
         //    Kw * fvc::div(volFlux[ip])
