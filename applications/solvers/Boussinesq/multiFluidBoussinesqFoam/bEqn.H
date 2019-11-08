@@ -47,10 +47,16 @@ if (!noTransfers)
 {
     // Bouyancy anomalies of fluid transferred
     // Bouyancy transferred is half way between the two fluids
-    if (transferAnomalies)
+    if (transferAnomaliesLinComb)
     {
-        bt[0] = mag(0.5*(b[1] - b[0]));
-        bt[1] = -bt[0];
+//        bt[0] = mag(0.5*(b[1] - b[0]));
+//       bt[1] = -bt[0];
+//        bt[0] = 0.5*(b[1] - b[0]);
+//        bt[1] = 0.5*(b[0] - b[1]);
+        // try other values
+        //const scalar bAnomalyLinearCoeff = 0.3;
+        bt[0] = mag(bAnomalyLinearCoeff*(b[1] - b[0]));
+        bt[1] = - bt[0];
     }
 
     // The bouyancy of the fluid transferred depends on the laplacian of b

@@ -57,9 +57,13 @@ const scalar minSigma = noTransfers? scalar(0) :
 const Switch uniformSigma = noTransfers? Switch(false) :
       Switch(transferProps.lookup("uniformSigma"));
 
-// Transfer buoyancy anomalies
-const Switch transferAnomalies = noTransfers? Switch(false) :
-        Switch(transferProps.lookup("transferAnomalies"));
+// Transfer buoyancy anomalies based on linear combination of mean fluid 
+// buoyancies
+const Switch transferAnomaliesLinComb = noTransfers? Switch(false) :
+        Switch(transferProps.lookup("transferAnomaliesLinComb"));
+const dimensionedScalar bAnomalyLinearCoeff = transferAnomaliesLinComb ? 
+      dimensionedScalar(transferProps.lookup("bAnomalyLinearCoeff")) :
+      dimensionedScalar("", dimless, scalar(0));
 
 // Bouyany of the fluid to transfer based on the laplacian
 const Switch transferAnomaliesLaplacian = noTransfers? Switch(false) :
