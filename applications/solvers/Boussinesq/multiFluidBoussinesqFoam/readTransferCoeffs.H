@@ -20,6 +20,9 @@ const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 // Note if there are no transfers from any sources
 const Switch noTransfers(transferProps.lookup("noTransfers"));
 
+// Note if there are no buoyancy anomalies transferred
+const Switch noAnomalies(transferProps.lookup("noAnomalies"));
+
 // Diffusion coefficient for inter-partition mass transfer
 const dimensionedScalar Ksigma = noTransfers? dimlessZero : 
       dimensionedScalar(transferProps.lookup("Ksigma"));
@@ -59,15 +62,34 @@ const Switch uniformSigma = noTransfers? Switch(false) :
 
 // Transfer buoyancy anomalies based on linear combination of mean fluid 
 // buoyancies
-const Switch transferAnomaliesLinComb = noTransfers? Switch(false) :
-        Switch(transferProps.lookup("transferAnomaliesLinComb"));
+const Switch transferAnomaliesLinComb = 
+        noTransfers? Switch(false) : noAnomalies? Switch(false) : 
+        transferProps.lookupOrDefault<Switch>
+        (
+            "transferAnomaliesLinComb", Switch(false)
+        );
 const dimensionedScalar bAnomalyLinearCoeff = transferAnomaliesLinComb ? 
       dimensionedScalar(transferProps.lookup("bAnomalyLinearCoeff")) :
-      dimensionedScalar("", dimless, scalar(0));
+      dimlessZero;
+      
+// Transfer buoyancy anomalies based on constant factor times mean buoyancy
+const Switch transferAnomaliesMeanFactor = 
+        noTransfers? Switch(false) : noAnomalies? Switch(false) : 
+        transferProps.lookupOrDefault<Switch>
+        (
+            "transferAnomaliesMeanFactor", Switch(false)
+        );
+const dimensionedScalar bAnomalyMeanCoeff = transferAnomaliesMeanFactor ? 
+      dimensionedScalar(transferProps.lookup("bAnomalyMeanCoeff")) :
+      dimlessZero;
 
 // Bouyany of the fluid to transfer based on the laplacian
-const Switch transferAnomaliesLaplacian = noTransfers? Switch(false) :
-        Switch(transferProps.lookup("transferAnomaliesLaplacian"));
+const Switch transferAnomaliesLaplacian = 
+        noTransfers? Switch(false) : noAnomalies? Switch(false) : 
+        transferProps.lookupOrDefault<Switch>
+        (
+            "transferAnomaliesLaplacian", Switch(false)
+        );
 const dimensionedScalar bTransferTimeScale = transferAnomaliesLaplacian ?
       dimensionedScalar(transferProps.lookup("bTransferTimeScale")) :
       dimensionedScalar("", dimVelocity, scalar(0));
@@ -75,8 +97,12 @@ const dimensionedScalar bTransferMax = transferAnomaliesLaplacian ?
       dimensionedScalar(transferProps.lookup("bTransferMax")) :
       bZero;
 
-const Switch transferAnomaliesb0 = noTransfers? Switch(false) :
-        Switch(transferProps.lookup("transferAnomaliesb0"));
+const Switch transferAnomaliesb0 = 
+        noTransfers? Switch(false) : noAnomalies? Switch(false) : 
+        transferProps.lookupOrDefault<Switch>
+        (
+            "transferAnomaliesb0", Switch(false)
+        );
 const Switch transferZeroAnomalies = noTransfers? Switch(false) :
         transferProps.lookupOrDefault<Switch>
         (

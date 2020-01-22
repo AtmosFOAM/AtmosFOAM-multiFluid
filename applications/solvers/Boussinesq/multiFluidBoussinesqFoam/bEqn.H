@@ -5,6 +5,7 @@ for(label ip = 0; ip < nParts; ip++)
     b.ddt()[ip] = -fvc::div(volFlux[ip], bBar + b[ip], "b")
                 + (bBar + b[ip])*fvc::div(volFlux[ip])
                 + alpha*fvc::laplacian(b[ip]);
+                //+ (1/sigma[ip])*fvc::laplacian(sigma[ip]*alpha, b[ip]);
 }
 
 if (!adjustQ)
@@ -46,17 +47,18 @@ if (nParts != 2)
 if (!noTransfers)
 {
     // Bouyancy anomalies of fluid transferred
-    // Bouyancy transferred is half way between the two fluids
+    // Bouyancy transferred is linear combination of buoyancy in each fluid
     if (transferAnomaliesLinComb)
     {
-//        bt[0] = mag(0.5*(b[1] - b[0]));
-//       bt[1] = -bt[0];
-//        bt[0] = 0.5*(b[1] - b[0]);
-//        bt[1] = 0.5*(b[0] - b[1]);
-        // try other values
-        //const scalar bAnomalyLinearCoeff = 0.3;
-        bt[0] = mag(bAnomalyLinearCoeff*(b[1] - b[0]));
+        bt[0] = bAnomalyLinearCoeff*(b[1] - b[0]);
         bt[1] = - bt[0];
+    }
+    
+    // Bouyancy transferred is constant factor times mean buoyancy
+    if (transferAnomaliesMeanFactor)
+    {
+        bt[0] = bAnomalyMeanCoeff*b[1];
+        bt[1] = bAnomalyMeanCoeff*b[0];
     }
 
     // The bouyancy of the fluid transferred depends on the laplacian of b
