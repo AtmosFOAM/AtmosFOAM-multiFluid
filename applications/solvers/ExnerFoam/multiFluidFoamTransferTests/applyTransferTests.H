@@ -21,44 +21,74 @@ thetaTransferAnalyticMean = thetaTransferChange;
 thetaTransferAnalyticMean.write();
 thetaVarTransferAnalyticMean = thetaVarTransferChange;
 thetaVarTransferAnalyticMean.write();
+thetaTAnalyticMean[0] = theta[0];
+thetaTAnalyticMean[1] = theta[1];
+thetaTAnalyticMean.write();
 #include "thetaTransferZero.H"
 thetaTransferAnalyticZero = thetaTransferChange;
 thetaTransferAnalyticZero.write();
 thetaVarTransferAnalyticZero = thetaVarTransferChange;
 thetaVarTransferAnalyticZero.write();
+thetaTAnalyticZero = thetaT;
+thetaTAnalyticZero.write();
 #include "thetaTransferVar.H"
 thetaTransferAnalyticVar = thetaTransferChange;
 thetaTransferAnalyticVar.write();
 thetaVarTransferAnalyticVar = thetaVarTransferChange;
 thetaVarTransferAnalyticVar.write();
+thetaTAnalyticVar = thetaT;
+thetaTAnalyticVar.write();
+#include "thetaTransferVarSmooth.H"
+thetaTransferAnalyticVarSmooth = thetaTransferChange;
+thetaTransferAnalyticVarSmooth.write();
+thetaVarTransferAnalyticVarSmooth = thetaVarTransferChange;
+thetaVarTransferAnalyticVarSmooth.write();
+thetaTAnalyticVarSmooth = thetaT;
+thetaTAnalyticVarSmooth.write();
 #include "thetaTransferMeanVar.H"
 thetaTransferAnalyticMeanVar = thetaTransferChange;
 thetaTransferAnalyticMeanVar.write();
 thetaVarTransferAnalyticMeanVar = thetaVarTransferChange;
 thetaVarTransferAnalyticMeanVar.write();
+thetaTAnalyticMeanVar = thetaT;
+thetaTAnalyticMeanVar.write();
 
 #include "wTransferMean.H"
 wTransferAnalyticMean = wTransferChange;
 wTransferAnalyticMean.write();
 wVarTransferAnalyticMean = wVarTransferChange;
 wVarTransferAnalyticMean.write();
+wTAnalyticMean = w;
+wTAnalyticMean.write();
 #include "wTransferVar.H"
 wTransferAnalyticVar = wTransferChange;
 wTransferAnalyticVar.write();
 wVarTransferAnalyticVar = wVarTransferChange;
 wVarTransferAnalyticVar.write();
+wTAnalyticVar = wT;
+wTAnalyticVar.write();
+#include "wTransferVarSmooth.H"
+wTransferAnalyticVarSmooth = wTransferChange;
+wTransferAnalyticVarSmooth.write();
+wVarTransferAnalyticVarSmooth = wVarTransferChange;
+wVarTransferAnalyticVarSmooth.write();
+wTAnalyticVarSmooth = wT;
+wTAnalyticVarSmooth.write();
 #include "wTransferMeanVar.H"
 wTransferAnalyticMeanVar = wTransferChange;
 wTransferAnalyticMeanVar.write();
 wVarTransferAnalyticMeanVar = wVarTransferChange;
 wVarTransferAnalyticMeanVar.write();
+wTAnalyticMeanVar = wT;
+wTAnalyticMeanVar.write();
 #include "wTransferZero.H"
 wTransferAnalyticZero = wTransferChange;
 wTransferAnalyticZero.write();
 wVarTransferAnalyticZero = wVarTransferChange;
 wVarTransferAnalyticZero.write();
+wTAnalyticZero = wT;
+wTAnalyticZero.write();
 
-wT.write();
 sigmaRho = sigmaRhoPreTransfer;
 
 

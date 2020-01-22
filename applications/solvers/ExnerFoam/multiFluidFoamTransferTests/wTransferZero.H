@@ -3,6 +3,7 @@
 for (label ip=0; ip<nParts; ip++)
 {
     w[ip] = u[ip].component(vector::Z);
+    wT[ip] *= 0;
 }
 wPreTransfer = w;
 wVarPreTransfer = wVar;

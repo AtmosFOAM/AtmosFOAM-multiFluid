@@ -7,6 +7,8 @@ partitionedVolScalarField thetat = theta;
 
 thetat[0] = theta.mean() - theta[0];
 thetat[1] = theta.mean() - theta[1];
+thetaT[0] = theta.mean();
+thetaT[1] = theta.mean();
 
 //theta transfer
 theta[0] =

@@ -28,13 +28,48 @@ expw[1] = Foam::exp
     max(wVarMin, wVar[1])
 );
 
-
+//Transferred velocity and variance
 wT[0] = w[0] + sqrt(0.5*wVar[0]/M_PI) / max(scalar(1e-10), dt*transferRate[0]) * 
     expw[0];
 wT[1] = w[1] - sqrt(0.5*wVar[1]/M_PI) / max(scalar(1e-10), dt*transferRate[1]) * 
     expw[1];
+wVarT[0] = wVar[0] + sqr(w[0]) + (w[0] + wTransferBound[0]) * 
+    sqrt(0.5*wVar[0]/M_PI) * expw[0] / max(scalar(1e-10), dt*transferRate[0]);
+wVarT[1] = wVar[1] + sqr(w[1]) - (w[1] + wTransferBound[1]) * 
+    sqrt(0.5*wVar[1]/M_PI) * expw[1] / max(scalar(1e-10), dt*transferRate[1]);
 
+//Conduct the transfers
 w[0] *= max(sigmaRhoPreTransfer[0], sigmaRhoMin) / max(sigmaRho[0], sigmaRhoMin);
+w[0] -= dt*transferRate[0]*wT[0] * sigmaRhoPreTransfer[0] /
+    max(sigmaRho[0], sigmaRhoMin);
+w[0] += dt*transferRate[1]*wT[1] * sigmaRhoPreTransfer[1] /
+    max(sigmaRho[0], sigmaRhoMin);
+
+w[1] *= max(sigmaRhoPreTransfer[1], sigmaRhoMin) / max(sigmaRho[1], sigmaRhoMin);
+w[1] += dt*transferRate[0]*wT[0] * sigmaRhoPreTransfer[0] /
+    max(sigmaRho[1], sigmaRhoMin);
+w[1] -= dt*transferRate[1]*wT[1] * sigmaRhoPreTransfer[1] /
+    max(sigmaRho[1], sigmaRhoMin);
+
+wVar[0] += sqr(wPreTransfer[0]); 
+wVar[0] *= max(sigmaRhoPreTransfer[0], sigmaRhoMin) / max(sigmaRho[0], sigmaRhoMin);
+wVar[0] -= dt*transferRate[0]*wVarT[0] * sigmaRhoPreTransfer[0] /
+    max(sigmaRho[0], sigmaRhoMin);
+wVar[0] += dt*transferRate[1]*wVarT[1] * sigmaRhoPreTransfer[1] /
+    max(sigmaRho[0], sigmaRhoMin);
+wVar[0] -= sqr(w[0]);
+
+wVar[1] += sqr(wPreTransfer[1]); 
+wVar[1] *= max(sigmaRhoPreTransfer[1], sigmaRhoMin) / max(sigmaRho[1], sigmaRhoMin);
+wVar[1] += dt*transferRate[0]*wVarT[0] * sigmaRhoPreTransfer[0] /
+    max(sigmaRho[1], sigmaRhoMin);
+wVar[1] -= dt*transferRate[1]*wVarT[1] * sigmaRhoPreTransfer[1] /
+    max(sigmaRho[1], sigmaRhoMin);
+wVar[1] -= sqr(w[1]);
+
+
+
+/*w[0] *= max(sigmaRhoPreTransfer[0], sigmaRhoMin) / max(sigmaRho[0], sigmaRhoMin);
 w[0] -= dt*transferRate[0]*wPreTransfer[0] * sigmaRhoPreTransfer[0] / 
     max(sigmaRho[0], sigmaRhoMin);
 w[0] += dt*transferRate[1]*wPreTransfer[1] * sigmaRhoPreTransfer[1] / 
@@ -95,7 +130,7 @@ wVar[1] += sigmaRhoPreTransfer[1] * 0.5 *
     sqrt(0.5*wVarPreTransfer[1]/M_PI) * expw[1] /
     max(sigmaRho[1], sigmaRhoMin);
 wVar[1] -= sqr(w[1]);
-wVar[1]  = max(wVar[1], 0*wVar[1]);
+wVar[1]  = max(wVar[1], 0*wVar[1]);*/
 
 ////////////////////////////////////////////////////////////////////////////////
 

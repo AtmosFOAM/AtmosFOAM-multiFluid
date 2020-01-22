@@ -47,10 +47,7 @@ partitionedVolScalarField theta
     "theta", partNames, mesh, runTime.timeName(), sigmaRho
 );
 
-partitionedVolScalarField thetaT
-(
-    "thetaT", partNames, 0*theta[0]
-);
+
 
 Info << "Reading in thetaVar in each partition\n" << endl;
 partitionedVolScalarField thetaVar
@@ -194,11 +191,6 @@ for(label ip = 0; ip < partNames.size(); ip++)
 {
     w[ip] = u[ip].component(vector::Z);
 }
-
-partitionedVolScalarField wT
-(
-    "wT", partNames, 0*w[0]
-);
 
 partitionedVolScalarField wVar
 (
@@ -464,6 +456,10 @@ partitionedVolScalarField thetaTransferAnalyticVar
 (
     "thetaTransferAnalyticVar", partNames, thetaTransferChange[0]
 );
+partitionedVolScalarField thetaTransferAnalyticVarSmooth
+(
+    "thetaTransferAnalyticVarSmooth", partNames, thetaTransferChange[0]
+);
 partitionedVolScalarField thetaTransferAnalyticMeanVar
 (
     "thetaTransferAnalyticMeanVar", partNames, thetaTransferChange[0]
@@ -525,6 +521,10 @@ partitionedVolScalarField thetaVarTransferAnalyticVar
 (
     "thetaVarTransferAnalyticVar", partNames, thetaVarTransferChange[0]
 );
+partitionedVolScalarField thetaVarTransferAnalyticVarSmooth
+(
+    "thetaVarTransferAnalyticVarSmooth", partNames, thetaVarTransferChange[0]
+);
 partitionedVolScalarField thetaVarTransferAnalyticMeanVar
 (
     "thetaVarTransferAnalyticMeanVar", partNames, thetaVarTransferChange[0]
@@ -582,6 +582,10 @@ partitionedVolScalarField wTransferAnalyticMean
 partitionedVolScalarField wTransferAnalyticVar
 (
     "wTransferAnalyticVar", partNames, wTransferChange[0]
+);
+partitionedVolScalarField wTransferAnalyticVarSmooth
+(
+    "wTransferAnalyticVarSmooth", partNames, wTransferChange[0]
 );
 partitionedVolScalarField wTransferAnalyticMeanVar
 (
@@ -657,6 +661,10 @@ partitionedVolScalarField wVarTransferAnalyticVar
 (
     "wVarTransferAnalyticVar", partNames, wVarTransferChange[0]
 );
+partitionedVolScalarField wVarTransferAnalyticVarSmooth
+(
+    "wVarTransferAnalyticVarSmooth", partNames, wVarTransferChange[0]
+);
 partitionedVolScalarField wVarTransferAnalyticMeanVar
 (
     "wVarTransferAnalyticMeanVar", partNames, wVarTransferChange[0]
@@ -726,6 +734,65 @@ partitionedVolScalarField wTransferGradDiv
 partitionedVolScalarField wTransferDrag
 (
     "wTransferDrag", partNames, 0*w[0]/dt
+);
+
+
+partitionedVolScalarField thetaT
+(
+    "thetaT", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaTAnalyticMean
+(
+    "thetaTAnalyticMean", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaTAnalyticZero
+(
+    "thetaTAnalyticZero", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaTAnalyticVar
+(
+    "thetaTAnalyticVar", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaTAnalyticVarSmooth
+(
+    "thetaTAnalyticVarSmooth", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaTAnalyticMeanVar
+(
+    "thetaTAnalyticMeanVar", partNames, 0*theta[0]
+);
+partitionedVolScalarField thetaVarT
+(
+    "thetaVarT", partNames, 0*thetaVar[0]
+);
+
+partitionedVolScalarField wT
+(
+    "wT", partNames, 0*w[0]
+);
+partitionedVolScalarField wTAnalyticMean
+(
+    "wTAnalyticMean", partNames, 0*w[0]
+);
+partitionedVolScalarField wTAnalyticZero
+(
+    "wTAnalyticZero", partNames, 0*w[0]
+);
+partitionedVolScalarField wTAnalyticVar
+(
+    "wTAnalyticVar", partNames, 0*w[0]
+);
+partitionedVolScalarField wTAnalyticVarSmooth
+(
+    "wTAnalyticVarSmooth", partNames, 0*w[0]
+);
+partitionedVolScalarField wTAnalyticMeanVar
+(
+    "wTAnalyticMeanVar", partNames, 0*w[0]
+);
+partitionedVolScalarField wVarT
+(
+    "wVarT", partNames, 0*wVar[0]
 );
 
 
