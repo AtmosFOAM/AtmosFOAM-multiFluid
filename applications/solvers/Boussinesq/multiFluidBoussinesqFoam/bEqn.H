@@ -57,8 +57,8 @@ if (!noTransfers)
     // Bouyancy transferred is constant factor times mean buoyancy
     if (transferAnomaliesMeanFactor)
     {
-        bt[0] = bAnomalyMeanCoeff*b[1];
-        bt[1] = bAnomalyMeanCoeff*b[0];
+        bt[0] = bAnomalyMeanCoeff*b[0];
+        bt[1] = bAnomalyMeanCoeff*b[1];
     }
 
     // The bouyancy of the fluid transferred depends on the laplacian of b
