@@ -79,9 +79,9 @@ const Switch transferAnomaliesMeanFactor =
         (
             "transferAnomaliesMeanFactor", Switch(false)
         );
-const dimensionedScalar bAnomalyMeanCoeff = transferAnomaliesMeanFactor ? 
-      dimensionedScalar(transferProps.lookup("bAnomalyMeanCoeff")) :
-      dimlessZero;
+const scalar bAnomalyMeanCoeff = transferAnomaliesMeanFactor ? 
+      readScalar(transferProps.lookup("bAnomalyMeanCoeff")) :
+      scalar(0);
 
 // Bouyany of the fluid to transfer based on the laplacian
 const Switch transferAnomaliesLaplacian = 
