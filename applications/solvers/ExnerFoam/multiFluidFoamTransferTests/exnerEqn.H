@@ -19,7 +19,10 @@ for (int corr=0; corr<nCorr; corr++)
            )
         ))
         + gSf - Cp*thetaf[ip]*fvc::snGrad(Exner)*mesh.magSf();
-        
+
+        uAdvection[ip] = dt*(fvc::div(volFlux[ip], u[ip], "u") - u[ip] * fvc::div(volFlux[ip]));
+        uPressureGradient[ip] = dt*Cp*theta[ip]*fvc::grad(Exner) - dt*g;
+
         // Viscous term
         if (nu.value() > VSMALL)
         {
@@ -81,7 +84,10 @@ for (int corr=0; corr<nCorr; corr++)
 
         volFlux.ddt()[ip] -= Cp*thetaf[ip]
                             *fvc::snGrad(ExnerPrime)*mesh.magSf();
+
+        uPressureGradientPrime[ip] = dt*Cp*theta[ip]*fvc::grad(ExnerPrime);
     }
+
 
     // Update mass flux and velocities based on the flux
     for(label ip = 0; ip < nParts; ip++)
@@ -170,3 +176,5 @@ for (int corr=0; corr<nCorr; corr++)
 u.updateSum();
 Uf.updateSum();
 
+uAdvection.write();
+uPressureGradient.write();

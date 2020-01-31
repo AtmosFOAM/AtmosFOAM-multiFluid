@@ -19,6 +19,8 @@ for(label ip = 0; ip < nParts; ip++)
       + offCentre*theta.ddt()[ip]
     );
 
+    thetaAdvection[ip] = dt*theta.ddt()[ip];
+
     theta[ip].correctBoundaryConditions();
 }
 
@@ -43,3 +45,5 @@ for(label ip = 0; ip < nParts; ip++)
     thetaf[ip] = fvc::interpolate(theta[ip]);
 }
 thetaf.updateSum();
+
+thetaAdvection.write();

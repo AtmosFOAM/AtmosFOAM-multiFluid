@@ -439,6 +439,32 @@ for(label jp = 0; jp < nParts; jp++)
 }
 
 
+partitionedVolScalarField sigmaRhoAdvection
+(
+    "sigmaRhoAdvection", partNames, 0*sigmaRho[0]
+);
+
+partitionedVolScalarField thetaAdvection
+(
+    "thetaAdvection", partNames, 0*theta[0]
+);
+
+partitionedVolVectorField uAdvection
+(
+    "uAdvection", partNames, u[0]
+);
+
+partitionedVolVectorField uPressureGradient
+(
+    "uPressureGradient", partNames, u[0]
+);
+
+partitionedVolVectorField uPressureGradientPrime
+(
+    "uPressureGradientPrime", partNames, u[0]
+);
+
+
 partitionedVolScalarField thetaTransferChange
 (
     "thetaTransferChange", partNames, 0*theta[0]/dt

@@ -10,6 +10,8 @@ for(label ip = 0; ip < nParts; ip++)
         sigma[ip].oldTime(),
         "sigmaRho"
     );
+
+    sigmaRhoAdvection[ip] = dt*fvc::div(flux[ip], sigma[ip], "sigmaRho");
     
     //sigmaRho.ddt()[ip] += Ktheta * fvc::laplacian(sigmaRho[ip]);
 
@@ -20,3 +22,4 @@ for(label ip = 0; ip < nParts; ip++)
 flux.updateSum();
 sigmaRho.updateSum();
 
+sigmaRhoAdvection.write();
