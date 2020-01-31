@@ -51,40 +51,6 @@ if ( !((directVarianceTransfer) and (thetaVarTransfer)) )
     theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
 }
 
-/*
-//theta[0] *= 0;
-//theta[0] *= sigmaRhoMin/max( sigmaRho[0], sigmaRhoMin); 
-theta[0] *= max(sigmaRhoPreTransfer[0], sigmaRhoMin) / max(sigmaRho[0], sigmaRhoMin);
-theta[0] -= dt*transferRate[0]*thetaPreTransfer[0] * sigmaRhoPreTransfer[0] / 
-    max(sigmaRho[0], sigmaRhoMin);
-theta[0] += dt*transferRate[1]*thetaPreTransfer[1] * sigmaRhoPreTransfer[1] / 
-    max(sigmaRho[0], sigmaRhoMin);
-theta[0] -= sigmaRhoPreTransfer[0] * 0.5 * 
-    sqrt(0.5*thetaVar[0]/M_PI) * expTheta[0] / 
-    max(sigmaRho[0], sigmaRhoMin);
-theta[0] -= sigmaRhoPreTransfer[1] * 0.5 * 
-    sqrt(0.5*thetaVar[1]/M_PI) * expTheta[1] / 
-    max(sigmaRho[0], sigmaRhoMin);
-
-//theta[1] *= 0;
-//Info << "theta1 0 post Var transfer: [" << min(theta[1]).value() << ", " << max(theta[1]).value() << "]" << endl;
-//theta[1] *= sigmaRhoMin/max( sigmaRho[1], sigmaRhoMin);
-
-theta[1] *= max(sigmaRhoPreTransfer[1], sigmaRhoMin) / max(sigmaRho[1], sigmaRhoMin);
-//theta[1] *= max(sigmaRhoPreTransfer[1], sigmaRhoMin) / max(sigmaRho[1], sigmaRhoMin);
-//Info << "theta1 1 post Var transfer: [" << min(theta[1]).value() << ", " << max(theta[1]).value() << "]" << endl;
-theta[1] += dt*transferRate[0]*thetaPreTransfer[0] * sigmaRhoPreTransfer[0] /
-    max(sigmaRho[1], sigmaRhoMin);
-//Info << "theta1 2 post Var transfer: [" << min(theta[1]).value() << ", " << max(theta[1]).value() << "]" << endl;
-theta[1] -= dt*transferRate[1]*thetaPreTransfer[1] * sigmaRhoPreTransfer[1] /
-    max(sigmaRho[1], sigmaRhoMin);
-//Info << "theta1 3 post Var transfer: [" << min(theta[1]).value() << ", " << max(theta[1]).value() << "]" << endl;
-theta[1] += sigmaRhoPreTransfer[0] * 0.5 * 
-    sqrt(0.5*thetaVar[0]/M_PI) * expTheta[0] /
-    max(sigmaRho[1], sigmaRhoMin);
-theta[1] += sigmaRhoPreTransfer[1] * 0.5 * 
-    sqrt(0.5*thetaVar[1]/M_PI) * expTheta[1] /
-    max(sigmaRho[1], sigmaRhoMin);*/
 
 
 theta.updateSum();
