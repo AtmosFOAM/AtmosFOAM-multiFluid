@@ -44,6 +44,7 @@ const dimensionedScalar thetaTransferDiffusivity
 const Switch directVarianceTransfer(transferProps.lookup("directVarianceTransfer"));
 
 // Is heat transferred based on overlapping theta profiles
+const Switch thetaTransferTotalMean(transferProps.lookup("thetaTransferTotalMean"));
 const Switch thetaVarTransfer(transferProps.lookup("thetaVarTransfer"));
 const Switch thetaVarTransferSharp(transferProps.lookup("thetaVarTransferSharp"));
 const Switch thetaVarTransferSmooth(transferProps.lookup("thetaVarTransferSmooth"));

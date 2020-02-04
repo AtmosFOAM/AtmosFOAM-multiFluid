@@ -43,12 +43,21 @@ theta[0] = (theta[0] + (transfer[1]-dt*transferRate[0])*thetaMean)
 theta[1] = (theta[1] + (transfer[0]-dt*transferRate[1])*thetaMean)
             /(1 + transfer[0] - dt*transferRate[1]);*/
 
-
-if ( !((directVarianceTransfer) and (thetaVarTransfer)) )
+//Conduct temperature transfers.
+//Note that if variance based transfers are selected,
+//these are conducted in thetaVarEqn.H
+if ( !thetaVarTransfer )
 {
-    theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
-               /(1+transfer.sum());
-    theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
+    if (thetaTransferTotalMean)
+    {
+        #include "thetaTransferTotalMean.H"
+    }
+    else
+    {
+        theta[0] = ((1+transfer[0])*theta[0] + transfer[1]*theta[1])
+                   /(1+transfer.sum());
+        theta[1] = (theta[1] + transfer[0]*theta[0])/(1+transfer[0]);
+    }
 }
 
 
