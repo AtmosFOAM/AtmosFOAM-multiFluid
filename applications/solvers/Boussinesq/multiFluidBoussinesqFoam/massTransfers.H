@@ -91,3 +91,33 @@ if (uniformSigma)
                        + (1-transferLocation)*massTransfer[1][0];
 }
 
+// Transfers to keep w[0] <=0 and w[1] >0
+if (wTransfer)
+{
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        bMinMax[ip] = -(fvc::reconstruct
+        (
+            volFlux.ddt()[ip] + volFlux[ip]/wTransferTimeScale
+        ) & vector(0,0,1));
+    }
+    
+    massTransfer[0][1] = max
+    (
+        massTransfer[0][1],
+        sigma[0]/max(bt[0], bSMALL)*
+        (
+            -bMinMax[0]/wTransferTimeScale + b.ddt()[0]
+        )
+    );
+    
+    massTransfer[1][0] = max
+    (
+        massTransfer[1][0],
+        sigma[1]/min(bt[1], -bSMALL)*
+        (
+            -bMinMax[1]/wTransferTimeScale + b.ddt()[1]
+        )
+    );
+}
+

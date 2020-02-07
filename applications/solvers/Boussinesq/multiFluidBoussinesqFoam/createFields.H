@@ -268,6 +268,12 @@ partitionedVolScalarField bt
     sigma
 );
 
+// Maximum and mininum buoyancy for wTransfer
+partitionedVolScalarField bMinMax
+(
+    "bMinMax", partNames, bt[0], sigma
+);
+
 // Volume flux difference of the transferred fluid
 partitionedSurfaceScalarField volFluxt
 (

@@ -115,3 +115,10 @@ const scalar entrainmentCoefficient = transferProps.lookupOrDefault<scalar>
     "entrainmentCoefficient", scalar(0)
 );
 
+// Note that wTransfer should be used in combination with bAnomalyMeanCoeff
+if (wTransfer && bAnomalyMeanCoeff <= SMALL)
+{
+    FatalErrorIn("multiFluidBoussinesqFoam")
+        << "cannot use wTransfer without bAnomalyMeanCoeff>0 specified in system/transferProperties"
+        << exit(FatalError);
+}

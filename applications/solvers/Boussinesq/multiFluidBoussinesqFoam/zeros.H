@@ -10,4 +10,8 @@ const dimensionedScalar bZero
 (
     "bZero", dimensionSet(0,1,-2,0,0), scalar(0)
 );
+const dimensionedScalar bSMALL
+(
+    "bSMALL", dimensionSet(0,1,-2,0,0), SMALL
+);
 

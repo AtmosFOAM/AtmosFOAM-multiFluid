@@ -3,11 +3,14 @@
 // Explicit part of velocity for each partition (without mass tranfers)
 for(label ip = 0; ip < nParts; ip++)
 {
-    // Compact vector Laplacian of the velocity
-    Uf[ip] = linearInterpolate(u[ip]);
-    surfaceScalarField laplacianU
-        = fvc::snGrad(fvc::div(volFlux[ip]))*mesh.magSf()
-        - (linearInterpolate(fvc::curl(fvc::curl(Uf[ip]))) & mesh.Sf());
+    // Compact Laplacian of the velocity
+    surfaceScalarField laplacianU 
+        = (fvc::interpolate(fvc::laplacian(u[ip])) & mesh.Sf())
+        + mesh.magSf()*(fvc::snGrad
+            (
+                fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
+            )
+          );
     
     // Rate of change of flux without pressure gradient
     volFlux.ddt()[ip] = (mesh.Sf() &
