@@ -1,11 +1,13 @@
 {
-// Constraint to keep sigma > 0
+// Constraint to keep sigma > 0 and to ensure not more than half transferred
+// in one time step (dt sigma S <= 0.5 sigma)
 for(label ip = 0; ip < nParts; ip++)
 {
     for(label jp = 0; jp < nParts; jp++)
     {
         if (ip != jp)
         {
+            // Do not create zero values
             massTransfer[ip][jp] = min
             (
                 massTransfer[ip][jp],
@@ -14,6 +16,13 @@ for(label ip = 0; ip < nParts; ip++)
                     (max(sigma[ip], dimlessZero)-minSigma)/dt,
                     rateZero
                 )
+            );
+            
+            // Not more than half transferred out
+            massTransfer[ip][jp] = min
+            (
+                massTransfer[ip][jp],
+                0.5*sigma[ip]/dt
             );
 
             // Increase zero values

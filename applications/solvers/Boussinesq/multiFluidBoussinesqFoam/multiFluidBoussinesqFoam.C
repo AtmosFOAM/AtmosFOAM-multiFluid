@@ -89,6 +89,20 @@ int main(int argc, char *argv[])
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
+                if (wTransfer) // Check that w[0]<=0 and w[1]>0
+                {
+                    for(label ip = 0; ip < nParts; ip++)
+                    {
+                        Info << "w[" << ip << "] goes from "
+                             << min(Uf[ip].component(2)).value() << " to "
+                             << max(Uf[ip].component(2)).value() << endl;
+                    }
+                    for(label ip = 0; ip < nParts; ip++)
+                    {
+                        Info << "bMinMax[" << ip << "] goes from "
+                             << min(bMinMax[ip]).value() << " to "
+                             << max(bMinMax[ip]).value() << endl;
+                    }
             }
         }
 
@@ -119,6 +133,7 @@ int main(int argc, char *argv[])
         Uf.updateSum();
         divu.updateSum();
         u.updateSum();
+        }
 
         runTime.write();
 

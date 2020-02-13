@@ -98,10 +98,14 @@ if (wTransfer)
     {
         bMinMax[ip] = -(fvc::reconstruct
         (
-            volFlux.ddt()[ip] + volFlux[ip]/wTransferTimeScale
+            volFlux.ddt()[ip]
+          + volFlux[ip]*(Sf[ip]/dt + 1/wTransferTimeScale)
         ) & vector(0,0,1));
     }
     
+    Info << "Before wTransfer massTransfer[0][1] goes from "
+         << min(massTransfer[0][1]).value() << " to "
+         << max(massTransfer[0][1]).value() << endl;
     massTransfer[0][1] = max
     (
         massTransfer[0][1],
@@ -110,7 +114,13 @@ if (wTransfer)
             -bMinMax[0]/wTransferTimeScale + b.ddt()[0]
         )
     );
+    Info << "After wTransfer massTransfer[0][1] goes from "
+         << min(massTransfer[0][1]).value() << " to "
+         << max(massTransfer[0][1]).value() << endl;
     
+    Info << "Before wTransfer massTransfer[1][0] goes from "
+         << min(massTransfer[1][0]).value() << " to "
+         << max(massTransfer[1][0]).value() << endl;
     massTransfer[1][0] = max
     (
         massTransfer[1][0],
@@ -119,5 +129,8 @@ if (wTransfer)
             -bMinMax[1]/wTransferTimeScale + b.ddt()[1]
         )
     );
+    Info << "After wTransfer massTransfer[1][0] goes from "
+         << min(massTransfer[1][0]).value() << " to "
+         << max(massTransfer[1][0]).value() << endl;
 }
 
