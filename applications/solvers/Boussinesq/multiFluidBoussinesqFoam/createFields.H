@@ -347,3 +347,12 @@ partitionedVolScalarField divu
 divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
 divu.write();
 
+// Compact Laplacian of the velocity
+surfaceScalarField laplacianU
+    = (fvc::interpolate(fvc::laplacian(u.updateSum())) & mesh.Sf())
+    + mesh.magSf()*(fvc::snGrad
+    (
+        fvc::div(volFlux.updateSum()
+      - (linearInterpolate(u.sum()) & mesh.Sf()))
+    ));
+

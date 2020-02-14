@@ -36,3 +36,8 @@ uniformDimensionedScalarField gamma
 );
 
 
+// Use diffusion of all fluids together or separate for each fluid
+const Switch sharedDiffusion
+(
+    envProps.lookupOrDefault<Switch>("sharedDiffusion", false)
+);

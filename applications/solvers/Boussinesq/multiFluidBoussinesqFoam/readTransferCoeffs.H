@@ -122,3 +122,4 @@ if (wTransfer && bAnomalyMeanCoeff <= SMALL)
         << "cannot use wTransfer without bAnomalyMeanCoeff>0 specified in system/transferProperties"
         << exit(FatalError);
 }
+
