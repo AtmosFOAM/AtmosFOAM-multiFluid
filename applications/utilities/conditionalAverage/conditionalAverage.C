@@ -25,7 +25,7 @@ Application
     conditionalAveraging
 
 Description
-    Separates a fluid into rising and falling fields
+    Calculates the volume fraction (sigma) in each condition
 
 \*---------------------------------------------------------------------------*/
 
@@ -33,6 +33,7 @@ Description
 #include "PartitionedFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 
 int main(int argc, char *argv[])
 {
@@ -43,14 +44,6 @@ int main(int argc, char *argv[])
     Foam::argList::validArgs.append("conditionNameBelow");
     Foam::argList::validArgs.append("conditionNameAbove");
 
-    argList::addOption
-    (
-        "fields",
-        "list",
-        "specify a list of fields to be interpolated. Eg, '(U T p)' - "
-        "regular expressions not currently supported"
-    );
-    
     #include "setRootCase.H"
     #include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
@@ -64,20 +57,6 @@ int main(int argc, char *argv[])
     Info << "Conditionally averaging based on " << conditionFieldName
          << ".\nBelow " << conditionValue << " is " << conditionName[0]
          << " above " << conditionValue << " is " << conditionName[1] << endl;
-
-    HashSet<word> selectedFields;
-    if (args.optionFound("fields"))
-    {
-        args.optionLookup("fields")() >> selectedFields;
-    }
-    if (selectedFields.size())
-    {
-        Info<< "Conditioanlly averaging fields " << selectedFields << endl;
-    }
-    else
-    {
-        Info<< "Calculating volume ratios" << endl;
-    }
 
     #include "createNamedMesh.H"
 
@@ -103,7 +82,7 @@ int main(int argc, char *argv[])
             (
                 IOobject("sigma", runTime.timeName(), mesh),
                 mesh,
-                dimensionedScalar("", dimless, scalar(0)),
+                dimensionedScalar("", dimless, scalar(1)),
                 "zeroGradient"
             )
         );
@@ -138,9 +117,27 @@ int main(int argc, char *argv[])
                 }
             }
             
-            // The approximate volume fraction rising and falling
-            sigma[0][cellI] = dTot[0]/(dTot[0] + dTot[1]);
-            sigma[1][cellI] = dTot[1]/(dTot[0] + dTot[1]);
+            // If all the ds are positive the the condition is true
+            if (nNegPos[0] == 0)
+            {
+                sigma[0][cellI] = 0;
+                sigma[1][cellI] = 1;
+            }
+            // else if they are all negative then the cell has sigma[0] = 1
+            else if (nNegPos[1] == 0)
+            {
+                sigma[0][cellI] = 1;
+                sigma[1][cellI] = 0;
+            }
+            else // otherwise sigma is a fraction
+            {
+                dTot[0] /= nNegPos[0];
+                dTot[1] /= nNegPos[1];
+
+                // The approximate volume fraction rising and falling
+                sigma[0][cellI] = dTot[0]/(dTot[0] + dTot[1]);
+                sigma[1][cellI] = dTot[1]/(dTot[0] + dTot[1]);
+            }
         }
         sigma.write();
     }
