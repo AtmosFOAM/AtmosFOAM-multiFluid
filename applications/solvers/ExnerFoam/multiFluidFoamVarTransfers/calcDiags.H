@@ -6,20 +6,34 @@ scalarList KE(nParts, scalar(0));
 scalarList PE(nParts, scalar(0));
 scalarList IE(nParts, scalar(0));
 
+for(label ip = 0; ip < partNames.size(); ip++)
+{
+    energyKinetic[ip] *= 0;
+    energyPotential[ip] *= 0;
+    energyInternal[ip] *= 0;
+}
+
 // Caclulate the initial energy in each partition
 for(label ip = 0; ip < partNames.size(); ip++)
 {
     volScalarField energyTmp = 0.5*sigmaRho[ip]*magSqr(u[ip]);
+    energyKinetic[ip] = energyTmp;
     KE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     
     energyTmp = - sigmaRho[ip]*(g & mesh.C());
+    energyPotential[ip] = energyTmp;
     PE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     
-    energyTmp = sigmaRho[ip]*theta[ip]*Exner*Cv;
+    energyTmp = sigmaRho[ip]*theta[ip]*(Exner+Exneri[ip])*Cv;
+    energyInternal[ip] = energyTmp;
     IE[ip] = (fvc::domainIntegrate(energyTmp)/Vtot).value();
     
     energy[ip] = KE[ip] + PE[ip] + IE[ip];
 }
+
+energyKinetic.updateSum();
+energyPotential.updateSum();
+energyInternal.updateSum();
 
 scalar KEsum = sum(KE);
 scalar PEsum = sum(PE);
