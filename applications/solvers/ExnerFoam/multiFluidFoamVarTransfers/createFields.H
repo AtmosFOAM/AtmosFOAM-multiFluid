@@ -444,6 +444,31 @@ partitionedSurfaceScalarField dExnerdz
     )
 );
 
+//Energy fields
+partitionedVolScalarField energyKinetic
+(
+    "energyKinetic", partNames, 0.5*sigmaRho[0]*magSqr(u[0])
+);
+partitionedVolScalarField energyPotential
+(
+    "energyPotential", partNames, -sigmaRho[0]*(g & mesh.C())
+);
+partitionedVolScalarField energyInternal
+(
+    "energyInternal", partNames, sigmaRho[0]*theta[0]*Exner*Cv
+);
+for(label ip = 0; ip < partNames.size(); ip++)
+{
+    energyKinetic[ip] = 0.5*sigmaRho[ip]*magSqr(u[0]);
+    energyPotential[ip] = -sigmaRho[ip]*(g & mesh.C());
+    energyInternal[ip] = sigmaRho[ip]*theta[ip]*Exner*Cv;
+}
+energyKinetic.updateSum();
+energyPotential.updateSum();
+energyInternal.updateSum();
+energyKinetic.write();
+energyPotential.write();
+energyInternal.write();
 
 //Additional coefficients
 const dimensionedScalar sigmaRhoMin("",sigmaRho[0].dimensions(),scalar(1e-16));
