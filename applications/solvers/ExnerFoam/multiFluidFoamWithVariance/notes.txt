@@ -1,0 +1,35 @@
+18 Sept
+
+This looks as if it will introduce a mass conservation error. The inconsistecy between sum(sigma rho theta) and Exner should not lead to a conservation error but currently sigmaRho is recalculated based on Exner. sigma.H needs to be redone like this:
+
+rhoTheta = theta.sum();
+
+and no need to do:
+sigma.updateSum();
+for(label ip = 0; ip < nParts; ip++)
+{
+    sigma[ip] /= sigma.sum();
+    sigmaRho[ip] = sigma[ip]*rho[ip];
+}
+sigma.updateSum();
+
+--------------------------------------------------------------------------------
+
+Also better diagnostics of mass conservation errors
+
+Also there is a problem with minSigma in applyMassTransfers.H
+const scalar minSigmaDiv = max(minSigma, VSMALL);
+
+should be SMALL
+
+Also check multiFluidBuossinesq
+
+--------------------------------------------------------------------------------
+
+The conservation error in sigma.H only occurs when internal energy is
+not conserved (such as when minSigmaDiv instead of SMALL is used 
+in transfer terms). If IE is not conserved then it will cause PE not to
+conserve. Using rhoTheta=theta.sum() ensures PE remains conserved.
+
+The effect of using rhoTheta=theta.sum() on exner.H still needs to be
+investigated.
