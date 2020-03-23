@@ -26,7 +26,7 @@ partitionedVolScalarField sigma
 );
 sigma.sum().write();
 
-// sigma on the faces
+Info << "Setting sigma on the faces\n" << endl;
 partitionedSurfaceScalarField sigmaf
 (
     "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
@@ -37,7 +37,7 @@ for(label ip = 1; ip < nParts; ip++)
 }
 sigmaf.updateSum();
 
-// Pressure in each partition
+Info << "Setting pressure in each partition\n" << endl;
 partitionedVolScalarField Pi
 (
     "Pi",

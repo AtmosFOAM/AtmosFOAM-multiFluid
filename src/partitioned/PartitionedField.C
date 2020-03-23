@@ -47,8 +47,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensioned<Type>("sum", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("sum", dimless, pTraits<Type>::one)
     ),
     mean_
     (
@@ -58,8 +57,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         mesh,
-        dimensioned<Type>("mean", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("mean", dimless, pTraits<Type>::one)
     ),
     needsSigma_(false),
     sigmaPtr_(NULL),
@@ -107,8 +105,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         mesh,
-        dimensioned<Type>("sum", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("sum", dimless, pTraits<Type>::one)
     ),
     mean_
     (
@@ -118,8 +115,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensioned<Type>("mean", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("mean", dimless, pTraits<Type>::one)
     ),
     needsSigma_(true),
     sigmaPtr_(&sigma__),
@@ -166,8 +162,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, writeOpt
         ),
         field.mesh(),
-        dimensioned<Type>("sum", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("sum", dimless, pTraits<Type>::one)
     ),
     mean_
     (
@@ -177,8 +172,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         field.mesh(),
-        dimensioned<Type>("mean", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("mean", dimless, pTraits<Type>::one)
     ),
     needsSigma_(false),
     sigmaPtr_(NULL),
@@ -227,8 +221,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, IOobject::NO_WRITE
         ),
         field.mesh(),
-        dimensioned<Type>("sum", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("sum", dimless, pTraits<Type>::one)
     ),
     mean_
     (
@@ -238,8 +231,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
             IOobject::NO_READ, writeOpt
         ),
         field.mesh(),
-        dimensioned<Type>("mean", dimless, pTraits<Type>::one),
-        "zeroGradient"
+        dimensioned<Type>("mean", dimless, pTraits<Type>::one)
     ),
     needsSigma_(true),
     sigmaPtr_(&sigma__),
