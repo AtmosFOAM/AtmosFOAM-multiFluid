@@ -1,0 +1,21 @@
+inputFiles=(b.xyz b.stable.xyz b.buoyant.xyz)
+
+outFile=b.eps
+colx=(4 4 4)
+col=(3 3 3)
+legends=("total" "b@-0@-" "b@-1@-")
+pens=("1,black" "1,blue" "1,red")
+xlabel='Buoyancy (m s@+-2@+)'
+ylabel='Height (km)'
+xmin=-0.001
+xmax=0.06
+dx=0.02
+ymin=0
+ymax=10
+dy=2
+xscale=("*1" "*1" "*1")
+yscale=/1000
+legPos=x2/0
+nSkip=1
+projection=X5c/5c
+gv=1

@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
             mesh
         );
         volVectorField gradCondition = fvc::grad(conditionField);
+        volScalarField magGradCondition = mag(fvc::grad(conditionField))
+            +dimensionedScalar("", gradCondition.dimensions(), VSMALL);
         
         partitionedVolScalarField sigma
         (
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
             // Find the projection of the cell centre onto the w=0 surface
             point xw0 = mesh.C()[cellI]
                       - conditionField[cellI]*gradCondition[cellI]
-                      /magSqr(gradCondition[cellI]);
+                      /sqr(magGradCondition[cellI]);
 
             // Calulate the distance to the w=0 line for each vertex
             scalarList d(mesh.cellPoints()[cellI].size());
@@ -104,7 +106,7 @@ int main(int argc, char *argv[])
             {
                 const point& v = mesh.points()[mesh.cellPoints()[cellI][i]];
                 d[i] = (v - xw0) & gradCondition[cellI]
-                                   /mag(gradCondition[cellI]);
+                                   /magGradCondition[cellI];
                 if (d[i] < 0)
                 {
                     nNegPos[0]++;
@@ -117,7 +119,7 @@ int main(int argc, char *argv[])
                 }
             }
             
-            // If all the ds are positive the the condition is true
+            // If all the ds are positive then the is true
             if (nNegPos[0] == 0)
             {
                 sigma[0][cellI] = 0;
