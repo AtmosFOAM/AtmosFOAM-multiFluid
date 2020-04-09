@@ -14,3 +14,4 @@ Tools for modelling the atmosphere and atmospheric convection with multi-fluids.
        export ATMOSFOAM_SRC=/path/to/AtmosFOAM/src
        export ATMOSFOAM_MULTIF_SRC=/path/to/AtmosFOAM-multiFluid/src
 
+* Some test cases require sponge. Install sponge on ubuntu using `sudo apt install moreutils`
