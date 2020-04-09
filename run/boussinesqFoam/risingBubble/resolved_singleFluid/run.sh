@@ -31,7 +31,7 @@ gv $case/$time/bP.pdf &
 rm -r $case/hMean/[0-9]*
 blockMesh -case $case/hMean
 for time in [0-9]*; do
-    conditionalAverage.sh $case $time
+    ./conditionalAverage.sh $case $time
 done
 
 # Plots

@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
         {
             #include "rhoSigmaEqn.H"
             #include "massTransfers.H"
+            
             #include "thetaEqn.H"
             if (useThetaVariance)
             {

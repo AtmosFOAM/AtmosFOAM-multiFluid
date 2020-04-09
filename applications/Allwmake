@@ -13,4 +13,4 @@ set -e
 }
 
 wmake -all $targetType solvers
-
+wmake -all $targetType utilities

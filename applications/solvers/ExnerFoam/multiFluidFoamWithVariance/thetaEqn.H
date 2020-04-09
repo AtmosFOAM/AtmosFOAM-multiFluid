@@ -28,8 +28,9 @@ if (nParts != 2)
         << " transfer terms only formulated for nParts = 2, not nParts = "
         << nParts << exit(FatalError);
 }
+thetaT[0] = theta[0];
+thetaT[1] = theta[1];
 
-thetaT = theta;
 if (useThetaVariance)
 {
     #include "thetaTransferVariance.H"
