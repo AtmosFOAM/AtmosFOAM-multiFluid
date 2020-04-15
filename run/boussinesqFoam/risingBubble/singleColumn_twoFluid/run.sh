@@ -24,3 +24,4 @@ for time in 0 500 1000; do
     plots/plotProfiles.sh $case $time
 done
 
+
