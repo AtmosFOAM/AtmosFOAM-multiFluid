@@ -6,26 +6,24 @@ if (gamma.value() > VSMALL)
     {
         for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
         {
-            // Correction to the previous fluid pressure as
+/*            // Correction to the previous fluid pressure as
             //  Pi = - gamma div(sigma u_i)
-            // This version conserves the energy E where E_i = K_i + Pi
-            // and E = sum(sigma_i E_i)
             fvScalarMatrix PEqn
             (
                 fvm::Sp(1/gamma, Pi[ip])
               + fvc::div(sigmaf[ip]*volFlux[ip])
               + offCentre*dt*fvc::laplacian(sigmaf[ip],Pi[ip])
               - offCentre*dt*fvm::laplacian(sigmaf[ip],Pi[ip])
-            );
-/*            // Correction to previous pressure as
-            // Pi = -gamma div(u_i)
+            );*/
+            // Correction to previous pressure as
+            // Pi = -gamma div(u_i) + gamma sum(sigma_i div(u_i)
             fvScalarMatrix PEqn
             (
                 fvm::Sp(1/gamma, Pi[ip])
               + fvc::div(volFlux[ip])
               + offCentre*dt*fvc::laplacian(Pi[ip])
               - offCentre*dt*fvm::laplacian(Pi[ip])
-            );*/
+            );
             
             PEqn.solve();
         }
