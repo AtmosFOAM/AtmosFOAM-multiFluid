@@ -48,8 +48,8 @@ partitionedVolScalarField Pi
         mesh,
         dimensionedScalar("", P.dimensions(), scalar(0)),
         "zeroGradient"
-    )/*,
-    sigma*/
+    ),
+    sigma
 );
 
 Info << "Reading in b in each partition\n" << endl;

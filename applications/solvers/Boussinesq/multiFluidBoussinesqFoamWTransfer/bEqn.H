@@ -94,6 +94,7 @@ if (!noTransfers)
             (
                 volFlux.ddt()[ip]
               + volFlux[ip]*(Sf[ip]/dt + 1/wTransferTimeScale)
+              //- volFlux.mean()/wTransferTimeScale
             ) & vector(0,0,1));
         }
         bt[0] = max

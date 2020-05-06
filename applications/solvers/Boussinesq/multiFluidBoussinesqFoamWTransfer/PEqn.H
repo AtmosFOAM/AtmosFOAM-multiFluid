@@ -38,7 +38,7 @@ for(label ip = 0; ip < nParts; ip++)
     ))
   + nu*laplacianU
   //+ ( mesh.Sf() & fvc::interpolate((1/sigma[ip])*fvc::laplacian(sigma[ip]*nu, u[ip]), "convection" ) )
-  - fvc::snGrad(Pi[ip])*mesh.magSf();
+  - fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf();
 
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()

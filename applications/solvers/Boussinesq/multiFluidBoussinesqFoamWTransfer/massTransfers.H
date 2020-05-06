@@ -53,17 +53,19 @@ if (divTransfer>0)
 {
     massTransfer[0][1] += divTransfer*sigma[0]
         *max(-fvc::div(volFlux[0]), rateZero);
+        //*max(-fvc::div(volFlux[0]-volFlux.mean()), rateZero);
     massTransfer[1][0] += divTransfer*sigma[1]
         *max(-fvc::div(volFlux[1]), rateZero);
+        //*max(-fvc::div(volFlux[1]-volFlux.mean()), rateZero);
 }
 
-if (wTransfer)
+/*if (wTransfer)
 {
     // Fixed transfer rate dependent on w
-    /*massTransfer[0][1] += sign(1+sign(u[0].component(vector::Z)))
+    massTransfer[0][1] += sign(1+sign(u[0].component(vector::Z)))
                          *sigma[0]/ wTransferTimeScale;
     massTransfer[1][0] += sign(1-sign(u[1].component(vector::Z)))
-                         *sigma[1]/ wTransferTimeScale;*/
+                         *sigma[1]/ wTransferTimeScale;
                          
     massTransfer[0][1] += 0.5*(1+sign(u[0].component(vector::Z)))
                          *sigma[0]/ wTransferTimeScale
@@ -73,7 +75,7 @@ if (wTransfer)
                          *sigma[1]/ wTransferTimeScale
                          *mag(u[1].component(vector::Z))
                          /max( mag(u[1].component(vector::Z)), dimensionedScalar("", dimVelocity, SMALL) );
-}
+}*/
 
 // Mass transfer based on buoyancy
 if (buoyancyTransfer)

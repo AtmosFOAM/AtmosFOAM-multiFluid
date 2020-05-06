@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
             #include "calculateDrag.H"
             #include "bEqn.H"
             // Pressure and velocity updates
+            surfaceScalarField uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
             for (int corr=0; corr<nCorr; corr++)
             {
                 #include "PEqn.H"
@@ -85,8 +86,11 @@ int main(int argc, char *argv[])
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
+                //uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
+                //Info << "uDiff, max: " << max(uDiff).value() << ", min: " << min(uDiff).value() << endl;
             }
         }
+        
 
         // Apply mass transfer terms (operator split) to sigmaf
         for(label ip = 0; ip < nParts; ip++)
