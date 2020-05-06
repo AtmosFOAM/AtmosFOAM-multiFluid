@@ -57,15 +57,6 @@ if (divTransfer>0)
         *max(-fvc::div(volFlux[1]), rateZero);
 }
 
-/*if (wTransfer)
-{
-    // Fixed transfer rate dependent on w
-    massTransfer[0][1] += sign(1+sign(u[0].component(vector::Z)))
-                         *sigma[0]/ wTransferTimeScale;
-    massTransfer[1][0] += sign(1-sign(u[1].component(vector::Z)))
-                         *sigma[1]/ wTransferTimeScale;
-}*/
-
 // Mass transfer based on buoyancy
 if (buoyancyTransfer)
 {
