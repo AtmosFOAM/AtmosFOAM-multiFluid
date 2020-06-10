@@ -53,29 +53,9 @@ if (divTransfer>0)
 {
     massTransfer[0][1] += divTransfer*sigma[0]
         *max(-fvc::div(volFlux[0]), rateZero);
-        //*max(-fvc::div(volFlux[0]-volFlux.mean()), rateZero);
     massTransfer[1][0] += divTransfer*sigma[1]
         *max(-fvc::div(volFlux[1]), rateZero);
-        //*max(-fvc::div(volFlux[1]-volFlux.mean()), rateZero);
 }
-
-/*if (wTransfer)
-{
-    // Fixed transfer rate dependent on w
-    massTransfer[0][1] += sign(1+sign(u[0].component(vector::Z)))
-                         *sigma[0]/ wTransferTimeScale;
-    massTransfer[1][0] += sign(1-sign(u[1].component(vector::Z)))
-                         *sigma[1]/ wTransferTimeScale;
-                         
-    massTransfer[0][1] += 0.5*(1+sign(u[0].component(vector::Z)))
-                         *sigma[0]/ wTransferTimeScale
-                         *mag(u[0].component(vector::Z))
-                         /max( mag(u[0].component(vector::Z)), dimensionedScalar("", dimVelocity, SMALL) );
-    massTransfer[1][0] += 0.5*(1-sign(u[1].component(vector::Z)))
-                         *sigma[1]/ wTransferTimeScale
-                         *mag(u[1].component(vector::Z))
-                         /max( mag(u[1].component(vector::Z)), dimensionedScalar("", dimVelocity, SMALL) );
-}*/
 
 // Mass transfer based on buoyancy
 if (buoyancyTransfer)
@@ -101,6 +81,106 @@ if (uniformSigma)
     massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
                        + (1-transferLocation)*massTransfer[1][0];
 }
+
+// Mass transfer based on vertical velocity and horizontal divergence
+if (DwDtTransfer)
+{
+    DuDt[0] = fvc::reconstruct
+    (
+        volFlux.ddt()[0]
+      + (
+            mesh.Sf() & fvc::interpolate
+            (
+                fvc::div(volFlux[0], u[0], "u")
+              - u[0]*fvc::div(volFlux[0]),
+                "convection"
+            )
+        )
+    );
+    DuDt[1] = fvc::reconstruct
+    (
+        volFlux.ddt()[1]
+      + (
+            mesh.Sf() & fvc::interpolate
+            (
+                fvc::div(volFlux[1], u[1], "u")
+              - u[1]*fvc::div(volFlux[1]),
+                "convection"
+            )
+        )
+    );
+
+    wVar[0] = sqr(u[0].component(2) - u.mean().component(2));
+    wVar[1] = sqr(u[1].component(2) - u.mean().component(2));
+
+    massTransfer[0][1] += sigma[0]/dt * 0.5 *
+    (
+        1 + Foam::erf
+        (
+            (u[0].component(2) + dt*DuDt[0].component(2)) /
+            max
+            (
+                sqrt(2*wVar[0]),
+                dimensionedScalar("", dimensionSet(0,1,-1,0,0), SMALL)
+            )
+        )
+    );
+    massTransfer[1][0] += sigma[1]/dt * 0.5 *
+    (
+        1 - Foam::erf
+        (
+            (u[1].component(2) + dt*DuDt[1].component(2)) /
+            (
+                sqrt(2*wVar[1]),
+                dimensionedScalar("", dimensionSet(0,1,-1,0,0), SMALL)
+            )
+        )
+    );
+
+    /*massTransfer[0][1] += sigma[0] * max
+        (
+           - DuDt0.component(2)/
+             min
+             (
+                 u[0].component(2),
+                 dimensionedScalar("", dimensionSet(0,1,-1,0,0), -SMALL)
+             ),
+             rateZero
+        );
+    massTransfer[1][0] += sigma[1] * max
+        (
+           - DuDt1.component(2)/
+             max
+             (
+                 u[0].component(2),
+                 dimensionedScalar("", dimensionSet(0,1,-1,0,0), SMALL)
+             ),
+             rateZero
+        );*/
+}
+
+// Mass transfer based on movement of the fluid interface
+// Requires knowledge of the fluid interface velocity
+if (gradSigmaTransfer)
+{
+    partitionedVolVectorField uInterface = u;
+    uInterface[0].component(2) = 0*uInterface[0].component(2);
+    uInterface[1].component(2) = 0*uInterface[0].component(2);
+
+    massTransfer[0][1] = max
+    (
+        //((u[0]-uInterface[0]) & fvc::grad(sigma[0])) - ((u[1]-uInterface[1]) & fvc::grad(sigma[1])),
+        dt*((u[0] & fvc::grad(u[0])) & fvc::grad(sigma[0])),
+        rateZero
+    );
+    massTransfer[1][0] = max
+    (
+        //((u[1]-uInterface[1]) & fvc::grad(sigma[1])) - ((u[0]-uInterface[0]) & fvc::grad(sigma[0])),
+        dt*((u[1] & fvc::grad(u[1])) & fvc::grad(sigma[1])),
+        rateZero
+    );
+}
+
 
 // Transfers to keep w[0] <=0 and w[1] >0
 if (wTransfer)

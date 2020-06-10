@@ -356,3 +356,13 @@ surfaceScalarField laplacianU
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
 
+// Material derivatives of velocity
+partitionedVolVectorField DuDt
+(
+    "DuDt", partNames, 0*fvc::reconstruct(volFlux.ddt()[0]), sigma
+);
+
+partitionedVolScalarField wVar
+(
+    "wVar", partNames, 0*sqr(u[0].component(2)), sigma
+);
