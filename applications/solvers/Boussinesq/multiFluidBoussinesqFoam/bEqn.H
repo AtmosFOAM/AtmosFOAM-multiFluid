@@ -84,31 +84,6 @@ if (!noTransfers)
             -bTransferMax
         );
     }
-    // Check that bt is big enough for wTransfer technique (giving w[0]<0)
-    if (wTransfer)
-    {
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            // Update bMinMax
-            bMinMax[ip] = -(fvc::reconstruct
-            (
-                volFlux.ddt()[ip]
-              + volFlux[ip]*(Sf[ip]/dt + 1/wTransferTimeScale)
-            ) & vector(0,0,1));
-        }
-        bt[0] = max
-        (
-            bt[0],
-            (-bMinMax[0]/wTransferTimeScale + b.ddt()[0])
-            /max(S[0]/dt, rateSMALL)
-        );
-        bt[1] = min
-        (
-            bt[1],
-            (-bMinMax[1]/wTransferTimeScale + b.ddt()[1])
-            /max(S[1]/dt, rateSMALL)
-        );
-    }
 
     // Normal transfers
     if (!transferAnomaliesb0 && !transferZeroAnomalies)

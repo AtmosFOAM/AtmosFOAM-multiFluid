@@ -64,6 +64,7 @@ partitionedVolVectorField u
 (
     "u", partNames, mesh, runTime.timeName(), sigma
 );
+u.storeTime();
 u.mean().write();
 
 // fixed flux boundary conditions
@@ -125,7 +126,7 @@ const surfaceScalarField gradPcoeff
 partitionedSurfaceScalarField bf
 (
     "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
-    sigmaf/*, IOobject::NO_WRITE*/
+    sigmaf, IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -139,7 +140,8 @@ volScalarField massTransferTmp
     IOobject("massTransferTmp", runTime.timeName(), mesh,
              IOobject::NO_READ, IOobject::NO_WRITE),
     mesh,
-    rateZero
+    rateZero,
+    "fixedValue"
 );
 PtrList<partitionedVolScalarField> massTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)
@@ -260,7 +262,8 @@ partitionedVolScalarField bt
     partNames,
     volScalarField
     (
-        IOobject("bt", runTime.timeName(), mesh),
+        IOobject("bt", runTime.timeName(), mesh, 
+                IOobject::NO_READ, IOobject::AUTO_WRITE),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0)),
         "fixedValue"

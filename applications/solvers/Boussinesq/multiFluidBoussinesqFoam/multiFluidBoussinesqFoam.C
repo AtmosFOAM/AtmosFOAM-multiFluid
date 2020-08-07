@@ -33,6 +33,7 @@ Description
 #include "fvCFD.H"
 #include "PartitionedFields.H"
 #include "fvcCurlf.H"
+#include "mathematicalConstants.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
     #include "readTransferCoeffs.H"
     #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
+    #define pi constant::mathematical::pi
     #include "createFields.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
