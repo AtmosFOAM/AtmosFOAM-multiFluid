@@ -213,3 +213,9 @@ if (wTransfer)
     );
 }
 
+
+if (cosineSquaredTransfer)
+{
+    massTransfer[0][1] += sigma[0]/dt * max(dimlessZero,  sign(u[0].component(2)));
+    massTransfer[1][0] += sigma[1]/dt * max(dimlessZero, -sign(u[1].component(2)));
+}

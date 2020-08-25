@@ -116,6 +116,14 @@ const Switch DwDtTransfer = noTransfers? Switch(false) :
             "DwDtTransfer", Switch(false)
         );
 
+// Entrainment based on predicting the movement of the fluid interface
+// with a cosine squared pdf
+const Switch cosineSquaredTransfer = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "cosineSquaredTransfer", Switch(false)
+        );
+
 // Entrainment based on movement of fluid interfaces
 const Switch gradSigmaTransfer = noTransfers? Switch(false) :
         transferProps.lookupOrDefault<Switch>
