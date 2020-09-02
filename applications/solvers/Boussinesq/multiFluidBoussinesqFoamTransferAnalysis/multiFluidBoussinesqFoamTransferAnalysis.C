@@ -33,7 +33,6 @@ Description
 #include "fvCFD.H"
 #include "PartitionedFields.H"
 #include "fvcCurlf.H"
-#include "mathematicalConstants.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,7 +45,6 @@ int main(int argc, char *argv[])
     #include "readTransferCoeffs.H"
     #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
-    #define pi constant::mathematical::pi
     #include "createFields.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
@@ -69,14 +67,15 @@ int main(int argc, char *argv[])
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "sigmaEqn.H"
+            #include "massTransfers.H"
             if (!noTransfers)
             {
-                #include "massTransfers.H"
                 #include "applyMassTransfer.H"
             }
             #include "calculateDrag.H"
             #include "bEqn.H"
             // Pressure and velocity updates
+            surfaceScalarField uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
             for (int corr=0; corr<nCorr; corr++)
             {
                 #include "PEqn.H"
@@ -87,8 +86,11 @@ int main(int argc, char *argv[])
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
+                //uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
+                //Info << "uDiff, max: " << max(uDiff).value() << ", min: " << min(uDiff).value() << endl;
             }
         }
+        
 
         // Apply mass transfer terms (operator split) to sigmaf
         for(label ip = 0; ip < nParts; ip++)

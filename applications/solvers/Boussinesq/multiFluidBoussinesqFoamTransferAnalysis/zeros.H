@@ -22,8 +22,4 @@ const dimensionedScalar bSMALL
 (
     "bSMALL", dimensionSet(0,1,-2,0,0), SMALL
 );
-const dimensionedScalar speedSMALL
-(
-    "speedSMALL", dimensionSet(0,1,-1,0,0), SMALL
-);
 

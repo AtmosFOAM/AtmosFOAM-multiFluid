@@ -84,18 +84,56 @@ if (!noTransfers)
             -bTransferMax
         );
     }
+    // Check that bt is big enough for wTransfer technique (giving w[0]<0)
+    if (wTransfer)
+    {
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            // Update bMinMax
+            bMinMax[ip] = -(fvc::reconstruct
+            (
+                volFlux.ddt()[ip]
+              + volFlux[ip]*(Sf[ip]/dt + 1/wTransferTimeScale)
+            ) & vector(0,0,1));
+        }
+        bt[0] = max
+        (
+            bt[0],
+            (-bMinMax[0]/wTransferTimeScale + b.ddt()[0])
+            /max(S[0]/dt, rateSMALL)
+        );
+        bt[1] = min
+        (
+            bt[1],
+            (-bMinMax[1]/wTransferTimeScale + b.ddt()[1])
+            /max(S[1]/dt, rateSMALL)
+        );
+    }
 
     // Normal transfers
     if (!transferAnomaliesb0 && !transferZeroAnomalies)
     {
+        // b[0] = (
+        //            (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
+        //          + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
+        //        )
+        //        /(1+transfer.sum());
+
+        // b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
+        //        /(1+transfer[0]);
+        
+
+        partitionedVolScalarField bPreTransfer = b;
         b[0] = (
-                   (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
-                 + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
+                   (1+transfer[0])*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
+                 + transfer[1]*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
                )
                /(1+transfer.sum());
-
-        b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
-               /(1+transfer[0]);
+        b[1] = (
+                   (1+transfer[1])*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
+                 + transfer[0]*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
+               )
+               /(1+transfer.sum());
     }
     else if (transferAnomaliesb0)
     // Fluid transferred from 1 to zero has zero buoyancy
@@ -113,13 +151,17 @@ if (!noTransfers)
     }
 }
 
+b.updateSum();
+// b[0] = b.mean();
+// b[1] = b.mean();
+
 // bouyancy force on faces
 for(label ip = 0; ip < nParts; ip++)
 {
     bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
 }
 
-b.updateSum();
+
 bf.updateSum();
 
 if (adjustQ)

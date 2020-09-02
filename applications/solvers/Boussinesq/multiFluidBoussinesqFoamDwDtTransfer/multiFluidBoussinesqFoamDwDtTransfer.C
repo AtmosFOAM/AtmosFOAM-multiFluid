@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
     #include "createFields.H"
+    //#include "print_buoyancy.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
@@ -56,26 +57,41 @@ int main(int argc, char *argv[])
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    u[0] *= 0;
+    u[1] *= 0;
+    volFlux[0] *= 0;
+    volFlux[1] *= 0;
+    forAll (b[0], celli)
+    {
+        if (celli >= 20000)
+        {
+            b[0][celli] *= 0;
+            b[1][celli] *= 0;
+        }
+    }
+    
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+        int counter = 0;
         #include "partitionedCourantNo.H"
 
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
+            #include "print_buoyancy.H"
             #include "sigmaEqn.H"
             if (!noTransfers)
             {
                 #include "massTransfers.H"
                 #include "applyMassTransfer.H"
             }
+            #include "print_buoyancy.H"
             #include "calculateDrag.H"
             #include "bEqn.H"
+            #include "print_buoyancy.H"
             // Pressure and velocity updates
-            surfaceScalarField uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
             for (int corr=0; corr<nCorr; corr++)
             {
                 #include "PEqn.H"
@@ -86,11 +102,8 @@ int main(int argc, char *argv[])
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
-                //uDiff = mag(sigmaf[1]*volFlux[1]/max(sigmaf[1], SMALL) - sigmaf[0]*volFlux[0]/max(sigmaf[0], SMALL));
-                //Info << "uDiff, max: " << max(uDiff).value() << ", min: " << min(uDiff).value() << endl;
             }
         }
-        
 
         // Apply mass transfer terms (operator split) to sigmaf
         for(label ip = 0; ip < nParts; ip++)

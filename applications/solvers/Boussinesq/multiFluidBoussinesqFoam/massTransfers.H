@@ -85,31 +85,38 @@ if (uniformSigma)
 // Transfers to keep w[0] <=0 and w[1] >0
 if (wTransfer)
 {
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        bMinMax[ip] = -(fvc::reconstruct
-        (
-            volFlux.ddt()[ip]
-          + volFlux[ip]*(Sf[ip]/dt + 1/wTransferTimeScale)
-        ) & vector(0,0,1));
-    }
+    volScalarField DDtw
+//        = volVectorField(-fvc::grad(P + Pi[0] - Pi.sum())).component(2)
+//        + b[0];
+          = volVectorField(fvc::ddt(u[0]) + (u[0] & fvc::grad(u[0])))
+            .component(2);
     
     massTransfer[0][1] = max
     (
         massTransfer[0][1],
-        sigma[0]/max(bt[0], bSMALL)*
-        (
-            -bMinMax[0]/wTransferTimeScale + b.ddt()[0]
-        )
+        sigma[0]/(wPrime*Foam::sqrt(2*pi))*DDtw
+            *Foam::exp(-0.5*sqr(u[0].component(2)/wPrime))
     );
+    
+    DDtw //= volVectorField(-fvc::grad(P + Pi[1] - Pi.sum())).component(2)
+         //+ b[1];
+          = volVectorField(fvc::ddt(u[1]) + (u[1] & fvc::grad(u[1])))
+            .component(2);
 
     massTransfer[1][0] = max
     (
         massTransfer[1][0],
-        sigma[1]/min(bt[1], -bSMALL)*
-        (
-            -bMinMax[1]/wTransferTimeScale + b.ddt()[1]
-        )
+        sigma[1]/(wPrime*Foam::sqrt(2*pi))*DDtw
+            *Foam::exp(-0.5*sqr(u[1].component(2)/wPrime))
     );
+
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        bMinMax[ip] = (fvc::grad(P + Pi[ip] - Pi.sum()) & vector(0,0,1))
+                    - u[ip].component(2)/wTransferTimeScale;
+    }
+    
+    bt[0] = sigma[1]*min(max((bMinMax[0] - b[0]), bZero), btMax);
+    bt[1] = -sigma[0]*min(max(b[1] - bMinMax[1], bZero), btMax);
 }
 

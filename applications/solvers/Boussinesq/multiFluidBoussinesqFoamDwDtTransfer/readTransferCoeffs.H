@@ -43,23 +43,14 @@ const Switch wTransfer = noTransfers? Switch(false) :
 const dimensionedScalar wTransferTimeScale = wTransfer ? 
       dimensionedScalar(transferProps.lookup("wTransferTimeScale")) :
       dimensionedScalar("transferProps", dimTime, scalar(0));
-const dimensionedScalar wPrime = wTransfer ?
-      dimensionedScalar(transferProps.lookup("wPrime")) :
-      dimensionedScalar("dimensionedScalar", dimVelocity, scalar(0));
-const dimensionedScalar btMax = wTransfer ?
-      dimensionedScalar(transferProps.lookup("btMax")) : 
-      dimensionedScalar("btMax", dimensionSet(0,1,-2,0,0), scalar(0));
 
 // Is mass transfer decided based on grad(b)
-const Switch buoyancyTransfer = noTransfers? Switch(false) :
+const Switch buoyancyTransfer = noTransfers? Switch(false) : 
       transferProps.lookup("buoyancyTransfer");
-const dimensionedScalar bTransferDiffusivity =  buoyancyTransfer ?
-      dimensionedScalar(transferProps.lookup("bTransferDiffusivity")) :
-      dimensionedScalar("bTransferDiffusivity", dimless, scalar(0));
-
-// Transfer w=0 (w^T = 0)
-const Switch wTransfer0 = noTransfers? Switch(false) :
-      transferProps.lookup("wTransfer0");
+const dimensionedScalar bTransferDiffusivity
+(
+    transferProps.lookup("bTransferDiffusivity")
+);
 
 // Minimum sigma for each partition
 const scalar minSigma = noTransfers? scalar(0) :
@@ -118,9 +109,39 @@ const Switch transferZeroAnomalies = noTransfers? Switch(false) :
             "transferZeroAnomalies", Switch(false)
         );
 
+// Entrainment based on predicting the movement of the fluid interface
+const Switch DwDtTransfer = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "DwDtTransfer", Switch(false)
+        );
+
+// Entrainment based on predicting the movement of the fluid interface
+// with a cosine squared pdf
+const Switch cosineSquaredTransfer = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "cosineSquaredTransfer", Switch(false)
+        );
+
+// Entrainment based on movement of fluid interfaces
+const Switch gradSigmaTransfer = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "gradSigmaTransfer", Switch(false)
+        );
+
 // Coefficient for entrainment rate proportional to 1/r
 const scalar entrainmentCoefficient = transferProps.lookupOrDefault<scalar>
 (
     "entrainmentCoefficient", scalar(0)
 );
+
+// Note that wTransfer should be used in combination with bAnomalyMeanCoeff
+if (wTransfer && bAnomalyMeanCoeff <= SMALL)
+{
+    FatalErrorIn("multiFluidBoussinesqFoam")
+        << "cannot use wTransfer without bAnomalyMeanCoeff>0 specified in system/transferProperties"
+        << exit(FatalError);
+}
 

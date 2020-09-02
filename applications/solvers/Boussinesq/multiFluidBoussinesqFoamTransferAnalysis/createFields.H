@@ -64,7 +64,6 @@ partitionedVolVectorField u
 (
     "u", partNames, mesh, runTime.timeName(), sigma
 );
-u.storeTime();
 u.mean().write();
 
 // fixed flux boundary conditions
@@ -126,7 +125,7 @@ const surfaceScalarField gradPcoeff
 partitionedSurfaceScalarField bf
 (
     "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
-    sigmaf, IOobject::NO_WRITE
+    sigmaf/*, IOobject::NO_WRITE*/
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -140,8 +139,7 @@ volScalarField massTransferTmp
     IOobject("massTransferTmp", runTime.timeName(), mesh,
              IOobject::NO_READ, IOobject::NO_WRITE),
     mesh,
-    rateZero,
-    "fixedValue"
+    rateZero
 );
 PtrList<partitionedVolScalarField> massTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)
@@ -262,8 +260,7 @@ partitionedVolScalarField bt
     partNames,
     volScalarField
     (
-        IOobject("bt", runTime.timeName(), mesh, 
-                IOobject::NO_READ, IOobject::AUTO_WRITE),
+        IOobject("bt", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0)),
         "fixedValue"
@@ -359,3 +356,58 @@ surfaceScalarField laplacianU
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
 
+/*
+partitionedVolScalarField massTransferredLaplacianSigma
+(
+    "massTransferredLaplacianSigma", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredLaplacianBuoyancy
+(
+    "massTransferredLaplacianBuoyancy", partNames, 0*sigma[0]
+);*/
+
+partitionedVolScalarField massTransferredDivTransfer
+(
+    "massTransferredDivTransfer", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredCloudRadius
+(
+    "massTransferredCloudRadius", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredBuoyancyTransfer
+(
+    "massTransferredBuoyancyTransfer", partNames, 0*sigma[0]
+);
+/*
+partitionedVolScalarField massTransferredWTransfer
+(
+    "massTransferredWTransfer", partNames, 0*sigma[0]
+);*/
+
+partitionedVolScalarField massTransferredDwDt
+(
+    "massTransferredDwDt", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredDwDtTransfer
+(
+    "massTransferredDwDtTransfer", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredDwDtPdfTransfer1
+(
+    "massTransferredDwDtPdfTransfer1", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredDwDtPdfTransfer2
+(
+    "massTransferredDwDtPdfTransfer2", partNames, 0*sigma[0]
+);
+
+partitionedVolScalarField massTransferredHorizontalDiv
+(
+    "massTransferredHorizontalDiv", partNames, 0*sigma[0]
+);

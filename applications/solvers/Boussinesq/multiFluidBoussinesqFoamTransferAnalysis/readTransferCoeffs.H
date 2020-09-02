@@ -24,12 +24,10 @@ const Switch noTransfers(transferProps.lookup("noTransfers"));
 const Switch noAnomalies(transferProps.lookup("noAnomalies"));
 
 // Diffusion coefficient for inter-partition mass transfer
-const dimensionedScalar Ksigma = noTransfers? dimlessZero : 
-      dimensionedScalar(transferProps.lookup("Ksigma"));
+const dimensionedScalar Ksigma = dimensionedScalar(transferProps.lookup("Ksigma"));
 
 // The amount of divergence transfer used (between zero and one)
-const scalar divTransfer = noTransfers? scalar(0) :
-      readScalar(transferProps.lookup("divTransfer"));
+const scalar divTransfer = readScalar(transferProps.lookup("divTransfer"));
 if (divTransfer < 0 || divTransfer > 1)
 {
     FatalErrorIn("multiFluidBoussinesqFoam")
@@ -38,27 +36,21 @@ if (divTransfer < 0 || divTransfer > 1)
 }
 
 // Is mass transfer decided based on vertical velocity
-const Switch wTransfer = noTransfers? Switch(false) : 
-      transferProps.lookup("wTransfer");
-const dimensionedScalar wTransferTimeScale = wTransfer ? 
-      dimensionedScalar(transferProps.lookup("wTransferTimeScale")) :
-      dimensionedScalar("transferProps", dimTime, scalar(0));
+const Switch wTransfer = transferProps.lookup("wTransfer");
+const dimensionedScalar wTransferTimeScale = dimensionedScalar(transferProps.lookup("wTransferTimeScale"));
 
 // Is mass transfer decided based on grad(b)
-const Switch buoyancyTransfer = noTransfers? Switch(false) : 
-      transferProps.lookup("buoyancyTransfer");
+const Switch buoyancyTransfer = transferProps.lookup("buoyancyTransfer");
 const dimensionedScalar bTransferDiffusivity
 (
     transferProps.lookup("bTransferDiffusivity")
 );
 
 // Minimum sigma for each partition
-const scalar minSigma = noTransfers? scalar(0) :
-      readScalar(transferProps.lookup("minSigma"));
+const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
 // Transfer to keep flagged cells uniform sigma
-const Switch uniformSigma = noTransfers? Switch(false) :
-      Switch(transferProps.lookup("uniformSigma"));
+const Switch uniformSigma = Switch(transferProps.lookup("uniformSigma"));
 
 // Transfer buoyancy anomalies based on linear combination of mean fluid 
 // buoyancies
@@ -112,7 +104,7 @@ const Switch transferZeroAnomalies = noTransfers? Switch(false) :
 // Coefficient for entrainment rate proportional to 1/r
 const scalar entrainmentCoefficient = transferProps.lookupOrDefault<scalar>
 (
-    "entrainmentCoefficient", scalar(0)
+    "entrainmentCoefficient", scalar(0.2)
 );
 
 // Note that wTransfer should be used in combination with bAnomalyMeanCoeff
