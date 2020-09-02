@@ -216,6 +216,109 @@ if (wTransfer)
 
 if (cosineSquaredTransfer)
 {
-    massTransfer[0][1] += sigma[0]/dt * max(dimlessZero,  sign(u[0].component(2)));
-    massTransfer[1][0] += sigma[1]/dt * max(dimlessZero, -sign(u[1].component(2)));
+    // massTransfer[0][1] += sigma[0]/dt * max(dimlessZero,  sign(u[0].component(2)));
+    // massTransfer[1][0] += sigma[1]/dt * max(dimlessZero, -sign(u[1].component(2)));
+
+    DuDt[0] = fvc::reconstruct
+    (
+        volFlux.ddt()[0]
+      + (
+            mesh.Sf() & fvc::interpolate
+            (
+                fvc::div(volFlux[0], u[0], "u")
+              - u[0]*fvc::div(volFlux[0]),
+                "convection"
+            )
+        )
+    );
+    DuDt[1] = fvc::reconstruct
+    (
+        volFlux.ddt()[1]
+      + (
+            mesh.Sf() & fvc::interpolate
+            (
+                fvc::div(volFlux[1], u[1], "u")
+              - u[1]*fvc::div(volFlux[1]),
+                "convection"
+            )
+        )
+    );
+
+    w[0] = u[0].component(2);
+    w[1] = u[1].component(2);
+    w.updateSum();
+
+    partitionedVolScalarField wBoundLower = w;
+    partitionedVolScalarField wBoundUpper = w;
+
+    wBoundLower[0] = max
+    (
+        min
+        (
+            w.mean(),
+            dimensionedScalar("", dimensionSet(0,1,-1,0,0), scalar(0))
+        ),
+        2*w[0]
+    );
+    wBoundLower[1] = min
+    (
+        max
+        (
+            w.mean(),
+            dimensionedScalar("", dimensionSet(0,1,-1,0,0), scalar(0))
+        ),
+        2*w[1]
+    );
+
+    wBoundUpper[0] = max
+    (
+        min
+        (
+            wBoundLower[0],
+            -dt*DuDt[0].component(2)
+        ),
+        2*w[0]-wBoundLower[0]
+    );
+    wBoundUpper[1] = min
+    (
+        max
+        (
+            wBoundLower[1],
+            -dt*DuDt[1].component(2)
+        ),
+        2*w[1]-wBoundLower[1]
+    );
+
+    massTransfer[0][1] += sigma[0]/dt * 
+    (
+        (wBoundUpper[0]-wBoundLower[0]) / min
+        (
+            w[0] - wBoundLower[0],
+            dimensionedScalar("", dimVelocity, -SMALL)
+        )
+      - 1/M_PI * Foam::sin
+        (
+            M_PI * (w[0] - wBoundUpper[0]) / min
+            (
+                w[0] - wBoundLower[0],
+                dimensionedScalar("", dimVelocity, -SMALL)
+            )
+        )
+    );
+    massTransfer[1][0] += sigma[1]/dt * 
+    (
+        (wBoundUpper[1]-wBoundLower[1]) / max
+        (
+            w[1] - wBoundLower[1],
+            dimensionedScalar("", dimVelocity, SMALL)
+        )
+      - 1/M_PI * Foam::sin
+        (
+            M_PI * (w[1] - wBoundUpper[1]) / max
+            (
+                w[1] - wBoundLower[1],
+                dimensionedScalar("", dimVelocity, SMALL)
+            )
+        )
+    );
 }

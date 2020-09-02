@@ -362,6 +362,11 @@ partitionedVolVectorField DuDt
     "DuDt", partNames, 0*fvc::reconstruct(volFlux.ddt()[0]), sigma
 );
 
+partitionedVolScalarField w
+(
+    "w", partNames, 0*u[0].component(2), sigma
+);
+
 partitionedVolScalarField wVar
 (
     "wVar", partNames, 0*sqr(u[0].component(2)), sigma

@@ -1,8 +1,8 @@
 {
-    forAll (sigma[0], celli)
+    forAll (b[0], celli)
     {
-        if (1)
-        // if ((celli > 20031) && (celli < 20033))
+        if (0)
+        // if ((celli > 20000) && (celli < 20033))
         {
             if (mag(b[0][celli]-b[1][celli]) > 1e-15)
             // if (1)
