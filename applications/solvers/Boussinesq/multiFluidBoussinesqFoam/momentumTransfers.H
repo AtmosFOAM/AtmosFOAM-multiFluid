@@ -30,4 +30,3 @@ if (!noTransfers || dragCoeff > 0)
     /(1 + transferf[0] + dt*sigmaf[0]*dragCommon);
 }
 
-

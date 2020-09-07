@@ -11,6 +11,7 @@ if (gamma.value() > VSMALL)
             fvScalarMatrix PEqn
             (
                 fvm::Sp(1/gamma, Pi[ip])
+              - Pi.sum()/gamma
               + fvc::div(volFlux[ip])
               + offCentre*dt*fvc::laplacian(Pi[ip])
               - offCentre*dt*fvm::laplacian(Pi[ip])

@@ -190,7 +190,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
                     baseName() + '.' + partNames()[ip],
                     field.mesh().time().timeName(),
                     field.mesh(),
-                    IOobject::NO_READ, writeOpt
+                    IOobject::READ_IF_PRESENT, writeOpt
                 ),
                 field
             )
@@ -249,7 +249,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
                     baseName_+'.'+partNames_[ip],
                     field.mesh().time().timeName(),
                     field.mesh(),
-                    IOobject::NO_READ, writeOpt
+                    IOobject::READ_IF_PRESENT, writeOpt
                 ),
                 field
             )
