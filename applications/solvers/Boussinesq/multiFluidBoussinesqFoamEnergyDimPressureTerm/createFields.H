@@ -80,8 +80,23 @@ forAll(mesh.boundaryMesh(), patchi)
 Info << "Calculating the flux in each partition\n"<<endl;
 partitionedSurfaceScalarField volFlux
 (
-    "volFlux", partNames, mesh, runTime.timeName(), sigmaf
+    "volFlux",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
+        linearInterpolate(u[0]) & mesh.Sf(),
+        fluxBCs
+    ),
+    sigmaf
 );
+
+for(label ip = 1; ip < volFlux.size(); ip++)
+{
+    volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
+}
+volFlux.updateSum();
+volFlux.mean().write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();

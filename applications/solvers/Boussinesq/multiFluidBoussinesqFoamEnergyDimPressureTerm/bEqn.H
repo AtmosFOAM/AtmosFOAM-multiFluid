@@ -5,7 +5,6 @@ for(label ip = 0; ip < nParts; ip++)
     b.ddt()[ip] = -fvc::div(volFlux[ip], bBar + b[ip], "b")
                 + (bBar + b[ip])*fvc::div(volFlux[ip])
                 + alpha*fvc::laplacian(b[ip]);
-                //+ (1/sigma[ip])*fvc::laplacian(sigma[ip]*alpha, b[ip]);
 }
 
 if (!adjustQ)
