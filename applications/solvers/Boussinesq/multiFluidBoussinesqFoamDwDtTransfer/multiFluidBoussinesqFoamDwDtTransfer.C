@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    u[0] *= 0;
+    /*u[0] *= 0;
     u[1] *= 0;
     volFlux[0] *= 0;
     volFlux[1] *= 0;
@@ -68,9 +68,26 @@ int main(int argc, char *argv[])
             b[0][celli] *= 0;
             b[1][celli] *= 0;
         }
-    }
+    }*/
+    // forAll (volFlux[0], celli)
+    // {
+    //     if (1)
+    //     {
+    //         Info << endl;
+    //         Info << celli << endl;
+    //         Info << "P: " << P[celli] << endl;
+    //         Info << "vF0: " << volFlux[0][celli]/2e7 << endl;
+    //         Info << "vF1: " << volFlux[1][celli]/2e7 << endl;
+    //         Info << "vFddt0: " << volFlux.ddt()[0][celli]/2e7 << endl;
+    //         Info << "vFddt1: " << volFlux.ddt()[1][celli]/2e7 << endl;
+            
+    //     }
+    // }
+    
     
     Info<< "\nStarting time loop\n" << endl;
+
+    
 
     while (runTime.loop())
     {
@@ -96,11 +113,23 @@ int main(int argc, char *argv[])
             {
                 #include "PEqn.H"
                 #include "momentumTransfers.H"
-                #include "PiEqn.H"
+                //#include "PiEqn.H"
                 // Update velocities based on the flux
                 for(label ip = 0; ip < nParts; ip++)
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
+                }
+                volScalarField u0 = u[0].component(2);
+                volScalarField u1 = u[1].component(2);
+                forAll (u0, celli)
+                {
+                    if (1)
+                    {
+                        Info << endl;
+                        Info << celli << endl;
+                        Info << "vF0: " << u0[celli] << endl;
+                        Info << "vF1: " << u1[celli] << endl;
+                    }
                 }
             }
         }

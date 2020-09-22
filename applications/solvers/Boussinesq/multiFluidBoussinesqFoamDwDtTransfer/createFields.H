@@ -226,7 +226,7 @@ surfaceScalarField cloudRadius
 );
 surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
-// Background buoyance field
+Info << "Initialising background buoyancy" << endl;
 const volScalarField bBar
 (
     IOobject("bBar", runTime.constant(), mesh, 
@@ -235,7 +235,7 @@ const volScalarField bBar
     dimensionedScalar("bBar", b[0].dimensions(), scalar(0))
 );
 
-// Rate of change of b (eg for radiative cooling)
+Info << "Initialising rate of change of b (eg for radiative cooling)" << endl; 
 volScalarField Q
 (
     IOobject("Q", runTime.timeName(), mesh, 
@@ -243,7 +243,8 @@ volScalarField Q
     mesh,
     dimensionedScalar("Q", dimensionSet(0,1,-3,0,0), scalar(0))
 );
-// Total initial heat in the domain
+
+Info << "Initialising total initial heat" << endl;
 dimensionedScalar totalHeat0
 (
     "totalHeat0", dimensionSet(0,1,-2,0,0), scalar(0)
@@ -253,7 +254,7 @@ for(label ip = 0; ip < nParts; ip++)
     totalHeat0 += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
 }
 
-// Buoyancy difference of the transferred fluid
+Info << "Initialising buoyancy difference of the transferred fluid" << endl;
 partitionedVolScalarField bt
 (
     "bt",
@@ -268,13 +269,29 @@ partitionedVolScalarField bt
     sigma
 );
 
-// Maximum and mininum buoyancy for wTransfer
+Info << "Initialising maximum and mininum buoyancy for wTransfer" << endl; 
 partitionedVolScalarField bMinMax
 (
     "bMinMax", partNames, bt[0], sigma
 );
 
-// Volume flux difference of the transferred fluid
+Info << "Initialising volume flux of the transferred fluid" << endl;
+partitionedSurfaceScalarField volFluxT
+(
+    "volFluxT",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("volFluxT", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", volFlux[0].dimensions(), scalar(0)),
+        fluxBCs
+    ),
+    sigmaf,
+    IOobject::NO_WRITE
+);
+
+Info << "Initialising volume flux difference of the transferred fluid" << endl; 
 partitionedSurfaceScalarField volFluxt
 (
     "volFluxt",
@@ -290,7 +307,7 @@ partitionedSurfaceScalarField volFluxt
     IOobject::NO_WRITE
 );
 
-// Transfer terms on the faces
+Info << "Initialising transfer terms on the faces" << endl; 
 partitionedSurfaceScalarField massTransferf
 (
     "massTransferf",
@@ -328,6 +345,7 @@ partitionedSurfaceScalarField Sf
     IOobject::NO_WRITE
 );
 
+Info << "Initialising pressure gradient diagnostic" << endl;
 partitionedSurfaceScalarField dPdz
 (
     "dPdz",
@@ -340,6 +358,7 @@ partitionedSurfaceScalarField dPdz
     )
 );
 
+Info << "Initialising velocity divergence diagnostic" << endl;
 partitionedVolScalarField divu
 (
     "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])//, sigma
@@ -347,7 +366,7 @@ partitionedVolScalarField divu
 divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
 divu.write();
 
-// Compact Laplacian of the velocity
+Info << "Initialising compact Laplacian of the velocity" << endl;
 surfaceScalarField laplacianU
     = (fvc::interpolate(fvc::laplacian(u.updateSum())) & mesh.Sf())
     + mesh.magSf()*(fvc::snGrad
@@ -356,7 +375,7 @@ surfaceScalarField laplacianU
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
 
-// Material derivatives of velocity
+Info << "Initialising material derivatives of velocity" << endl;
 partitionedVolVectorField DuDt
 (
     "DuDt", partNames, 0*fvc::reconstruct(volFlux.ddt()[0]), sigma

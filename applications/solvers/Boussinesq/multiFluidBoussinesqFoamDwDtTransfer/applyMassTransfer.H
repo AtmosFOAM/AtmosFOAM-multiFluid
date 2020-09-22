@@ -7,7 +7,7 @@ for(label ip = 0; ip < nParts; ip++)
     {
         if (ip != jp)
         {
-            // Increase zero values
+            /*// Increase zero values
             massTransfer[ip][jp] = max
             (
                 massTransfer[ip][jp],
@@ -30,7 +30,7 @@ for(label ip = 0; ip < nParts; ip++)
                     (max(sigma[ip], dimlessZero)-minSigma)/dt,
                     rateZero
                 )
-            );
+            );*/
         }
     }
 }

@@ -51,10 +51,12 @@ if (entrainmentCoefficient > 0 && cloudRadiusMax.value() > 0)
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (divTransfer>0)
 {
-    massTransfer[0][1] += divTransfer*sigma[0]
-        *max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += divTransfer*sigma[1]
-        *max(-fvc::div(volFlux[1]), rateZero);
+    massTransfer[0][1] += 0.01*sigma[0]/dt;
+    massTransfer[1][0] += 0.01*sigma[1]/dt;
+    // massTransfer[0][1] += divTransfer*sigma[0]
+    //     *max(-fvc::div(volFlux[0]), rateZero);
+    // massTransfer[1][0] += divTransfer*sigma[1]
+    //     *max(-fvc::div(volFlux[1]), rateZero);
 }
 
 // Mass transfer based on buoyancy
@@ -222,26 +224,26 @@ if (cosineSquaredTransfer)
     DuDt[0] = fvc::reconstruct
     (
         volFlux.ddt()[0]
-      + (
-            mesh.Sf() & fvc::interpolate
-            (
-                fvc::div(volFlux[0], u[0], "u")
-              - u[0]*fvc::div(volFlux[0]),
-                "convection"
-            )
-        )
+    //   + (
+    //         mesh.Sf() & fvc::interpolate
+    //         (
+    //             fvc::div(volFlux[0], u[0], "u")
+    //           - u[0]*fvc::div(volFlux[0]),
+    //             "convection"
+    //         )
+    //     )
     );
     DuDt[1] = fvc::reconstruct
     (
         volFlux.ddt()[1]
-      + (
-            mesh.Sf() & fvc::interpolate
-            (
-                fvc::div(volFlux[1], u[1], "u")
-              - u[1]*fvc::div(volFlux[1]),
-                "convection"
-            )
-        )
+    //   + (
+    //         mesh.Sf() & fvc::interpolate
+    //         (
+    //             fvc::div(volFlux[1], u[1], "u")
+    //           - u[1]*fvc::div(volFlux[1]),
+    //             "convection"
+    //         )
+    //     )
     );
 
     w[0] = u[0].component(2);
@@ -319,6 +321,131 @@ if (cosineSquaredTransfer)
                 w[1] - wBoundLower[1],
                 dimensionedScalar("", dimVelocity, SMALL)
             )
+        )
+    );
+
+
+    partitionedSurfaceScalarField volFluxBoundLower = volFlux;
+    partitionedSurfaceScalarField volFluxBoundUpper = volFlux;
+    dimensionedScalar volFluxSmall = dimensionedScalar("", volFlux[0].dimensions(), SMALL);
+    dimensionedScalar volFluxOne = dimensionedScalar("", volFlux[0].dimensions(), scalar(1));
+
+    volFluxBoundLower[0] = max
+    (
+        min
+        (
+            volFlux.mean(),
+            dimensionedScalar("", volFlux[0].dimensions(), scalar(0))
+        ),
+        2*volFlux[0]
+    );
+    volFluxBoundLower[1] = min
+    (
+        max
+        (
+            volFlux.mean(),
+            dimensionedScalar("", volFlux[1].dimensions(), scalar(0))
+        ),
+        2*volFlux[1]
+    );
+
+    volFluxBoundUpper[0] = max
+    (
+        min
+        (
+            volFluxBoundLower[0],
+            -dt*volFlux.ddt()[0]
+        ),
+        2*volFlux[0]-volFluxBoundLower[0]
+    );
+    volFluxBoundUpper[1] = min
+    (
+        max
+        (
+            volFluxBoundLower[1],
+            -dt*volFlux.ddt()[1]
+        ),
+        2*volFlux[1]-volFluxBoundLower[1]
+    );
+
+    
+    volFluxT[0] = sigmaf[0] / max(sigmaf[0], SMALL) *
+    (
+        0.25*(sqr(volFluxBoundUpper[0]) - sqr(volFluxBoundLower[0]))
+      - 0.5/M_PI * volFluxBoundUpper[0] * (volFlux[0] - volFluxBoundLower[0]) * Foam::sin
+        (
+            M_PI * (volFlux[0] - volFluxBoundUpper[0]) / 
+            (
+                sign((volFlux[0] - volFluxBoundLower[0])/volFluxOne) * 
+                max
+                (
+                    mag(volFlux[0] - volFluxBoundLower[0]),
+                    volFluxSmall
+                )
+            )
+        )
+        + sqr
+        (
+            (volFlux[0] - volFluxBoundLower[0])/M_PI * Foam::cos
+            (
+                M_PI/2 * (volFlux[0] - volFluxBoundUpper[0]) / 
+                (
+                    sign((volFlux[0] - volFluxBoundLower[0])/volFluxOne) * 
+                    max
+                    (
+                        mag(volFlux[0] - volFluxBoundLower[0]),
+                        volFluxSmall
+                    )
+                )
+            )
+        )
+    ) / 
+    (
+        sign((volFlux[0] - volFluxBoundLower[0])/volFluxOne) * 
+        max
+        (
+            mag(volFlux[0] - volFluxBoundLower[0]),
+            volFluxSmall
+        )
+    );
+    
+    volFluxT[1] = sigmaf[1] / max(sigmaf[1], SMALL) *
+    (
+        0.25*(sqr(volFluxBoundUpper[1]) - sqr(volFluxBoundLower[1]))
+      - 0.5/M_PI * volFluxBoundUpper[1] * (volFlux[1] - volFluxBoundLower[1]) * Foam::sin
+        (
+            M_PI * (volFlux[1] - volFluxBoundUpper[1]) / 
+            (
+                sign((volFlux[1] - volFluxBoundLower[1])/volFluxOne) * 
+                max
+                (
+                    mag(volFlux[1] - volFluxBoundLower[1]),
+                    volFluxSmall
+                )
+            )
+        )
+        + sqr
+        (
+            (volFlux[1] - volFluxBoundLower[1])/M_PI * Foam::cos
+            (
+                M_PI/2 * (volFlux[1] - volFluxBoundUpper[1]) / 
+                (
+                    sign((volFlux[1] - volFluxBoundLower[1])/volFluxOne) * 
+                    max
+                    (
+                        mag(volFlux[1] - volFluxBoundLower[1]),
+                        volFluxSmall
+                    )
+                )
+            )
+        )
+    ) / 
+    (
+        sign((volFlux[1] - volFluxBoundLower[1])/volFluxOne) * 
+        max
+        (
+            mag(volFlux[1] - volFluxBoundLower[1]),
+            volFluxSmall
         )
     );
 }

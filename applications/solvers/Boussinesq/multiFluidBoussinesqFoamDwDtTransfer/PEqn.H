@@ -1,5 +1,5 @@
 // Pressure equation for shared pressure
-
+partitionedSurfaceScalarField volFluxPreTransfer = volFlux;
 if (sharedDiffusion)
 {
     // Compact Laplacian of the velocity
@@ -45,6 +45,7 @@ for(label ip = 0; ip < nParts; ip++)
                 + dt*offCentre*volFlux.ddt()[ip];
 }
 
+
 volFlux.updateSum();
 // Pressure equation
 for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
@@ -58,7 +59,25 @@ for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
     PEqn.setReference(0,0);
     PEqn.solve();
 }
-
+forAll (volFlux[0], celli)
+{
+    if (mag(volFlux[0][celli]-volFluxPreTransfer[0][celli]) > 1e-8)
+    {
+        Info << endl;
+        Info << "stage Peqn " << endl;
+        Info << "t=" << runTime.timeName() << ", ucorr=" << ucorr << ", corr=" << corr << " " << endl;
+        Info << celli << endl;
+        Info << "sigma0: " << sigmaf[0][celli] << endl;
+        Info << "sigma1: " << sigmaf[1][celli] << endl;
+        Info << "S0: " << Sf[0][celli] << endl;
+        Info << "S1: " << Sf[1][celli] << endl;
+        Info << "w0: " << volFluxPreTransfer[0][celli]/2e7 << " to " << volFlux[0][celli]/2e7 << endl;
+        Info << "w1: " << volFluxPreTransfer[1][celli]/2e7 << " to " << volFlux[1][celli]/2e7 << endl;
+        Info << "w.ddt0: " << volFlux.ddt()[0][celli]/2e7 << endl;
+        Info << "w.ddt1: " << volFlux.ddt()[1][celli]/2e7 << endl;
+        
+    }
+}
 // Back-substitutions
 for(label ip = 0; ip < nParts; ip++)
 {
@@ -66,3 +85,5 @@ for(label ip = 0; ip < nParts; ip++)
     volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
 }
 volFlux.updateSum();
+
+
