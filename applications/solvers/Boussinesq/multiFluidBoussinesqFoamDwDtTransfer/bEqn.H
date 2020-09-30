@@ -113,27 +113,27 @@ if (!noTransfers)
     // Normal transfers
     if (!transferAnomaliesb0 && !transferZeroAnomalies)
     {
-        // b[0] = (
-        //            (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
-        //          + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
-        //        )
-        //        /(1+transfer.sum());
+        b[0] = (
+                   (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
+                 + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
+               )
+               /(1+transfer.sum());
 
-        // b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
-        //        /(1+transfer[0]);
+        b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
+               /(1+transfer[0]);
         
 
-        partitionedVolScalarField bPreTransfer = b;
-        b[0] = (
-                   (1+transfer[0])*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
-                 + transfer[1]*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
-               )
-               /(1+transfer.sum());
-        b[1] = (
-                   (1+transfer[1])*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
-                 + transfer[0]*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
-               )
-               /(1+transfer.sum());
+        // partitionedVolScalarField bPreTransfer = b;
+        // b[0] = (
+        //            (1+transfer[0])*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
+        //          + transfer[1]*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
+        //        )
+        //        /(1+transfer.sum());
+        // b[1] = (
+        //            (1+transfer[1])*(bPreTransfer[1] - S[1]*bt[1] + transfer[0]*bt[0])
+        //          + transfer[0]*(bPreTransfer[0] - S[0]*bt[0] + transfer[1]*bt[1])
+        //        )
+        //        /(1+transfer.sum());
     }
     else if (transferAnomaliesb0)
     // Fluid transferred from 1 to zero has zero buoyancy
@@ -152,8 +152,6 @@ if (!noTransfers)
 }
 
 b.updateSum();
-// b[0] = b.mean();
-// b[1] = b.mean();
 
 // bouyancy force on faces
 for(label ip = 0; ip < nParts; ip++)

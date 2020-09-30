@@ -110,10 +110,17 @@ const Switch transferZeroAnomalies = noTransfers? Switch(false) :
         );
 
 // Entrainment based on predicting the movement of the fluid interface
-const Switch DwDtTransfer = noTransfers? Switch(false) :
+const Switch wSignTransfer = noTransfers? Switch(false) :
         transferProps.lookupOrDefault<Switch>
         (
-            "DwDtTransfer", Switch(false)
+            "wSignTransfer", Switch(false)
+        );
+
+// Entrainment based on predicting the movement of the fluid interface
+const Switch gaussianTransfer = noTransfers? Switch(false) :
+        transferProps.lookupOrDefault<Switch>
+        (
+            "gaussianTransfer", Switch(false)
         );
 
 // Entrainment based on predicting the movement of the fluid interface
@@ -129,6 +136,12 @@ const Switch gradSigmaTransfer = noTransfers? Switch(false) :
         transferProps.lookupOrDefault<Switch>
         (
             "gradSigmaTransfer", Switch(false)
+        );
+
+const word wTransferType = noTransfers? "transferZero" :
+        transferProps.lookupOrDefault<word>
+        (
+            "wTransferType", "transferZero"
         );
 
 // Coefficient for entrainment rate proportional to 1/r
