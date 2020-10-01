@@ -60,6 +60,9 @@ const scalar minSigma = noTransfers? scalar(0) :
 const Switch uniformSigma = noTransfers? Switch(false) :
       Switch(transferProps.lookup("uniformSigma"));
 
+const Switch uniformSigma_biDirectional = noTransfers? Switch(false) :
+      Switch(transferProps.lookup("uniformSigma_biDirectional"));
+
 // Transfer buoyancy anomalies based on linear combination of mean fluid 
 // buoyancies
 const Switch transferAnomaliesLinComb = 

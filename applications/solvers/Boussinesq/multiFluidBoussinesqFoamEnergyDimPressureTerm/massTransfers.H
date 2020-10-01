@@ -74,12 +74,41 @@ if (buoyancyTransfer)
 }
 
 // Transfers to keep sigma uniform at selected locations
+// One-way only
 if (uniformSigma)
 {
     massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
                        + (1-transferLocation)*massTransfer[0][1];
     massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
                        + (1-transferLocation)*massTransfer[1][0];
+}
+
+// Bi-directional
+if (uniformSigma_biDirectional)
+{
+    // store old value of massTransfer
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        for(label jp = 0; jp < nParts; jp++)
+        {
+            massTransferOld[ip][jp] = massTransfer[ip][jp];
+        }
+    }
+    
+    massTransfer[0][1] += transferLocation*max
+                            (
+                                sigma.ddt()[0]
+                              - massTransferOld[0][1]
+                              + massTransferOld[1][0],
+                                rateZero
+                            );
+    massTransfer[1][0] += transferLocation*max
+                            (
+                                sigma.ddt()[1]
+                              - massTransferOld[1][0]
+                              + massTransferOld[0][1],
+                                rateZero
+                            );
 }
 
 // Transfers to keep w[0] <=0 and w[1] >0

@@ -219,6 +219,52 @@ if (uniformSigma)
     massTransfer[1].write();
 }
 
+// Write out initial massTransfer for uniformSigma_biDirectional
+// initialise massTransferOld
+PtrList<partitionedVolScalarField> massTransferOld(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    massTransferOld.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "massTransferOld."+partNames[jp], partNames, massTransferTmp
+        )
+    );
+}
+if (uniformSigma_biDirectional)
+{
+    // write out initial mass transfer
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        sigma.ddt()[ip] = -fvc::div(volFlux[ip], sigma[ip], "sigma");
+        
+        for(label jp = 0; jp < nParts; jp++)
+        {
+            massTransferOld[ip][jp] = massTransfer[ip][jp];
+        }
+    }
+
+    massTransfer[0][1] += transferLocation*max
+                            (
+                                sigma.ddt()[0]
+                              - massTransferOld[0][1]
+                              + massTransferOld[1][0],
+                                rateZero
+                            );
+    massTransfer[1][0] = transferLocation*max
+                            (
+                                sigma.ddt()[1]
+                              - massTransferOld[1][0]
+                              + massTransferOld[0][1],
+                                rateZero
+                            );
+    massTransfer[0].write();
+    massTransfer[1].write();
+    
+}
+
 Info << "Initialising the drag between partitions" << endl;
 surfaceScalarField cloudRadius
 (
