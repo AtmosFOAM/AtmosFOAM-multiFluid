@@ -5,11 +5,22 @@ if (!noTransfers || dragCoeff > 0)
     // Velocity difference of fluid transferred
     for(label ip = 0; ip < nParts; ip++)
     {
-        // volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
-        volFluxt[ip] = -sigmaf[ip]*volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
-        // volFluxt[ip] = (volFlux.mean()-volFlux[ip])*mesh.Sf().component(2)/mesh.magSf();
-        // volFluxt[ip] = sigmaf[ip]*sigmaf[1-ip]*(volFlux[1-ip]-volFlux[ip])*mesh.Sf().component(2)/mesh.magSf();
-        // volFluxt[ip] *= 0;
+        if (wTransferType == "transferMean")
+        {
+            volFluxt[ip] *= 0;
+        }
+        else if (wTransferType == "transferMeanCell")
+        {
+            volFluxt[ip] = (volFlux.mean()-volFlux[ip])*mesh.Sf().component(2)/mesh.magSf();
+        }
+        else if (wTransferType == "transferZero")
+        {
+            volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
+        }
+        else if (wTransferType == "transferPdf")
+        {
+            volFluxt[ip] = (volFluxT[ip]-volFlux[ip])*mesh.Sf().component(2)/mesh.magSf();
+        }
     }
     
     // Implicit updates of volFlux for each fluid separately
@@ -36,6 +47,7 @@ if (!noTransfers || dragCoeff > 0)
     /(1 + transferf[0] + dt*sigmaf[0]*dragCommon);
 
     
+    // Implicit scheme for transferring the mean of a cell.
     // surfaceScalarField transferDiff = dt*(massTransferf[0]-massTransferf[1]);
 
     // volFlux[0] = 

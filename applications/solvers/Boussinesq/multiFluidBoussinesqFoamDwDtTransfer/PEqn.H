@@ -36,14 +36,15 @@ for(label ip = 0; ip < nParts; ip++)
            "convection"
        )
     ))
-  + 0*nu*laplacianU
+  + nu*laplacianU
   //+ ( mesh.Sf() & fvc::interpolate((1/sigma[ip])*fvc::laplacian(sigma[ip]*nu, u[ip]), "convection" ) )
-  - 0*fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf();
+  - fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf();
 
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
                 + dt*offCentre*volFlux.ddt()[ip];
 }
+
 
 volFlux.updateSum();
 // Pressure equation
@@ -66,3 +67,5 @@ for(label ip = 0; ip < nParts; ip++)
     volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
 }
 volFlux.updateSum();
+
+
