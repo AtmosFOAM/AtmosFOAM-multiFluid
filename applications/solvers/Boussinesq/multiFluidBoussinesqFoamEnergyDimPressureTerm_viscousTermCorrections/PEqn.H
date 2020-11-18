@@ -57,7 +57,7 @@ for(label ip = 0; ip < nParts; ip++)
         (1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]),
         "convection"
     )*/
-  - fvc::snGrad(Pi[ip])*mesh.magSf();// - Pi.sum())*mesh.magSf();
+  - fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf();// - Pi.sum())*mesh.magSf();
   //- fvc::interpolate(Pi[ip] - Pi.sum())*fvc::snGrad(log(max(sigma[ip], VSMALL)))*mesh.magSf(); // pressure gradient correction: allows sum of pressure terms = grad(P); allows for definite energy sink
 
     volFlux[ip] = volFlux[ip].oldTime()
