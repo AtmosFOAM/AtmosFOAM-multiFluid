@@ -5,10 +5,10 @@ for(label ip = 0; ip < nParts; ip++)
     b.ddt()[ip] = -fvc::div(volFlux[ip], bBar + b[ip], "b")
                 + (bBar + b[ip])*fvc::div(volFlux[ip])
                 + alpha*fvc::laplacian(b[ip]);
-                //+ 2*alpha*(fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(b[ip]));
-                //+ alpha*b[ip]*(1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip])
-                //- 2*alpha*(fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(b.sum()))
-                //- alpha*b.sum()*(1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]);
+                + 2*alpha*(fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(b[ip]))
+                + alpha*b[ip]*(1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]);
+                - 2*alpha*(fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(b.sum()))
+                - alpha*b.sum()*(1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]);
 }
 
 if (!adjustQ)
