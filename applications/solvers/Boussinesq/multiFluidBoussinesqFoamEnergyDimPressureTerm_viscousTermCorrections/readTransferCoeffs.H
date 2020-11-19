@@ -19,6 +19,24 @@ uniformDimensionedScalarField gamma
     dimensionedScalar(transferProps.lookup("gamma"))
 );
 
+// Correction terms
+const Switch energyDimPressureTerm = transferProps.lookupOrDefault<Switch>
+        (
+            "energyDimPressureTerm", Switch(false)
+        );
+const Switch viscousSumCorrection = transferProps.lookupOrDefault<Switch>
+        (
+            "viscousSumCorrection", Switch(false)
+        );
+const Switch diffusionSumCorrection = transferProps.lookupOrDefault<Switch>
+        (
+            "diffusionSumCorrection", Switch(false)
+        );
+const Switch identicalFluids = transferProps.lookupOrDefault<Switch>
+        (
+            "identicalFluids", Switch(false)
+        );
+
 // Drag parameters
 const dimensionedScalar cloudRadiusMax(transferProps.lookup("cloudRadiusMax"));
 const dimensionedScalar cloudRadiusMin(transferProps.lookup("cloudRadiusMin"));

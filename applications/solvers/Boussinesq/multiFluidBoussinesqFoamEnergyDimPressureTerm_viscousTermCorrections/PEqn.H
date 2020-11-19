@@ -36,29 +36,47 @@ for(label ip = 0; ip < nParts; ip++)
            "convection"
        )
     ))
-  + nu*laplacianU
-  + 2*nu*(fvc::interpolate
-    (
-        (fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(u[ip])),
-        "convection"
-    ) & mesh.Sf())
-  + nu*volFlux[ip]*fvc::interpolate
-    (
-        (1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]),
-        "convection"
-    )
-  - 2*nu*(fvc::interpolate
-    (
-        (fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(u.sum())),
-        "convection"
-    ) & mesh.Sf())
-  - nu*volFlux.sum()*fvc::interpolate
-    (
-        (1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]),
-        "convection"
-    )
   - fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf()
-  - fvc::interpolate(Pi[ip] - Pi.sum())*fvc::snGrad(log(max(sigma[ip], VSMALL)))*mesh.magSf();
+  + nu*laplacianU;
+  
+    if (energyDimPressureTerm)
+    {
+        volFlux.ddt()[ip] 
+            -= fvc::interpolate(Pi[ip] - Pi.sum())*fvc::snGrad
+                (
+                    log(max(sigma[ip], VSMALL))
+                ) * mesh.magSf();
+    }
+    
+    if (viscousSumCorrection)
+    {
+        volFlux.ddt()[ip]
+            += 2*nu*(fvc::interpolate
+                (
+                    (fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(u[ip])),
+                    "convection"
+                ) & mesh.Sf())
+            + nu*volFlux[ip]*fvc::interpolate
+                (
+                    (1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]),
+                    "convection"
+                );
+    }
+    
+    if (identicalFluids)
+    {
+        volFlux.ddt()[ip]
+            -= 2*nu*(fvc::interpolate
+                (
+                    (fvc::grad(log(max(sigma[ip], VSMALL))) & fvc::grad(u.sum())),
+                    "convection"
+                ) & mesh.Sf())
+            + nu*volFlux.sum()*fvc::interpolate
+                (
+                    (1/max(sigma[ip],VSMALL))*fvc::laplacian(sigma[ip]),
+                    "convection"
+                );
+    }
 
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
