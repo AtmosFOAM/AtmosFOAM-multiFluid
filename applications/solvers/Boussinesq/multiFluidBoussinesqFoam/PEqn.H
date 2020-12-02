@@ -1,30 +1,16 @@
 // Pressure equation for shared pressure
 
-if (sharedDiffusion)
-{
-    // Compact Laplacian of the velocity
-    laplacianU = (fvc::interpolate(fvc::laplacian(u.updateSum())) & mesh.Sf())
-               + mesh.magSf()*(fvc::snGrad
-                (
-                    fvc::div(volFlux.updateSum()
-                  - (linearInterpolate(u.sum()) & mesh.Sf()))
-                ));
-}
-
 // Explicit part of velocity for each partition (without mass tranfers)
 for(label ip = 0; ip < nParts; ip++)
 {
-    if (!sharedDiffusion)
-    {
-        // Compact Laplacian of the velocity
-        laplacianU 
-            = (fvc::interpolate(fvc::laplacian(u[ip])) & mesh.Sf())
-            + mesh.magSf()*(fvc::snGrad
-                (
-                    fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
-                )
-              );
-    }
+    // Compact Laplacian of the velocity
+    laplacianU 
+        = (fvc::interpolate(fvc::laplacian(u[ip])) & mesh.Sf())
+        + mesh.magSf()*(fvc::snGrad
+            (
+                fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
+            )
+          );
     
     // Rate of change of flux without pressure gradient
     volFlux.ddt()[ip] = (mesh.Sf() &
@@ -37,8 +23,7 @@ for(label ip = 0; ip < nParts; ip++)
        )
     ))
   + nu*laplacianU
-  //+ ( mesh.Sf() & fvc::interpolate((1/sigma[ip])*fvc::laplacian(sigma[ip]*nu, u[ip]), "convection" ) )
-  - fvc::snGrad(Pi[ip] - Pi.sum())*mesh.magSf();
+  - fvc::snGrad(p[ip])*mesh.magSf();
 
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()

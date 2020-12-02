@@ -17,36 +17,27 @@ FoamFile
     local           "";
 
     class           dictionary;
-    object          environmentalProperties;
+    object          transferProperties;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 noTransfers false;
-cloudRadiusMax     cloudRadiusMax [0 1 0 0 0] 2000;
-cloudRadiusMin     cloudRadiusMin [0 1 0 0 0] 2000;
-dragCoeff       0;
+// Diffusion coefficient for sigma
 Ksigma Ksigma [0 2 -1 0 0] 0;
-minSigma  1e-9;
 // Transfer between partitions based on horizontal divergence
 divTransfer 1;
-noAnomalies false;
-wTransfer false;
-wTransferTimeScale wTransferTimeScale [0 0 1 0 0] 10;
-transferAnomaliesMeanFactor false;
-bAnomalyMeanCoeff 0.1;
-
-buoyancyTransfer false;
-bTransferDiffusivity bTransferDiffusivity [0 2 -1 0 0] 0;
-transferAnomaliesLaplacian false;
-bTransferTimeScale bTransferTimeScale [0 1 -1 0 0] 0;
-
-transferAnomaliesb0 false;
-transferZeroAnomalies false;
-
-transferAnomaliesLinComb false;
-bAnomalyLinearCoeff bAnomalyLinearCoeff [0 0 0 0 0] 0;
-
+// Transfer w=0 if sigma=1
+wTransfer0  true;
+// Mininum allowable sigma in any fluid
+minSigma  0;
+// Fix transfers so that sigma is read in and kept fixed at locations given in
+// constant/transferLocation
 uniformSigma false;
+// Fluids transferred are a linear combination of donating and receiving fluids
+transferAnomaliesLinComb false;
+// Transfer buoyancy anomalies based on constant factor times mean buoyancy
+transferAnomaliesMeanFactor true;
+bAnomalyMeanCoeff 1;
 
 // ************************************************************************* //

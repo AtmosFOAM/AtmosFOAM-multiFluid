@@ -18,7 +18,7 @@ for(label ip = 0; ip < nParts; ip++)
                 )
             );
             
-            // Not more than half transferred out
+            // Not more than half transferred out per time step
             massTransfer[ip][jp] = min
             (
                 massTransfer[ip][jp],
@@ -36,7 +36,6 @@ for(label ip = 0; ip < nParts; ip++)
 }
 
 // Transfer terms for other variables
-const scalar minSigmaDiv = SMALL;
 transfer[0] = dt*massTransfer[0][1]/max(sigma[1], minSigmaDiv);
 transfer[1] = dt*massTransfer[1][0]/max(sigma[0], minSigmaDiv);
 S[0] = dt*massTransfer[0][1]/max(sigma[0], minSigmaDiv);

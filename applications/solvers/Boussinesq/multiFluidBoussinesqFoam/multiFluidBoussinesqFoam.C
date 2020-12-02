@@ -32,8 +32,6 @@ Description
 
 #include "fvCFD.H"
 #include "PartitionedFields.H"
-#include "fvcCurlf.H"
-#include "mathematicalConstants.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,7 +44,6 @@ int main(int argc, char *argv[])
     #include "readTransferCoeffs.H"
     #include "readEnvironmentalProps.H"
     #define dt runTime.deltaT()
-    #define pi constant::mathematical::pi
     #include "createFields.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
@@ -78,14 +75,13 @@ int main(int argc, char *argv[])
                 #include "massTransfers.H"
                 #include "applyMassTransfer.H"
             }
-            #include "calculateDrag.H"
             #include "bEqn.H"
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
                 #include "PEqn.H"
                 #include "momentumTransfers.H"
-                #include "PiEqn.H"
+                #include "pEqn.H"
                 // Update velocities based on the flux
                 for(label ip = 0; ip < nParts; ip++)
                 {
@@ -109,14 +105,6 @@ int main(int argc, char *argv[])
             Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
                       *mesh.Sf()/sqr(mesh.magSf());
             divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
-
-            // Pressure gradient in each fluid including drag
-            dPdz[ip] = mesh.Sf().component(2)/mesh.magSf()*
-            (
-                fvc::snGrad(P+Pi[ip])
-              + (1-sigmaf[ip])*dragCommon*(volFlux[ip] - volFlux[1-ip])
-                /mesh.magSf()
-            );
         }
         Uf.updateSum();
         divu.updateSum();

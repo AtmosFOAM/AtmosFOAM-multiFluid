@@ -2,10 +2,9 @@
 
 for(label ip = 0; ip < nParts; ip++)
 {
-    b.ddt()[ip] = -fvc::div(volFlux[ip], bBar + b[ip], "b")
-                + (bBar + b[ip])*fvc::div(volFlux[ip])
+    b.ddt()[ip] = -fvc::div(volFlux[ip], b[ip], "b")
+                + b[ip]*fvc::div(volFlux[ip])
                 + alpha*fvc::laplacian(b[ip]);
-                //+ (1/sigma[ip])*fvc::laplacian(sigma[ip]*alpha, b[ip]);
 }
 
 if (!adjustQ)
@@ -13,14 +12,6 @@ if (!adjustQ)
     for(label ip = 0; ip < nParts; ip++)
     {
         b.ddt()[ip] += Q;
-    }
-}
-
-if (relaxbTime.value() > 0)
-{
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        b.ddt()[ip] -= b[ip]/relaxbTime;
     }
 }
 
@@ -46,6 +37,19 @@ if (nParts != 2)
 
 if (!noTransfers)
 {
+    // Transfers due to diffusion coefficients for buoyancy and sigma being 
+    // different. Apply these transfers independently
+    if (mag(alpha - Ksigma).value() > SMALL)
+    {
+        volScalarField A = dt*(alpha - Ksigma)/Ksigma*massTransferD[0];
+
+        b[0] *= (b[0] - A*b[1])/(1 - A);
+
+        A = dt*(alpha - Ksigma)/Ksigma*massTransferD[1];
+
+        b[1] *= (b[1] - A*b[0])/(1 - A);
+    }
+
     // Bouyancy anomalies of fluid transferred
     // Bouyancy transferred is linear combination of buoyancy in each fluid
     if (transferAnomaliesLinComb)
@@ -57,60 +61,19 @@ if (!noTransfers)
     // Bouyancy transferred is constant factor times mean buoyancy
     if (transferAnomaliesMeanFactor)
     {
-        bt[0] = bAnomalyMeanCoeff*mag(b[0]);
-        bt[1] = -bAnomalyMeanCoeff*mag(b[1]);
+        bt[0] = bAnomalyMeanCoeff*sigma[0]*mag(b[0]);
+        bt[1] = -bAnomalyMeanCoeff*sigma[1]*mag(b[1]);
     }
 
-    // The bouyancy of the fluid transferred depends on the laplacian of b
-    if (transferAnomaliesLaplacian)
-    {
-        bt[0] = min
-        (
-            -sigma[0]*bTransferTimeScale*bTransferDiffusivity*min
-            (
-                fvc::laplacian(b[0]),
-                dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
-            ),
-            bTransferMax
-        );
+    // Transfers
+    b[0] = (
+               (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
+             + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
+           )
+           /(1+transfer.sum());
 
-        bt[1] = max
-        (
-            -sigma[1]*bTransferTimeScale*bTransferDiffusivity*max
-            (
-                fvc::laplacian(b[1]),
-                dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
-            ),
-            -bTransferMax
-        );
-    }
-
-    // Normal transfers
-    if (!transferAnomaliesb0 && !transferZeroAnomalies)
-    {
-        b[0] = (
-                   (1+transfer[0])*(b[0] - S[0]*bt[0] + transfer[1]*bt[1])
-                 + transfer[1]*(b[1] - S[1]*bt[1] + transfer[0]*bt[0])
-               )
-               /(1+transfer.sum());
-
-        b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
-               /(1+transfer[0]);
-    }
-    else if (transferAnomaliesb0)
-    // Fluid transferred from 1 to zero has zero buoyancy
-    {
-        b[0] /= 1 + transfer[1];
-        //bt[0] =  remains zero
-        b[1] = (b[1] + transfer[0]*b[0])/(1+transfer[0] - S[1]);
-        bt[1] = -b[1];
-    }
-    else // transferZeroAnomalies
-    // Fluid transferred has zero buoyancy
-    {
-        b[0] /= 1 - S[0] + transfer[1];
-        b[1] /= 1 - S[1] + transfer[0];
-    }
+    b[1] = (b[1] + transfer[0]*(b[0] + bt[0]) - S[1]*bt[1])
+           /(1+transfer[0]);
 }
 
 // bouyancy force on faces
@@ -124,7 +87,7 @@ bf.updateSum();
 
 if (adjustQ)
 {
-    dimensionedScalar totalHeat("totalHeat", dimensionSet(0, 1,-2,0,0), scalar(0));
+    dimensionedScalar totalHeat("totalHeat", b[0].dimensions(), scalar(0));
     for(label ip = 0; ip < nParts; ip++)
     {
         totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());

@@ -37,14 +37,14 @@ for(label ip = 1; ip < nParts; ip++)
 }
 sigmaf.updateSum();
 
-Info << "Setting pressure in each partition\n" << endl;
-partitionedVolScalarField Pi
+Info << "Setting pressure anomaly in each partition\n" << endl;
+partitionedVolScalarField p
 (
-    "Pi",
+    "p",
     partNames,
     volScalarField
     (
-        IOobject("Pi.tmp", runTime.timeName(), mesh),
+        IOobject("p", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", P.dimensions(), scalar(0)),
         "zeroGradient"
@@ -64,7 +64,6 @@ partitionedVolVectorField u
 (
     "u", partNames, mesh, runTime.timeName(), sigma
 );
-u.storeTime();
 u.mean().write();
 
 // fixed flux boundary conditions
@@ -134,15 +133,21 @@ for(label ip = 1; ip < nParts; ip++)
 }
 bf.updateSum();
 
-Info << "Initialising the mass transfer between partitions\n" << endl;
-volScalarField massTransferTmp
+// The mass transfer specific to diffusion
+partitionedVolScalarField massTransferD
 (
-    IOobject("massTransferTmp", runTime.timeName(), mesh,
-             IOobject::NO_READ, IOobject::NO_WRITE),
-    mesh,
-    rateZero,
-    "fixedValue"
+    "massTransferD",
+    partNames, 
+    volScalarField
+    (
+        IOobject("massTransferD", runTime.timeName(), mesh),
+        mesh,
+        rateZero,
+        "fixedValue"
+    ),
+    IOobject::NO_WRITE
 );
+
 PtrList<partitionedVolScalarField> massTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {
@@ -151,13 +156,14 @@ for(label jp = 0; jp < nParts; jp++)
         jp, 
         new partitionedVolScalarField
         (
-            "massTransfer."+partNames[jp], partNames, massTransferTmp
+            "massTransfer."+partNames[jp], partNames, massTransferD[0]
         )
     );
     massTransfer[jp].write();
 }
 
 // Transfer terms for other variables (assuming nParts == 2)
+// transfer[0] = dt*massTransfer[0][1]/sigma[1]
 partitionedVolScalarField transfer
 (
     "transfer",
@@ -172,6 +178,7 @@ partitionedVolScalarField transfer
 );
 
 // Transfer terms for other variables (assuming nParts == 2)
+//S[0] = dt*massTransfer[0][1]/sigma[0]
 partitionedVolScalarField S
 (
     "S",
@@ -220,22 +227,6 @@ if (uniformSigma)
     massTransfer[1].write();
 }
 
-Info << "Initialising the drag between partitions" << endl;
-surfaceScalarField cloudRadius
-(
-    "cloudRadius",
-    max(cloudRadiusMin, cloudRadiusMax*sigmaf[0]*sigmaf[1])
-);
-surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
-
-// Background buoyance field
-const volScalarField bBar
-(
-    IOobject("bBar", runTime.constant(), mesh, 
-             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
-    mesh,
-    dimensionedScalar("bBar", b[0].dimensions(), scalar(0))
-);
 
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
@@ -269,12 +260,6 @@ partitionedVolScalarField bt
         "fixedValue"
     ),
     sigma
-);
-
-// Maximum and mininum buoyancy for wTransfer
-partitionedVolScalarField bMinMax
-(
-    "bMinMax", partNames, bt[0], sigma
 );
 
 // Volume flux difference of the transferred fluid
@@ -331,21 +316,9 @@ partitionedSurfaceScalarField Sf
     IOobject::NO_WRITE
 );
 
-partitionedSurfaceScalarField dPdz
-(
-    "dPdz",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("dPdz", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimensionSet(0,1,-2,0,0), scalar(0))
-    )
-);
-
 partitionedVolScalarField divu
 (
-    "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])//, sigma
+    "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])
 );
 divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
 divu.write();

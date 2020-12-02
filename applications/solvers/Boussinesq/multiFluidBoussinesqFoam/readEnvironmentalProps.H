@@ -13,15 +13,8 @@ IOdictionary envProps
 );
 
 const dimensionedScalar nu(envProps.lookup("nu"));
+
 const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
-const dimensionedScalar relaxbTime
-(
-    envProps.lookupOrDefault<dimensionedScalar>
-    (
-        "relaxBuoyancyTimeScale", 
-        dimensionedScalar("relaxbTime", dimTime, scalar(0))
-    )
-);
 
 uniformDimensionedScalarField alpha
 (
@@ -35,9 +28,27 @@ uniformDimensionedScalarField gamma
     dimensionedScalar(envProps.lookup("gamma"))
 );
 
-
-// Use diffusion of all fluids together or separate for each fluid
-const Switch sharedDiffusion
+// Check that Ksigam is non-zero if alpha or nu are non-zero
+if
 (
-    envProps.lookupOrDefault<Switch>("sharedDiffusion", false)
-);
+    mag(alpha.value() - Ksigma.value()) > SMALL
+ && (mag(alpha.value()) < SMALL || mag(Ksigma.value()) < SMALL)
+)
+{
+    FatalErrorIn("multiFluidBoussinesqFoam if one out of alpha and Ksigma ")
+         << "is zero then they must both be zero but alpha = "
+         << alpha.value() << " and Ksigma = " << Ksigma.value()
+         << exit(FatalError);
+}
+if
+(
+    mag(nu.value() - Ksigma.value()) > SMALL
+ && (mag(nu.value()) < SMALL || mag(Ksigma.value()) < SMALL)
+)
+{
+    FatalErrorIn("multiFluidBoussinesqFoam if one out of nu and Ksigma ")
+         << "is zero then they must both be zero but nu = "
+         << nu.value() << " and Ksigma = " << Ksigma.value()
+         << exit(FatalError);
+}
+

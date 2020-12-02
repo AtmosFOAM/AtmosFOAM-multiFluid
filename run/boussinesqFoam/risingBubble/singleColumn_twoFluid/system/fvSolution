@@ -16,7 +16,7 @@ FoamFile
 
 solvers
 {
-    "P|Pi.stable|Pi.buoyant"
+    "P|p.stable|p.buoyant"
     {
         solver PCG;
         preconditioner DIC;
