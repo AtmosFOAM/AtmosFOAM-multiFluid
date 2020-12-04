@@ -99,6 +99,7 @@ volFlux.mean().write();
 
 Info << "Storing necessary old times and rates of change\n" << endl;
 volFlux.storeTime();
+u.storeTime();
 b.storeTime();
 sigma.storeTime();
 

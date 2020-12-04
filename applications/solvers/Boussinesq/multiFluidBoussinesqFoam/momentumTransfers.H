@@ -7,12 +7,12 @@ if (!noTransfers)
         surfaceScalarField A = dt*(nu - Ksigma)/Ksigma
                             *fvc::interpolate(massTransferD[0], "transfer");
 
-        volFlux[0] *= (volFlux[0] - A*volFlux[1])/(1 - A);
+        volFlux[0] += (volFlux[0] - A*volFlux[1])/(1 - A);
 
         A = dt*(nu - Ksigma)/Ksigma
             *fvc::interpolate(massTransferD[1], "transfer");
 
-        volFlux[1] *= (volFlux[1] - A*volFlux[0])/(1 - A);
+        volFlux[1] += (volFlux[1] - A*volFlux[0])/(1 - A);
     }
 
     // Velocity difference of fluid transferred

@@ -40,6 +40,51 @@ if (divTransfer>0)
         *max(-fvc::div(volFlux[1]), rateZero);
 }
 
+// Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca
+if (wTransfer)
+{
+    volScalarField w = u[0].component(2);
+    volScalarField DDtw = -volVectorField
+    (
+        (u[0] & fvc::grad(Uf[0])) + fvc::grad(P + p[0])
+    ).component(2) + b[0];
+//          = volVectorField(fvc::ddt(u[0]) + (u[0] & fvc::grad(Uf[0])))
+//            .component(2);
+
+    
+    forAll(DDtw, cellI)
+    {
+        if
+        (
+            (DDtw[cellI] > -w[cellI]/dt.value() && DDtw[cellI] > SMALL)
+         || w[cellI] > SMALL
+        )
+        {
+            massTransfer[0][1][cellI] += sigma[0][cellI]/dt.value();
+        }
+    }
+    
+    w = u[1].component(2);
+    DDtw = -volVectorField
+    (
+        (u[1] & fvc::grad(Uf[1])) + fvc::grad(P + p[1])
+    ).component(2) + b[1];
+        //= volVectorField(fvc::ddt(u[1]) + (u[1] & fvc::grad(Uf[1])))
+         //  .component(2);
+
+    forAll(DDtw, cellI)
+    {
+        if 
+        (
+            (DDtw[cellI] < -w[cellI]/dt.value() && DDtw[cellI] < -SMALL)
+          || w[cellI] < -SMALL
+        )
+        {
+            massTransfer[1][0][cellI] += sigma[1][cellI]/dt.value();
+        }
+    }
+}
+
 // Transfers to keep sigma uniform at selected locations
 if (uniformSigma)
 {

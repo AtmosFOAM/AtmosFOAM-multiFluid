@@ -11,7 +11,6 @@ if (gamma.value() > VSMALL)
             fvScalarMatrix pEqn
             (
                 fvm::Sp(1/gamma, p[ip])
-              - p.sum()/gamma
               + fvc::div(volFlux[ip])
               + offCentre*dt*fvc::laplacian(p[ip])
               - offCentre*dt*fvm::laplacian(p[ip])
@@ -21,5 +20,9 @@ if (gamma.value() > VSMALL)
         }
     }
     p.updateSum();
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        p[ip] -= p.sum();
+    }
 }
 

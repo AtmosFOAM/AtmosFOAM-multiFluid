@@ -22,12 +22,15 @@ const dimensionedScalar Ksigma = noTransfers? dimlessZero :
 // The amount of divergence transfer used (between zero and one)
 const scalar divTransfer = noTransfers? scalar(0) :
       readScalar(transferProps.lookup("divTransfer"));
-if (divTransfer < 0 || divTransfer > 1)
+if (divTransfer < 0 || divTransfer > 2)
 {
     FatalErrorIn("multiFluidBoussinesqFoam")
         << "divTransfer read in from file system/transferProperties should be "
         << "between zero and one, not " << divTransfer << exit(FatalError);
 }
+
+// Transfers based on w
+const Switch wTransfer = transferProps.lookup("wTransfer");
 
 // Transfer w=0 (w^T = 0) (scaled by sigma)
 const Switch wTransfer0 = noTransfers? Switch(false) :
@@ -43,24 +46,14 @@ const Switch uniformSigma = noTransfers? Switch(false) :
 
 // Transfer buoyancy anomalies based on linear combination of mean fluid 
 // buoyancies
-const Switch transferAnomaliesLinComb = 
-        noTransfers? Switch(false) :
-        transferProps.lookupOrDefault<Switch>
-        (
-            "transferAnomaliesLinComb", Switch(false)
-        );
-const dimensionedScalar bAnomalyLinearCoeff = transferAnomaliesLinComb ? 
-      dimensionedScalar(transferProps.lookup("bAnomalyLinearCoeff")) :
-      dimlessZero;
+const scalar bAnomalyLinearCoeff = transferProps.lookupOrDefault<scalar>
+(
+    "bAnomalyLinearCoeff", scalar(0)
+);
 
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
-const Switch transferAnomaliesMeanFactor = 
-        noTransfers? Switch(false) : 
-        transferProps.lookupOrDefault<Switch>
-        (
-            "transferAnomaliesMeanFactor", Switch(false)
-        );
-const scalar bAnomalyMeanCoeff = transferAnomaliesMeanFactor ? 
-      readScalar(transferProps.lookup("bAnomalyMeanCoeff")) :
-      scalar(0);
+const scalar bAnomalyMeanCoeff = transferProps.lookupOrDefault<scalar>
+(
+    "bAnomalyMeanCoeff", scalar(0)
+);
 
