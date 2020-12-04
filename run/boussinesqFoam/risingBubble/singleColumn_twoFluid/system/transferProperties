@@ -29,15 +29,16 @@ Ksigma Ksigma [0 2 -1 0 0] 0;
 divTransfer 1;
 // Transfer w=0 if sigma=1
 wTransfer0  true;
+// Transfer to keep w[0] > 1 when sigma[0] >0
+wTransfer  true;
 // Mininum allowable sigma in any fluid
 minSigma  0;
 // Fix transfers so that sigma is read in and kept fixed at locations given in
 // constant/transferLocation
 uniformSigma false;
 // Fluids transferred are a linear combination of donating and receiving fluids
-transferAnomaliesLinComb false;
+bAnomalyLinearCoeff 0;
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
-transferAnomaliesMeanFactor true;
 bAnomalyMeanCoeff 1;
 
 // ************************************************************************* //
