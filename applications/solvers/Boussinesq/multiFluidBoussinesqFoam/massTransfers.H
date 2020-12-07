@@ -19,16 +19,12 @@ for(label ip = 0; ip < nParts; ip++)
 // Mass tranfer terms as diffusion between partitions
 if (Ksigma.value() > SMALL)
 {
-    massTransferD[1] = Ksigma*fvc::laplacian(sigma[0]);
-
-    massTransferD[0] = -min(massTransferD[1], rateZero);
-    massTransferD[1] -= massTransferD[0];
+    // Calculate diffusive tranfer terms
+    massTransferD[0] = -min(Ksigma*fvc::laplacian(sigma[0]), rateZero);
+    massTransferD[1] = -min(Ksigma*fvc::laplacian(sigma[1]), rateZero);
     
     massTransfer[0][1] += massTransferD[0];
     massTransfer[1][0] += massTransferD[1];
-
-    massTransferD[0] /= max(sigma[0], minSigmaDiv);
-    massTransferD[1] /= max(sigma[1], minSigmaDiv);
 }
 
 // Mass transfer to avoid changes in sigma due to partition divergence

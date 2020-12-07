@@ -15,6 +15,15 @@ if (!adjustQ)
     }
 }
 
+if (mag(alpha - Ksigma).value() > SMALL)
+{
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        b.ddt()[ip] += (alpha - Ksigma)/Ksigma*(b[ip] - b[1-ip])
+            *transferD[1-ip];
+    }
+}
+
 for(label ip = 0; ip < nParts; ip++)
 {
     // Update b according to the rate of change
@@ -37,19 +46,6 @@ if (nParts != 2)
 
 if (!noTransfers)
 {
-    // Transfers due to diffusion coefficients for buoyancy and sigma being 
-    // different. Apply these transfers independently
-    if (mag(alpha - Ksigma).value() > SMALL)
-    {
-        volScalarField A = dt*(alpha - Ksigma)/Ksigma*massTransferD[0];
-
-        b[0] += (b[0] - A*b[1])/(1 - A);
-
-        A = dt*(alpha - Ksigma)/Ksigma*massTransferD[1];
-
-        b[1] += (b[1] - A*b[0])/(1 - A);
-    }
-
     // Bouyancy anomalies of fluid transferred
     // Bouyancy transferred is linear combination of buoyancy in each fluid
     if (bAnomalyLinearCoeff > SMALL)

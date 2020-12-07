@@ -25,6 +25,15 @@ for(label ip = 0; ip < nParts; ip++)
   + nu*laplacianU
   - fvc::snGrad(p[ip])*mesh.magSf();
 
+    if (mag(nu - Ksigma).value() > SMALL)
+    {
+        volFlux.ddt()[ip] += (nu - Ksigma)/Ksigma*(volFlux[ip] - volFlux[1-ip])
+                *fvc::interpolate(transferD[1-ip], "transfer");
+    }
+}
+
+for(label ip = 0; ip < nParts; ip++)
+{
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
                 + dt*offCentre*volFlux.ddt()[ip];

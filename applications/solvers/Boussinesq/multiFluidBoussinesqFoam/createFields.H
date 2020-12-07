@@ -145,8 +145,7 @@ partitionedVolScalarField massTransferD
         mesh,
         rateZero,
         "fixedValue"
-    ),
-    IOobject::NO_WRITE
+    )//,    IOobject::NO_WRITE
 );
 
 PtrList<partitionedVolScalarField> massTransfer(nParts);
@@ -174,6 +173,19 @@ partitionedVolScalarField transfer
         IOobject("transfer", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
+    ),
+    IOobject::NO_WRITE
+);
+
+partitionedVolScalarField transferD
+(
+    "transferD",
+    partNames,
+    volScalarField
+    (
+        IOobject("transferD", runTime.timeName(), mesh),
+        mesh,
+        rateZero
     ),
     IOobject::NO_WRITE
 );

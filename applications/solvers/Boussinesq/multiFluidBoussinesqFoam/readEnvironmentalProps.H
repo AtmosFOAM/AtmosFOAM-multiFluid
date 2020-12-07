@@ -31,8 +31,8 @@ uniformDimensionedScalarField gamma
 // Check that Ksigam is non-zero if alpha or nu are non-zero
 if
 (
-    mag(alpha.value() - Ksigma.value()) > SMALL
- && (mag(alpha.value()) < SMALL || mag(Ksigma.value()) < SMALL)
+    (mag(alpha.value() - Ksigma.value()) > SMALL)
+ && (mag(Ksigma.value()) < SMALL)
 )
 {
     FatalErrorIn("multiFluidBoussinesqFoam if one out of alpha and Ksigma ")
@@ -42,8 +42,8 @@ if
 }
 if
 (
-    mag(nu.value() - Ksigma.value()) > SMALL
- && (mag(nu.value()) < SMALL || mag(Ksigma.value()) < SMALL)
+    (mag(nu.value() - Ksigma.value()) > SMALL)
+ && (mag(Ksigma.value()) < SMALL)
 )
 {
     FatalErrorIn("multiFluidBoussinesqFoam if one out of nu and Ksigma ")
