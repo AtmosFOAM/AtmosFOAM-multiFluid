@@ -73,15 +73,27 @@ int main(int argc, char *argv[])
             if (!noTransfers)
             {
                 #include "massTransfers.H"
+            }
+            if (!noTransfers)
+            {
                 #include "applyMassTransfer.H"
             }
+            
             #include "bEqn.H"
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
+                Info << "Position 1 max difference between volFluxes is "
+                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
                 #include "PEqn.H"
-                #include "momentumTransfers.H"
+                Info << "Position 2 max difference between volFluxes is "
+                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
                 #include "pEqn.H"
+                Info << "Position 3 max difference between volFluxes is "
+                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
+                #include "momentumTransfers.H"
+                Info << "Position 4 max difference between volFluxes is "
+                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
                 // Update velocities based on the flux
                 for(label ip = 0; ip < nParts; ip++)
                 {
@@ -90,18 +102,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Apply mass transfer terms (operator split) to sigmaf
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            sigmaf[ip] += dt*(massTransferf[1-ip] - massTransferf[ip])
-                       + dt*fvc::interpolate
-                       (
-                           massTransferD[1-ip] - massTransferD[ip],
-                           "transfer"
-                       );
-        }
-        sigmaf.updateSum();
-        volFlux.updateSum();
 
         // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)

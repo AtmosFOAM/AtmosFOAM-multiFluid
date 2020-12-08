@@ -36,6 +36,29 @@ for(label ip = 0; ip < nParts; ip++)
     b[ip].correctBoundaryConditions();
 }
 
+if (adjustQ)
+{
+    dimensionedScalar totalHeat("totalHeat", b[0].dimensions(), scalar(0));
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
+    }
+    Q = (totalHeat0 - totalHeat)/dt;
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        b[ip] += dt*Q;
+    }
+}
+
+// bouyancy force on faces
+for(label ip = 0; ip < nParts; ip++)
+{
+    bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
+}
+
+b.updateSum();
+bf.updateSum();
+
 // Mass transfer terms (for nParts = 2 only) block implicit solution
 if (nParts != 2)
 {
@@ -76,22 +99,5 @@ if (!noTransfers)
 for(label ip = 0; ip < nParts; ip++)
 {
     bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
-}
-
-b.updateSum();
-bf.updateSum();
-
-if (adjustQ)
-{
-    dimensionedScalar totalHeat("totalHeat", b[0].dimensions(), scalar(0));
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
-    }
-    Q = (totalHeat0 - totalHeat)/dt;
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        b[ip] += dt*Q;
-    }
 }
 

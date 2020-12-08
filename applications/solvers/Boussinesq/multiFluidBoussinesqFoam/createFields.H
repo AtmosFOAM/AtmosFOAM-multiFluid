@@ -29,7 +29,7 @@ sigma.sum().write();
 Info << "Setting sigma on the faces\n" << endl;
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
+    "sigmaf", partNames, linearInterpolate(sigma[0])//, IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -325,6 +325,18 @@ partitionedSurfaceScalarField Sf
         IOobject("Sf", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
+    ),
+    IOobject::NO_WRITE
+);
+partitionedSurfaceScalarField transferDf
+(
+    "transferDf",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("transferDf", runTime.timeName(), mesh),
+        mesh,
+        rateZero
     ),
     IOobject::NO_WRITE
 );

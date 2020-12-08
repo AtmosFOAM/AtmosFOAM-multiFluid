@@ -28,7 +28,7 @@ for(label ip = 0; ip < nParts; ip++)
     if (mag(nu - Ksigma).value() > SMALL)
     {
         volFlux.ddt()[ip] += (nu - Ksigma)/Ksigma*(volFlux[ip] - volFlux[1-ip])
-                *fvc::interpolate(transferD[1-ip], "transfer");
+                *transferDf[1-ip];
     }
 }
 
