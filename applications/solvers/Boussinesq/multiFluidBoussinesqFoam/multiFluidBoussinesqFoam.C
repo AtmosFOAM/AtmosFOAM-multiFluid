@@ -74,31 +74,25 @@ int main(int argc, char *argv[])
             {
                 #include "massTransfers.H"
             }
-            if (!noTransfers)
-            {
-                #include "applyMassTransfer.H"
-            }
             
             #include "bEqn.H"
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
-                Info << "Position 1 max difference between volFluxes is "
-                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
+                #include "momentumEqn.H"
                 #include "PEqn.H"
-                Info << "Position 2 max difference between volFluxes is "
-                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
                 #include "pEqn.H"
-                Info << "Position 3 max difference between volFluxes is "
-                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
-                #include "momentumTransfers.H"
-                Info << "Position 4 max difference between volFluxes is "
-                     << max(mag(volFlux[0] - volFlux[1])).value() << endl;
                 // Update velocities based on the flux
                 for(label ip = 0; ip < nParts; ip++)
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
+            }
+            if (!noTransfers)
+            {
+                #include "applyMassTransfer.H"
+                #include "bTransfers.H"
+                #include "momentumTransfers.H"
             }
         }
 

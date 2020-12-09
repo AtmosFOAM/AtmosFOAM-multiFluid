@@ -8,7 +8,6 @@ for(label ip = 0; ip < nParts; ip++)
             sigma[ip] += dt*
             (
                 massTransfer[jp][ip] - massTransfer[ip][jp]
-//              + massTransferD[jp] - massTransferD[ip]
             );
         }
     }
@@ -20,11 +19,6 @@ sigma.updateSum();
 for(label ip = 0; ip < nParts; ip++)
 {
     sigmaf[ip] += dt*(massTransferf[1-ip] - massTransferf[ip]);
-/*               + dt*fvc::interpolate
-               (
-                   massTransferD[1-ip] - massTransferD[ip],
-                   "transfer"
-               );*/
 }
 sigmaf.updateSum();
 volFlux.updateSum();

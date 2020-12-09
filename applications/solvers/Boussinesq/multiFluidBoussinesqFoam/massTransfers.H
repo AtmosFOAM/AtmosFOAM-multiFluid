@@ -16,17 +16,6 @@ for(label ip = 0; ip < nParts; ip++)
     }
 }
 
-// Mass tranfer terms as diffusion between partitions
-if (Ksigma.value() > SMALL)
-{
-    // Calculate diffusive tranfer terms
-    massTransferD[0] = -min(Ksigma*fvc::laplacian(sigma[0]), rateZero);
-    massTransferD[1] = -min(Ksigma*fvc::laplacian(sigma[1]), rateZero);
-    
-    massTransfer[0][1] += massTransferD[0];
-    massTransfer[1][0] += massTransferD[1];
-}
-
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (divTransfer>0)
 {
@@ -84,9 +73,11 @@ if (wTransfer)
 // Transfers to keep sigma uniform at selected locations
 if (uniformSigma)
 {
-    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
+    massTransfer[0][1] = transferLocation
+                            *max((sigma[0] - sigma[0].oldTime())/dt, rateZero)
                        + (1-transferLocation)*massTransfer[0][1];
-    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
+    massTransfer[1][0] = transferLocation
+                            *max((sigma[1] - sigma[1].oldTime())/dt, rateZero)
                        + (1-transferLocation)*massTransfer[1][0];
 }
 
@@ -115,15 +106,6 @@ for(label ip = 0; ip < nParts; ip++)
     }
 }
 
-// Constrain massTransferD and remove from massTransfer
-if (Ksigma.value() > SMALL)
-{
-    massTransferD[0] = min(massTransferD[0], massTransfer[0][1]);
-    massTransferD[1] = min(massTransferD[1], massTransfer[1][0]);
-    massTransfer[0][1] -= massTransferD[0];
-    massTransfer[1][0] -= massTransferD[1];
-}
-
 // Transfer terms for other variables
 transfer[0] = dt*massTransfer[0][1]/max(sigma[1], minSigmaDiv);
 transfer[1] = dt*massTransfer[1][0]/max(sigma[0], minSigmaDiv);
@@ -131,9 +113,6 @@ S[0] = dt*massTransfer[0][1]/max(sigma[0], minSigmaDiv);
 S[1] = dt*massTransfer[1][0]/max(sigma[1], minSigmaDiv);
 transfer.updateSum();
 S.updateSum();
-
-transferD[0] = massTransferD[0]/max(sigma[1], minSigmaDiv);
-transferD[1] = massTransferD[1]/max(sigma[0], minSigmaDiv);
 
 // Transfer terms on faces
 massTransferf[0] = fvc::interpolate(massTransfer[0][1], "transfer");
@@ -145,21 +124,4 @@ Sf[1] = dt*massTransferf[1]/max(sigmaf[1], minSigmaDiv);
 transferf[0] = dt*massTransferf[0]/max(sigmaf[1], minSigmaDiv);
 transferf[1] = dt*massTransferf[1]/max(sigmaf[0],minSigmaDiv);
 transferf.updateSum();
-
-transferDf[0] = fvc::interpolate(massTransferD[0])/max(sigmaf[1], minSigmaDiv);
-transferDf[1] = fvc::interpolate(massTransferD[1])/max(sigmaf[0], minSigmaDiv);
-
-// Apply diffusive transfers to sigma and sigmaf
-for(label ip = 0; ip < nParts; ip++)
-{
-    sigma[ip] += dt*(massTransferD[1-ip] - massTransferD[ip]);
-
-    sigmaf[ip] += dt*fvc::interpolate
-               (
-                   massTransferD[1-ip] - massTransferD[ip],
-                   "transfer"
-               );
-}
-sigma.updateSum();
-sigmaf.updateSum();
 

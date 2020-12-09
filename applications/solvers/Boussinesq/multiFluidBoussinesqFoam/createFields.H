@@ -177,19 +177,6 @@ partitionedVolScalarField transfer
     IOobject::NO_WRITE
 );
 
-partitionedVolScalarField transferD
-(
-    "transferD",
-    partNames,
-    volScalarField
-    (
-        IOobject("transferD", runTime.timeName(), mesh),
-        mesh,
-        rateZero
-    ),
-    IOobject::NO_WRITE
-);
-
 // Transfer terms for other variables (assuming nParts == 2)
 //S[0] = dt*massTransfer[0][1]/sigma[0]
 partitionedVolScalarField S
@@ -325,18 +312,6 @@ partitionedSurfaceScalarField Sf
         IOobject("Sf", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", dimless, scalar(0))
-    ),
-    IOobject::NO_WRITE
-);
-partitionedSurfaceScalarField transferDf
-(
-    "transferDf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("transferDf", runTime.timeName(), mesh),
-        mesh,
-        rateZero
     ),
     IOobject::NO_WRITE
 );
