@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
             }
             
             #include "bEqn.H"
+            #include "calculateDrag.H"
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
@@ -103,10 +104,10 @@ int main(int argc, char *argv[])
             Uf[ip] = linearInterpolate(u[ip]);
             Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
                       *mesh.Sf()/sqr(mesh.magSf());
-            divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
+            //divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
         }
         Uf.updateSum();
-        divu.updateSum();
+        //divu.updateSum();
         u.updateSum();
 
         runTime.write();

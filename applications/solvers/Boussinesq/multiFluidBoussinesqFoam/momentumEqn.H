@@ -14,8 +14,17 @@ for(label ip = 0; ip < nParts; ip++)
     
     if (mag(nu - Ksigma).value() > SMALL)
     {
-        volFlux.ddt()[ip] += (Ksigma-nu)/Ksigma*(volFlux[1-ip] - volFlux[ip])
-          * fvc::interpolate(massTransferD[1-ip])/max(sigmaf[ip], minSigmaDiv);
+//        volFlux.ddt()[ip] += (Ksigma-nu)/Ksigma*(volFlux[1-ip] - volFlux[ip])
+//          * fvc::interpolate(massTransferD[1-ip]/max(sigma[ip], minSigmaDiv));
+        volFlux.ddt()[ip] += (Ksigma-nu)/Ksigma*
+        (
+            mesh.Sf()
+          & fvc::interpolate
+            (
+                (u[1-ip] - u[ip])
+               *massTransferD[1-ip]/max(sigma[ip], minSigmaDiv)
+            )
+        );
     }
 }
 for(label ip = 0; ip < nParts; ip++)

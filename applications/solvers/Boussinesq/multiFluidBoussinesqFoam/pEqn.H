@@ -19,8 +19,6 @@ if (gamma.value() > VSMALL)
             pEqn.solve();
         }
     }
-    Info << "Maximimum difference between p[0] and p[1] is "
-         << max(mag(p[0] - p[1])).value() << endl;
     p.updateSum();
     for(label ip = 0; ip < nParts; ip++)
     {

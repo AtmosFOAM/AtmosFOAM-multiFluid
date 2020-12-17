@@ -29,7 +29,7 @@ sigma.sum().write();
 Info << "Setting sigma on the faces\n" << endl;
 partitionedSurfaceScalarField sigmaf
 (
-    "sigmaf", partNames, linearInterpolate(sigma[0])//, IOobject::NO_WRITE
+    "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
 );
 for(label ip = 1; ip < nParts; ip++)
 {
@@ -145,7 +145,8 @@ partitionedVolScalarField massTransferD
         mesh,
         rateZero,
         "fixedValue"
-    )//,    IOobject::NO_WRITE
+    ),
+    IOobject::NO_WRITE
 );
 
 PtrList<partitionedVolScalarField> massTransfer(nParts);
@@ -227,6 +228,8 @@ if (uniformSigma)
     massTransfer[1].write();
 }
 
+Info << "Initialising the drag between partitions" << endl;
+ surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
@@ -316,12 +319,12 @@ partitionedSurfaceScalarField Sf
     IOobject::NO_WRITE
 );
 
-partitionedVolScalarField divu
+/*partitionedVolScalarField divu
 (
     "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])
 );
 divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
-divu.write();
+divu.write();*/
 
 // Compact Laplacian of the velocity
 surfaceScalarField laplacianU

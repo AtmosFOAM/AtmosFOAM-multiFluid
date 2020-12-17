@@ -19,51 +19,39 @@ for(label ip = 0; ip < nParts; ip++)
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (divTransfer>0)
 {
-    massTransfer[0][1] += divTransfer*sigma[0]
+    massTransfer[0][1] = divTransfer*sigma[0]
         *max(-fvc::div(volFlux[0]), rateZero);
-    massTransfer[1][0] += divTransfer*sigma[1]
+    massTransfer[1][0] = divTransfer*sigma[1]
         *max(-fvc::div(volFlux[1]), rateZero);
+}
+
+if (dwdzTransfer>0)
+{
+    surfaceScalarField Sfkhat = mesh.Sf().component(2)/mesh.magSf();
+
+    volScalarField dwdz = fvc::div(volFlux[0]*Sfkhat);
+    massTransfer[0][1] += dwdzTransfer*sigma[0]*max(-dwdz, rateZero);
+
+    dwdz = fvc::div(volFlux[1]*Sfkhat);
+    massTransfer[1][0] = dwdzTransfer*sigma[1]*max(-dwdz, rateZero);
 }
 
 // Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca
 if (wTransfer)
 {
     volScalarField w = u[0].component(2);
-    volScalarField DDtw = -volVectorField
-    (
-        (u[0] & fvc::grad(Uf[0])) + fvc::grad(P + p[0])
-    ).component(2) + b[0];
-//          = volVectorField(fvc::ddt(u[0]) + (u[0] & fvc::grad(Uf[0])))
-//            .component(2);
-
-    
-    forAll(DDtw, cellI)
+    forAll(w, cellI)
     {
-        if
-        (
-            (DDtw[cellI] > -w[cellI]/dt.value() && DDtw[cellI] > SMALL)
-         || w[cellI] > SMALL
-        )
+        if (w[cellI] > SMALL)
         {
             massTransfer[0][1][cellI] += sigma[0][cellI]/dt.value();
         }
     }
     
     w = u[1].component(2);
-    DDtw = -volVectorField
-    (
-        (u[1] & fvc::grad(Uf[1])) + fvc::grad(P + p[1])
-    ).component(2) + b[1];
-        //= volVectorField(fvc::ddt(u[1]) + (u[1] & fvc::grad(Uf[1])))
-         //  .component(2);
-
-    forAll(DDtw, cellI)
+    forAll(w, cellI)
     {
-        if 
-        (
-            (DDtw[cellI] < -w[cellI]/dt.value() && DDtw[cellI] < -SMALL)
-          || w[cellI] < -SMALL
-        )
+        if (w[cellI] < -SMALL)
         {
             massTransfer[1][0][cellI] += sigma[1][cellI]/dt.value();
         }
