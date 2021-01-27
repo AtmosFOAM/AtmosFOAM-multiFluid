@@ -33,7 +33,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     const word& baseName__,
     const wordList& partNames__,
     const Mesh& mesh,
-    const word& timeName
+    const word& timeName,
+    IOobject::writeOption writeOpt
 )
 :
     PtrList<GeometricField<Type, PatchField, GeoMesh> >(partNames__.size()),
@@ -44,7 +45,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_+".sum", timeName, mesh,
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            IOobject::NO_READ, writeOpt
         ),
         mesh,
         dimensioned<Type>("sum", dimless, pTraits<Type>::one)
@@ -91,7 +92,8 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
     const wordList& partNames__,
     const Mesh& mesh,
     const word& timeName,
-    const PartitionedField<scalar, PatchField, GeoMesh>& sigma__
+    const PartitionedField<scalar, PatchField, GeoMesh>& sigma__,
+    IOobject::writeOption writeOpt
 )
 :
     PtrList<GeometricField<Type, PatchField, GeoMesh> >(partNames__.size()),
@@ -112,7 +114,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
         IOobject
         (
             baseName_, timeName, mesh,
-            IOobject::NO_READ, IOobject::AUTO_WRITE
+            IOobject::NO_READ, writeOpt
         ),
         mesh,
         dimensioned<Type>("mean", dimless, pTraits<Type>::one)

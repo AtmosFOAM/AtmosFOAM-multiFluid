@@ -37,7 +37,7 @@ const scalar dwdzTransfer = noTransfers ? scalar(0) :
     readScalar(transferProps.lookup("dwdzTransfer"));
 
 // Transfers based on w
-const Switch wTransfer = transferProps.lookup("wTransfer");
+const scalar wTransfer = readScalar(transferProps.lookup("wTransfer"));
 
 // Transfer w=0 (w^T = 0) (scaled by sigma)
 const Switch wTransfer0 = noTransfers? Switch(false) :
@@ -70,4 +70,30 @@ const scalar bAnomalyMeanCoeff = transferProps.lookupOrDefault<scalar>
 
 // Transfer buoyancy to keep fluid 0 decending and fluid 1 ascending
 const Switch keepWseparate = transferProps.lookup("keepWseparate");
+
+// Transfer based on laplacian of buoyancy
+const dimensionedScalar bTransferDiffusivity
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "bTransferDiffusivity",
+        dimensionedScalar("bTransferDiffusivity", dimensionSet(0,2,-1,0,0), scalar(0))
+    )
+);
+const dimensionedScalar bTransferTimeScale
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "bTransferTimeScale",
+        dimensionedScalar("bTransferTimeScale", dimTime, scalar(0))
+    )
+);
+const dimensionedScalar bTransferMax
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "bTransferMax",
+        dimensionedScalar("bTransferMax", dimensionSet(0,1,-2,0,0), scalar(0))
+    )
+);
 

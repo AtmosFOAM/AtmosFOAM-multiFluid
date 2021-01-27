@@ -13,6 +13,30 @@ if (bAnomalyMeanCoeff > SMALL)
     bt[1] = -bAnomalyMeanCoeff*sigma[1]*mag(b[1]);
 }
 
+// The bouyancy of the fluid transferred depends on the laplacian of b
+if (bTransferDiffusivity.value() > SMALL)
+{
+    bt[0] = min
+    (
+        -sigma[0]*bTransferTimeScale*bTransferDiffusivity*min
+        (
+            fvc::laplacian(b[0]),
+            dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+        ),
+        bTransferMax
+    );
+
+    bt[1] = max
+    (
+        -sigma[1]*bTransferTimeScale*bTransferDiffusivity*max
+        (
+            fvc::laplacian(b[1]),
+            dimensionedScalar("", dimensionSet(0,-1,-2,0,0), scalar(0))
+        ),
+        -bTransferMax
+    );
+}
+
 // Transfer buoyancy to keep w[0] and w[1] separate
 if (keepWseparate)
 {

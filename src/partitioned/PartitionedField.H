@@ -90,6 +90,7 @@ public:
     // Public typedefs
 
         //- Type of mesh on which this PartitionedField is instantiated
+        //- Optionally write sum
         typedef typename GeoMesh::Mesh Mesh;
         
     // Constructors
@@ -100,17 +101,19 @@ public:
             const word& baseName__,
             const wordList& partNames__,
             const Mesh& mesh,
-            const word& timeName
+            const word& timeName,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
 
-        //- Read in based on names and sigma
+        //- Read in based on names and sigma (optionally write mean)
         PartitionedField
         (
             const word& baseName__,
             const wordList& partNames__,
             const Mesh& mesh,
             const word& timeName, 
-            const PartitionedField<scalar, PatchField, GeoMesh>& sigma__
+            const PartitionedField<scalar, PatchField, GeoMesh>& sigma__,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
 
         //- Initialise all parts to "field"

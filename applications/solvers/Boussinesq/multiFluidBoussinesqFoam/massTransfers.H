@@ -36,15 +36,31 @@ if (dwdzTransfer>0)
     massTransfer[1][0] = dwdzTransfer*sigma[1]*max(-dwdz, rateZero);
 }
 
+// Mass transfer based on buoyancy
+if (bTransferDiffusivity.value() > SMALL)
+{
+    massTransfer[0][1] += -sigma[0]*bTransferDiffusivity*min
+    (
+        fvc::laplacian(b[0])/(b[0]+bTransferMax),
+        dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
+    );
+
+    massTransfer[1][0] += sigma[1]*bTransferDiffusivity*max
+    (
+        fvc::laplacian(b[1])/(b[1]-bTransferMax),
+        dimensionedScalar("", dimensionSet(0,-2,0,0,0), scalar(0))
+    );
+}
+
 // Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca
-if (wTransfer)
+if (wTransfer > 0)
 {
     volScalarField w = u[0].component(2);
     forAll(w, cellI)
     {
         if (w[cellI] > SMALL)
         {
-            massTransfer[0][1][cellI] += sigma[0][cellI]/dt.value();
+            massTransfer[0][1][cellI] += wTransfer*sigma[0][cellI]/dt.value();
         }
     }
     
@@ -53,7 +69,7 @@ if (wTransfer)
     {
         if (w[cellI] < -SMALL)
         {
-            massTransfer[1][0][cellI] += sigma[1][cellI]/dt.value();
+            massTransfer[1][0][cellI] += wTransfer*sigma[1][cellI]/dt.value();
         }
     }
 }
