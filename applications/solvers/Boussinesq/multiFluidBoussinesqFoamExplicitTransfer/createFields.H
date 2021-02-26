@@ -37,6 +37,31 @@ for(label ip = 1; ip < nParts; ip++)
 }
 sigmaf.updateSum();
 
+Info << "Reading in b in each partition\n" << endl;
+partitionedVolScalarField b
+(
+    "b", partNames, mesh, runTime.timeName(), sigma
+);
+b.mean().write();
+
+// Surface scalar fields for hydrostatic boundary conditions
+const surfaceScalarField gradPcoeff
+(
+    IOobject("gradPcoeff", runTime.timeName(), mesh),
+    mesh,
+    dimensionedScalar("1", dimless, scalar(1))
+);
+partitionedSurfaceScalarField bf
+(
+    "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
+    sigmaf, IOobject::NO_WRITE
+);
+for(label ip = 1; ip < nParts; ip++)
+{
+    bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
+}
+bf.updateSum();
+
 Info << "Reading pressure anomaly in each partition\n" << endl;
 partitionedVolScalarField p
 (
@@ -47,20 +72,26 @@ partitionedVolScalarField p
     sigma
 );
 
+// Laplacian of pressure based on random numbers in order to aid convergence
+Random rand(1);
+volScalarField h("h", fvc::laplacian(p[0]));
+forAll(h, cellI)
+{
+    h[cellI] = rand.scalarAB(-1,1);
+}
+h -= fvc::domainIntegrate(h)/dimensionedScalar("", dimVol,gSum(mesh.V()));
+h *= fvc::domainIntegrate(fvc::div(bf.sum()))
+    /dimensionedScalar("", dimVol*h.dimensions(), scalar(1));
+
 // Dummy pressure to balance p
 volScalarField ph("ph", p[0]);
 {
-    fvScalarMatrix pEqn(fvm::laplacian(ph));
+    fvScalarMatrix pEqn(fvm::laplacian(ph) - h);
     pEqn.setReference(0,0);
     pEqn.solve();
 }
-
-Info << "Reading in b in each partition\n" << endl;
-partitionedVolScalarField b
-(
-    "b", partNames, mesh, runTime.timeName(), sigma
-);
-b.mean().write();
+ph.write();
+h.write();
 
 Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
@@ -116,24 +147,6 @@ volFlux.storeTime();
 u.storeTime();
 b.storeTime();
 sigma.storeTime();
-
-// Surface scalar fields for hydrostatic boundary conditions
-const surfaceScalarField gradPcoeff
-(
-    IOobject("gradPcoeff", runTime.timeName(), mesh),
-    mesh,
-    dimensionedScalar("1", dimless, scalar(1))
-);
-partitionedSurfaceScalarField bf
-(
-    "bf", partNames, fvc::interpolate(b[0], "b")*mesh.Sf().component(2),
-    sigmaf, IOobject::NO_WRITE
-);
-for(label ip = 1; ip < nParts; ip++)
-{
-    bf[ip] = fvc::interpolate(b[ip], "b")*mesh.Sf().component(2);
-}
-bf.updateSum();
 
 PtrList<partitionedVolScalarField> massTransfer(nParts);
 for(label jp = 0; jp < nParts; jp++)

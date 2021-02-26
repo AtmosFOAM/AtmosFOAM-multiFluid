@@ -30,10 +30,10 @@ if (dwdzTransfer>0)
     surfaceScalarField Sfkhat = mesh.Sf().component(2)/mesh.magSf();
 
     volScalarField dwdz = fvc::div(volFlux[0]*Sfkhat);
-    massTransfer[0][1] += sigma[0]*dwdzTransfer*max(-dwdz, rateZero);
+    massTransfer[0][1] += dwdzTransfer*sigma[0]*max(-dwdz, rateZero);
 
     dwdz = fvc::div(volFlux[1]*Sfkhat);
-    massTransfer[1][0] = sigma[1]*dwdzTransfer*max(-dwdz, rateZero);
+    massTransfer[1][0] = dwdzTransfer*sigma[1]*max(-dwdz, rateZero);
 }
 
 // Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca

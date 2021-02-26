@@ -8,30 +8,41 @@
 */
 if (gamma.value() > SMALL)
 {
-    volScalarField divuSum = sigma[0]*fvc::div(volFlux[0])
-                           + sigma[1]*fvc::div(volFlux[1]);
-
+    // Iterate to achieve p.sum = 0
     for(label ip = 0; ip < nParts; ip++)
     {
-        p[ip] == p[ip] + ph;
-        for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
-        {
-            fvScalarMatrix pEqn
-            (
-                fvm::Sp(1/gamma, p[ip])
-              - ph/gamma
-              - divuSum
-              + fvc::div(volFlux[ip])
-              - offCentre*dt*fvm::laplacian(p[ip])
-            );
-            pEqn.solve();
-        }
-        p[ip] == p[ip] - ph;
-        volFlux[ip] -= offCentre*dt*(fvc::snGrad(p[ip])*mesh.magSf());
-        volFlux.ddt()[ip] -= fvc::snGrad(p[ip])*mesh.magSf();
+        volFlux[ip] -= offCentre*dt*(fvc::snGrad(p[ip]-ph)*mesh.magSf());
     }
-    p.updateSum();
-    Info << "p.sum goes from " << min(p.sum()).value() << " to "
-         << max(p.sum()).value() << endl;
+    for(label ipIt = 0; ipIt < 1; ipIt++)
+    {
+        volScalarField divuSum = sigma[0]*fvc::div(volFlux[0])
+                               + sigma[1]*fvc::div(volFlux[1]);
+
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            volFlux[ip] += offCentre*dt*(fvc::snGrad(p[ip]-ph)*mesh.magSf());
+
+            for (int nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
+            {
+                fvScalarMatrix pEqn
+                (
+                    fvm::Sp(1/gamma, p[ip])
+                  - ph/gamma
+                  - divuSum
+                  + fvc::div(volFlux[ip])
+                  - offCentre*dt*fvm::laplacian(p[ip])
+                );
+                pEqn.solve();
+            }
+            volFlux[ip] -= offCentre*dt*(fvc::snGrad(p[ip]-ph)*mesh.magSf());
+        }
+        p.updateSum();
+        Info << "p.sum goes from " << min(p.sum()).value() << " to "
+             << max(p.sum()).value() << endl;
+    }
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        volFlux.ddt()[ip] -= fvc::snGrad(p[ip]-ph)*mesh.magSf();
+    }
 }
 
