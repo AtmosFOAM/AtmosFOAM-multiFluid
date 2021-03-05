@@ -17,10 +17,10 @@ for(label ip = 0; ip < nParts; ip++)
 {
     for(label jp=0; jp < nParts; jp++) if (ip != jp)
     {
-        b[ip].oldTime() += dt/max(sigma[ip].oldTime(), minSigmaDiv)*
+        b[ip] += dt/max(sigma[ip], minSigmaDiv)*
         (
-            massTransfer[jp][ip]*(bT[jp] - b[ip].oldTime())
-          - massTransfer[ip][jp]*(bT[ip] - b[ip].oldTime())
+            massTransfer[jp][ip]*(bT[jp] - b[ip])
+          - massTransfer[ip][jp]*(bT[ip] - b[ip])
         );
     }
 }

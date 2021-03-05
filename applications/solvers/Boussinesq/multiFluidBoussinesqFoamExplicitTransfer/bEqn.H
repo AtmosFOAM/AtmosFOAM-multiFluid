@@ -2,7 +2,8 @@
 for(label ip = 0; ip < nParts; ip++)
 {
     b.ddt()[ip] = Q - fvc::div(volFlux[ip], b[ip], "b")
-                + b[ip]*fvc::div(volFlux[ip]);
+                + b[ip]*fvc::div(volFlux[ip])
+                + alpha*fvc::laplacian(b[ip]);
 
     // Update b according to rate of change
     b[ip] = b[ip].oldTime() + dt*

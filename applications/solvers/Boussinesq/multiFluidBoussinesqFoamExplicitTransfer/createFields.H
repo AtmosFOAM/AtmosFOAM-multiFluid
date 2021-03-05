@@ -72,7 +72,7 @@ partitionedVolScalarField p
     sigma
 );
 
-// Laplacian of pressure based on random numbers in order to aid convergence
+/*// Laplacian of pressure based on random numbers in order to aid convergence
 Random rand(1);
 volScalarField h("h", fvc::laplacian(p[0]));
 forAll(h, cellI)
@@ -80,18 +80,19 @@ forAll(h, cellI)
     h[cellI] = rand.scalarAB(-1,1);
 }
 h -= fvc::domainIntegrate(h)/dimensionedScalar("", dimVol,gSum(mesh.V()));
-h *= fvc::domainIntegrate(fvc::div(bf.sum()))
+h *= dt*fvc::domainIntegrate(fvc::div(bf.sum()))
     /dimensionedScalar("", dimVol*h.dimensions(), scalar(1));
 
 // Dummy pressure to balance p
 volScalarField ph("ph", p[0]);
 {
-    fvScalarMatrix pEqn(fvm::laplacian(ph) - h);
+    fvScalarMatrix pEqn(fvm::laplacian(ph) - h/dt);
     pEqn.setReference(0,0);
     pEqn.solve();
 }
 ph.write();
 h.write();
+*/
 
 Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
@@ -170,6 +171,29 @@ for(label jp = 0; jp < nParts; jp++)
     massTransfer[jp].write();
 }
 
+// Diffusive transfers
+PtrList<partitionedVolScalarField> massTransferD(nParts);
+for(label jp = 0; jp < nParts; jp++)
+{
+    massTransferD.set
+    (
+        jp, 
+        new partitionedVolScalarField
+        (
+            "massTransferD."+partNames[jp],
+            partNames,
+            volScalarField
+            (
+                IOobject("massTransferD", runTime.timeName(), mesh),
+                mesh,
+                rateZero,
+                "fixedValue"
+            ),
+            IOobject::NO_WRITE
+        )
+    );
+}
+
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
 (
@@ -220,7 +244,7 @@ partitionedSurfaceScalarField volFluxT
     IOobject::NO_WRITE
 );
 
-/*// Compact Laplacian of the velocity
+// Compact Laplacian of the velocity
 surfaceScalarField laplacianU
     = (fvc::interpolate(fvc::laplacian(u.updateSum())) & mesh.Sf())
     + mesh.magSf()*(fvc::snGrad
@@ -228,6 +252,4 @@ surfaceScalarField laplacianU
         fvc::div(volFlux.updateSum()
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
-*/
-
 

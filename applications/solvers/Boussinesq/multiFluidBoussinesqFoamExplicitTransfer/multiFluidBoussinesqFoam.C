@@ -68,11 +68,6 @@ int main(int argc, char *argv[])
 
         #include "partitionedCourantNo.H"
 
-        #include "massTransfers.H"
-        #include "sigmaTransfers.H"
-        #include "bTransfers.H"
-        #include "momentumTransfers.H"
-
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "sigmaEqn.H"
@@ -90,12 +85,17 @@ int main(int argc, char *argv[])
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
-//                Info << "u[1] - u[0] goes from "
-//                     << min(u[1] - u[0]).value() << " to "
-//                     << max(u[1] - u[0]).value() << endl;
             }
         }
-        u.updateSum();
+
+        #include "massTransfers.H"
+        #include "sigmaTransfers.H"
+        #include "bTransfers.H"
+        #include "momentumTransfers.H"
+        #include "diffusionTransfers.H"
+
+        Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
+            << max(sigma[0]).value() << endl;
 
         runTime.write();
         offCentre = offCentreSave;

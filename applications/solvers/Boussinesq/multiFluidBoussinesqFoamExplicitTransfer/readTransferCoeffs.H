@@ -12,11 +12,15 @@ IOdictionary transferProps
     )
 );
 
+// Drag parameters
+const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
+const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
+
 // Note if there are no transfers from any sources
 const Switch noTransfers(transferProps.lookup("noTransfers"));
 
 // Diffusion coefficient for inter-partition mass transfer
-//const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
+const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
 
 // The amount of divergence transfer used (between zero and one)
 const scalar divTransfer = noTransfers? scalar(0) :

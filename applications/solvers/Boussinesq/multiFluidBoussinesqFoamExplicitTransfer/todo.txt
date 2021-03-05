@@ -1,0 +1,18 @@
+Done: Put all the transfers at the end in order to simplify and use variables rather than oldTime variables
+
+Diffusion
+    - sigma, b and u
+done but not properly tested
+
+transfer based on db/dz
+
+Decouple mass transfer from uT and bT
+
+3 fluids?
+
+Transfer to keep flagged cells uniform sigma
+
+keepWseparate?
+
+Think about the problem that there is probably no solution to the p=-gamma div(u) problem or simplify pEqn.H?
+Possibly fixed?

@@ -1,7 +1,16 @@
 // Explicit part of velocity for each partition (without mass tranfers)
 for(label ip = 0; ip < nParts; ip++)
 {
-    // Rate of change of volFlux without diffusion or pressure gradient
+    // Compact Laplacian of the velocity
+    laplacianU 
+        = (fvc::interpolate(fvc::laplacian(u[ip])) & mesh.Sf())
+        + mesh.magSf()*(fvc::snGrad
+            (
+                fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
+            )
+          );
+
+    // Rate of change of volFlux without pressure gradient
     volFlux.ddt()[ip] = (mesh.Sf() &
     (
       -fvc::interpolate
@@ -9,7 +18,7 @@ for(label ip = 0; ip < nParts; ip++)
            fvc::div(volFlux[ip], u[ip], "u") - u[ip]*fvc::div(volFlux[ip]),
            "convection"
        )
-    ));
+    )) + nu*laplacianU;
 }
 
 // Update volFlux

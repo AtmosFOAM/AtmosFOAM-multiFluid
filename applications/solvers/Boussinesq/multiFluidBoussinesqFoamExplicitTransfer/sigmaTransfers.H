@@ -5,7 +5,7 @@ for(label ip = 0; ip < nParts; ip++)
     {
         if (ip != jp)
         {
-            sigma[ip].oldTime() += dt*
+            sigma[ip] += dt*
             (
                 massTransfer[jp][ip] - massTransfer[ip][jp]
             );
@@ -16,6 +16,6 @@ for(label ip = 0; ip < nParts; ip++)
 // Calculate sigma on the face
 for(label ip = 0; ip < nParts; ip++)
 {
-    sigmaf[ip].oldTime() = fvc::interpolate(sigma[ip].oldTime(), "sigma");
+    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
 }
 

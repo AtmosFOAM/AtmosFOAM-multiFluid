@@ -12,15 +12,13 @@ IOdictionary envProps
     )
 );
 
-//const dimensionedScalar nu(envProps.lookup("nu"));
+const dimensionedScalar nu(envProps.lookup("nu"));
 
-//const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
-
-//uniformDimensionedScalarField alpha
-//(
-//    IOobject("alpha", runTime.timeName(), mesh), 
-//    dimensionedScalar(envProps.lookup("alpha"))
-//);
+uniformDimensionedScalarField alpha
+(
+    IOobject("alpha", runTime.timeName(), mesh), 
+    dimensionedScalar(envProps.lookup("alpha"))
+);
 
 uniformDimensionedScalarField gamma
 (
@@ -28,8 +26,8 @@ uniformDimensionedScalarField gamma
     dimensionedScalar(envProps.lookup("gamma"))
 );
 
-// Check that Ksigam is non-zero if alpha or nu are non-zero
-/*if
+// Check that Ksigma is non-zero if alpha or nu are non-zero
+if
 (
     (mag(alpha.value() - Ksigma.value()) > SMALL)
  && (mag(Ksigma.value()) < SMALL)
@@ -51,4 +49,4 @@ if
          << nu.value() << " and Ksigma = " << Ksigma.value()
          << exit(FatalError);
 }
-*/
+
