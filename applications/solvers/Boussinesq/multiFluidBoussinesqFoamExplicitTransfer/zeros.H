@@ -27,6 +27,3 @@ const dimensionedScalar speedSMALL
     "speedSMALL", dimensionSet(0,1,-1,0,0), SMALL
 );
 
-// Minimum sigma for division
-const scalar minSigmaDiv = SMALL;
-

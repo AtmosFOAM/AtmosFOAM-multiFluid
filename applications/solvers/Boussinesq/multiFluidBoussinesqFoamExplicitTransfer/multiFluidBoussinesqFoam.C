@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
         #include "bTransfers.H"
         #include "momentumTransfers.H"
         #include "diffusionTransfers.H"
+        #include "wTransfer.H"
 
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
             << max(sigma[0]).value() << endl;

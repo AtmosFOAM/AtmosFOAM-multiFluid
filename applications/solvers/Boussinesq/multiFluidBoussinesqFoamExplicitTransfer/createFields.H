@@ -31,11 +31,7 @@ partitionedSurfaceScalarField sigmaf
 (
     "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
 );
-for(label ip = 1; ip < nParts; ip++)
-{
-    sigmaf[ip] = linearInterpolate(sigma[ip]);
-}
-sigmaf.updateSum();
+interpolate(sigmaf, sigma);
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b
@@ -171,24 +167,18 @@ for(label jp = 0; jp < nParts; jp++)
     massTransfer[jp].write();
 }
 
-// Diffusive transfers
-PtrList<partitionedVolScalarField> massTransferD(nParts);
+// Mass transfers on faces
+PtrList<partitionedSurfaceScalarField> massTransferf(nParts);
 for(label jp = 0; jp < nParts; jp++)
 {
-    massTransferD.set
+    massTransferf.set
     (
         jp, 
-        new partitionedVolScalarField
+        new partitionedSurfaceScalarField
         (
-            "massTransferD."+partNames[jp],
+            "massTransferf."+partNames[jp],
             partNames,
-            volScalarField
-            (
-                IOobject("massTransferD", runTime.timeName(), mesh),
-                mesh,
-                rateZero,
-                "fixedValue"
-            ),
+            linearInterpolate(massTransfer[jp][0]),
             IOobject::NO_WRITE
         )
     );

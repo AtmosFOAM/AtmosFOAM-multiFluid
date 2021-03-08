@@ -1,4 +1,11 @@
 // Bounyancy of the fluid transferred
+// only formulated for nParts == 2
+if (nParts != 2)
+{
+    FatalErrorIn("massTransfer.H")
+        << " mass transfer terms only formulated for nParts = 2, not nParts = "
+        << nParts << exit(FatalError);
+}
 
 bT[0] = b[0];
 bT[1] = b[1];
@@ -13,15 +20,5 @@ if (bAnomalyMeanCoeff > SMALL)
 }
 
 // Transfer the buoyancy
-for(label ip = 0; ip < nParts; ip++)
-{
-    for(label jp=0; jp < nParts; jp++) if (ip != jp)
-    {
-        b[ip] += dt/max(sigma[ip], minSigmaDiv)*
-        (
-            massTransfer[jp][ip]*(bT[jp] - b[ip])
-          - massTransfer[ip][jp]*(bT[ip] - b[ip])
-        );
-    }
-}
+b.transferField(massTransfer, bT, dt);
 

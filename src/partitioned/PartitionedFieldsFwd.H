@@ -60,6 +60,39 @@ typedef PartitionedField<scalar, fvsPatchField, surfaceMesh> partitionedSurfaceS
 typedef PartitionedField<vector, fvPatchField, volMesh> partitionedVolVectorField;
 typedef PartitionedField<vector, fvsPatchField, surfaceMesh> partitionedSurfaceVectorField;
 
+template<class Type>
+inline PartitionedField<Type, fvsPatchField, surfaceMesh>& interpolate
+(
+    PartitionedField<Type, fvsPatchField, surfaceMesh>& Tf,
+    const PartitionedField<Type, fvPatchField, volMesh>& T
+)
+{
+    for(label ip = 0; ip < Tf.size(); ip++)
+    {
+        Tf[ip] = linearInterpolate(T[ip]);
+    }
+    Tf.updateSum();
+    return Tf;
+}
+
+template<class Type>
+inline PtrList<PartitionedField<Type, fvsPatchField, surfaceMesh>>& interpolate
+(
+    PtrList<PartitionedField<Type, fvsPatchField, surfaceMesh>>& Tf,
+    const PtrList<PartitionedField<Type, fvPatchField, volMesh>>& T
+)
+{
+    for(label ip = 0; ip < Tf.size(); ip++)
+    {
+        for(label jp = 0; jp < Tf[ip].size(); jp++)
+        {
+            Tf[ip][jp] = linearInterpolate(T[ip][jp]);
+        }
+        Tf[ip].updateSum();
+    }
+    return Tf;
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

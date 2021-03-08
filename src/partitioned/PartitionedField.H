@@ -204,6 +204,29 @@ public:
             const word newBaseName = ""
         ) const;
         
+        //- Transfer mass weighted fields (or just sigma) based on transfer
+        //- rates in M
+        void transferMass
+        (
+            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+            const dimensionedScalar& dt
+        );
+        
+        //- Transfer non-mass weighted field
+        void transferField
+        (
+            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+            PartitionedField<Type, PatchField, GeoMesh>& fieldT,
+            const dimensionedScalar& dt
+        );
+        
+        //- Transfer non-mass weighted field. Special case transferring mean
+        void transferField
+        (
+            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+            const dimensionedScalar& dt
+        );
+        
         //- Store the old time values and the rates of change
         void storeTime();
 

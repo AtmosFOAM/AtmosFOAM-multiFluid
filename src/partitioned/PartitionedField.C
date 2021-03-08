@@ -403,6 +403,68 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::divideBy
     return f;
 }
 
+template<class Type, template<class> class PatchField, class GeoMesh>
+void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
+(
+    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+    const dimensionedScalar& dt
+)
+{
+    for(label ip = 0; ip < size(); ip++)
+    {
+        for(label jp=0; jp < size(); jp++) if (ip != jp)
+        {
+            operator[](ip) += dt*(M[jp][ip] - M[ip][jp]);
+        }
+    }
+}
+
+
+template<class Type, template<class> class PatchField, class GeoMesh>
+void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
+(
+    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+    PartitionedField<Type, PatchField, GeoMesh>& fieldT,
+    const dimensionedScalar& dt
+)
+{
+    const dimensionedScalar smallSigma("", sigma()[0].dimensions(), SMALL);
+
+    for(label ip = 0; ip < size(); ip++)
+    {
+        for(label jp = 0; jp < size(); jp++) if (ip != jp)
+        {
+            operator[](ip) += dt/max(sigma()[ip], smallSigma)*
+            (
+                M[jp][ip]*(fieldT[jp] - operator[](ip))
+              - M[ip][jp]*(fieldT[ip] - operator[](ip))
+            );
+        }
+    }
+}
+
+
+template<class Type, template<class> class PatchField, class GeoMesh>
+void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
+(
+    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+    const dimensionedScalar& dt
+)
+{
+    const dimensionedScalar smallSigma("", sigma()[0].dimensions(), SMALL);
+
+    for(label ip = 0; ip < size(); ip++)
+    {
+        for(label jp = 0; jp < size(); jp++) if (ip != jp)
+        {
+            operator[](ip) += dt/max(sigma()[ip], smallSigma)*
+            (
+                M[jp][ip]*(operator[](jp) - operator[](ip))
+            );
+        }
+    }
+}
+
 
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::storeTime()

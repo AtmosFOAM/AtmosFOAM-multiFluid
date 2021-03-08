@@ -20,9 +20,9 @@ for(label ip = 0; ip < nParts; ip++)
 if (divTransfer>0)
 {
     massTransfer[0][1] = divTransfer*sigma[0]
-        *max(-fvc::div(volFlux[0]), rateZero);
+                        *max(-fvc::div(volFlux[0]), rateZero);
     massTransfer[1][0] = divTransfer*sigma[1]
-        *max(-fvc::div(volFlux[1]), rateZero);
+                        *max(-fvc::div(volFlux[1]), rateZero);
 }
 
 if (dwdzTransfer>0)

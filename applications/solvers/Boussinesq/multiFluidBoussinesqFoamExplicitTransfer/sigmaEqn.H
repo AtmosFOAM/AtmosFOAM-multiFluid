@@ -23,16 +23,5 @@ for(label ip = 0; ip < nParts; ip++)
 sigma.updateSum();
 
 // Calculate sigma on the face
-for(label ip = 0; ip < nParts; ip++)
-{
-    sigmaf[ip] = fvc::interpolate(sigma[ip], "sigma");
-}
-
-// Ensure that sum sigma = 1
-sigmaf.updateSum();
-for(label ip = 0; ip < nParts; ip++)
-{
-    sigmaf[ip] /= sigmaf.sum();
-}
-sigmaf.updateSum();
+interpolate(sigmaf, sigma);
 

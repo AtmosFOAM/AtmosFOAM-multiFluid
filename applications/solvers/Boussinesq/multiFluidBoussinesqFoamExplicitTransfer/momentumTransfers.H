@@ -1,4 +1,11 @@
 // Velocity of the fluid transferred
+// only formulated for nParts == 2
+if (nParts != 2)
+{
+    FatalErrorIn("massTransfer.H")
+        << " mass transfer terms only formulated for nParts = 2, not nParts = "
+        << nParts << exit(FatalError);
+}
 volFluxT[0] = volFlux[0];
 volFluxT[1] = volFlux[1];
 
@@ -14,19 +21,7 @@ if (!noTransfers && wTransfer0)
 }
 
 // Transfer the velocity
-for(label ip = 0; ip < nParts; ip++)
-{
-    for(label jp = 0; jp < nParts; jp++) if (ip != jp)
-    {
-        volFlux[ip] += dt/max(sigmaf[ip], minSigmaDiv)*
-        (
-            fvc::interpolate(massTransfer[jp][ip])
-                *(volFluxT[jp] - volFlux[ip])
-          - fvc::interpolate(massTransfer[ip][jp])
-            *(volFluxT[ip] - volFlux[ip])
-        );
-    }
-}
+volFlux.transferField(interpolate(massTransferf, massTransfer), volFluxT, dt);
 
 // Calculate and apply the drag
 if (mag(dragCoeff) > SMALL)
@@ -50,9 +45,10 @@ if (mag(dragCoeff) > SMALL)
     volFlux[1] += sigmaf[0]*drag;
 }
 
-                // Update velocities based on the volFlux
-                for(label ip = 0; ip < nParts; ip++)
-                {
-                    u[ip] = fvc::reconstruct(volFlux[ip]);
-                }
-                u.updateSum();
+// Update velocities based on the volFlux
+for(label ip = 0; ip < nParts; ip++)
+{
+    u[ip] = fvc::reconstruct(volFlux[ip]);
+}
+u.updateSum();
+
