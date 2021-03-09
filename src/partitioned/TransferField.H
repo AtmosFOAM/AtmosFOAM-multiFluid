@@ -22,24 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::Partitioned
+    Foam::TransferField
 
 Description
-    A list of PtrList of things, one for each partion of the atmosphere. 
-    It is also an MeshObject so that things can be looked up from the database.
-    It holds a wordList for the partition names.
+    A matrix of GeometricFields to transfer between PartitionedFields
+    without diagonal elements.
 
 SourceFiles
-    Partitioned.C
+    TransferField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Partitioned_H
-#define Partitioned_H
+#ifndef TransferField_H
+#define TransferField_H
 
-#include "MeshObject.H"
-#include "fvMesh.H"
-#include "PtrList.H"
+#include "GeometricField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -47,83 +44,87 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class Partitioned Declaration
+                         Class TransferField Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class Type>
-class Partitioned
+template<class Type, template<class> class PatchField, class GeoMesh>
+class TransferField
 :
-    public MeshObject<fvMesh, MoveableMeshObject, Partitioned<Type> >,
-    PtrList<Type>
+    public PtrList<GeometricField<Type, PatchField, GeoMesh> >
 {
     // Private data
+
+        //- The base name for all of the partitions
+        const word baseName_;
 
         //- The names of the parts
         const wordList partNames_;
 
     // Dissallow copy construct
-        Partitioned(const Partitioned&);
+        TransferField(const TransferField&);
 
 
 public:
 
+    // Public typedefs
+
+        //- Type of mesh on which this TransferField is instantiated
+        //- Optionally write sum
+        typedef typename GeoMesh::Mesh Mesh;
+        
     // Constructors
 
-        //- Construct empty
-        Partitioned(const fvMesh& mesh);
-
-        //- Construct from components
-        Partitioned
+        //- Read in based on names
+        TransferField
         (
-            const fvMesh& mesh,
-            const wordList& partNames__
+            const word& baseName__,
+            const wordList& partNames__,
+            const Mesh& mesh,
+            const word& timeName,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
 
+        //- Initialise all parts to "field"
+        TransferField
+        (
+            const word& baseName__,
+            const wordList& partNames__,
+            const GeometricField<Type, PatchField, GeoMesh>& field,
+            IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
+        );
+
+
     //- Destructor
-    ~Partitioned();
+    ~TransferField();
 
     // Access functions
     
+        //- The base name for all of the partitions
+        const word& baseName() const { return baseName_; }
+
         //- The names of the parts
         const wordList& partNames() const { return partNames_; }
 
+        //- The number of parts
+        label nParts() const { return partNames().size(); }
 
-    // Member functions
-        //- No changes needed for moving the mesh
-        bool movePoints() {return true;}
+    // Member Functions
+
+        // Output
+        void write();
+
 
     // Functions from PtrList
 
-        label size() const
-        {
-            return PtrList<Type>::size();
-        }
-        
-        const Type& operator[]
+        const GeometricField<Type, PatchField, GeoMesh>& operator()
         (
-            const label ip
-        ) const
-        {
-            return PtrList<Type>::operator[](ip);
-        }
+            const label ip, label jp
+        ) const;
 
-        Type& operator[]
+        GeometricField<Type, PatchField, GeoMesh>& operator()
         (
-            const label ip
-        )
-        {
-            return PtrList<Type>::operator[](ip);
-        }
-        
-        autoPtr<Type> set(label ip, autoPtr<Type> T)
-        {
-            return PtrList<Type>::set(ip, T);
-        }
-        
-        void set(label ip, Type* Tp)
-        {
-            PtrList<Type>::set(ip, Tp);
-        }
+            const label ip, label jp
+        );
 };
 
 
@@ -134,7 +135,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "Partitioned.C"
+    #include "TransferField.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

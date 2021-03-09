@@ -145,44 +145,32 @@ u.storeTime();
 b.storeTime();
 sigma.storeTime();
 
-PtrList<partitionedVolScalarField> massTransfer(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    massTransfer.set
+volScalarTransferField massTransfer
+(
+    "massTransfer",
+    partNames,
+    volScalarField
     (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "massTransfer."+partNames[jp],
-            partNames,
-            volScalarField
-            (
-                IOobject("massTransfer", runTime.timeName(), mesh),
-                mesh,
-                rateZero,
-                "fixedValue"
-            )
-        )
-    );
-    massTransfer[jp].write();
-}
+        IOobject("massTransfer", runTime.timeName(), mesh),
+        mesh,
+        rateZero,
+        "fixedValue"
+    )
+);
+massTransfer.write();
 
 // Mass transfers on faces
-PtrList<partitionedSurfaceScalarField> massTransferf(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    massTransferf.set
+surfaceScalarTransferField massTransferf
+(
+    "massTransferf",
+    partNames,
+    surfaceScalarField
     (
-        jp, 
-        new partitionedSurfaceScalarField
-        (
-            "massTransferf."+partNames[jp],
-            partNames,
-            linearInterpolate(massTransfer[jp][0]),
-            IOobject::NO_WRITE
-        )
-    );
-}
+        IOobject("massTransferf", runTime.timeName(), mesh),
+        mesh,
+        rateZero
+    )
+);
 
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
@@ -203,7 +191,7 @@ for(label ip = 0; ip < nParts; ip++)
 }
 
 // Buoyancy of the transferred fluid
-partitionedVolScalarField bT
+volScalarTransferField bT
 (
     "bT",
     partNames,
@@ -215,11 +203,11 @@ partitionedVolScalarField bT
         dimensionedScalar("", b[0].dimensions(), scalar(0)),
         "fixedValue"
     ),
-    sigma
+    IOobject::NO_WRITE
 );
 
 // Velocity anomaly of the transferred fluid
-partitionedSurfaceScalarField volFluxT
+surfaceScalarTransferField volFluxT
 (
     "volFluxT",
     partNames,
@@ -230,7 +218,6 @@ partitionedSurfaceScalarField volFluxT
         dimensionedScalar("", volFlux[0].dimensions(), scalar(0)),
         fluxBCs
     ),
-    sigmaf,
     IOobject::NO_WRITE
 );
 

@@ -43,6 +43,7 @@ SourceFiles
 #define PartitionedField_H
 
 #include "GeometricField.H"
+#include "TransferField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -208,22 +209,22 @@ public:
         //- rates in M
         void transferMass
         (
-            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+            TransferField<Type, PatchField, GeoMesh>& M,
             const dimensionedScalar& dt
         );
         
         //- Transfer non-mass weighted field
         void transferField
         (
-            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
-            PartitionedField<Type, PatchField, GeoMesh>& fieldT,
+            TransferField<Type, PatchField, GeoMesh>& M,
+            TransferField<Type, PatchField, GeoMesh>& fieldT,
             const dimensionedScalar& dt
         );
         
         //- Transfer non-mass weighted field. Special case transferring mean
         void transferField
         (
-            PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+            TransferField<Type, PatchField, GeoMesh>& M,
             const dimensionedScalar& dt
         );
         

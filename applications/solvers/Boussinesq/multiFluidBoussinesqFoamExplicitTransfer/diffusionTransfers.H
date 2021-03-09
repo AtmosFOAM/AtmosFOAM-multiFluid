@@ -11,8 +11,8 @@ if (Ksigma.value() > SMALL)
             (
                 sigma[ip] -sigma[jp]
             );
-            massTransfer[ip][jp] = -max(massTransferTmp, rateZero);
-            massTransfer[jp][ip] = -max(-massTransferTmp, rateZero);
+            massTransfer(ip,jp) = -min(massTransferTmp, rateZero);
+            massTransfer(jp,ip) = -min(-massTransferTmp, rateZero);
         }
     }
 
@@ -28,7 +28,11 @@ if (Ksigma.value() > SMALL)
     // Diffusive transfers of momentum
     if (mag(Ksigma.value() - nu.value()) > SMALL)
     {
-        volFlux.transferField(interpolate(massTransferf, massTransfer), dt*(nu - alpha)/nu);
+        volFlux.transferField
+        (
+            interpolate(massTransferf, massTransfer),
+            dt*(nu - alpha)/nu
+        );
     }
 }
 

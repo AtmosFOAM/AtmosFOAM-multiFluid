@@ -1,3 +1,4 @@
 PartitionedFields.C
+TransferFields.C
 
 LIB = $(FOAM_USER_LIBBIN)/libPartitionedFields

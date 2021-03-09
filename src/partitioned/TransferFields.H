@@ -21,41 +21,21 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+InClass
+    Foam::TransferField
+
+Description
+
+SourceFiles
+    TransferFields.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "Partitioned.H"
+#ifndef TransferFields_H
+#define TransferFields_H
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+#include "TransferFieldsFwd.H"
 
-template<class Type>
-Foam::Partitioned<Type>::Partitioned
-(
-    const fvMesh& mesh
-)
-:
-    MeshObject<fvMesh, MoveableMeshObject, Partitioned<Type>>(mesh),
-    PtrList<Type>(0),
-    partNames_(0)
-{}
-
-
-template<class Type>
-Foam::Partitioned<Type>::Partitioned
-(
-    const fvMesh& mesh,
-    const wordList& partNames__
-)
-:
-    MeshObject<fvMesh, MoveableMeshObject, Partitioned<Type>>(mesh),
-    PtrList<Type>(partNames__.size()),
-    partNames_(partNames__)
-{}
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-template<class Type>
-Foam::Partitioned<Type>::~Partitioned()
-{}
+#endif
 
 // ************************************************************************* //

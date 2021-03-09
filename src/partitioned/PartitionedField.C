@@ -406,7 +406,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::divideBy
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
 (
-    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+    TransferField<Type, PatchField, GeoMesh>& M,
     const dimensionedScalar& dt
 )
 {
@@ -414,7 +414,7 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
     {
         for(label jp=0; jp < size(); jp++) if (ip != jp)
         {
-            operator[](ip) += dt*(M[jp][ip] - M[ip][jp]);
+            operator[](ip) += dt*(M(jp,ip) - M(ip,jp));
         }
     }
 }
@@ -423,8 +423,8 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 (
-    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
-    PartitionedField<Type, PatchField, GeoMesh>& fieldT,
+    TransferField<Type, PatchField, GeoMesh>& M,
+    TransferField<Type, PatchField, GeoMesh>& fieldT,
     const dimensionedScalar& dt
 )
 {
@@ -436,8 +436,8 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
         {
             operator[](ip) += dt/max(sigma()[ip], smallSigma)*
             (
-                M[jp][ip]*(fieldT[jp] - operator[](ip))
-              - M[ip][jp]*(fieldT[ip] - operator[](ip))
+                M(jp,ip)*(fieldT(jp,ip) - operator[](ip))
+              - M(ip,jp)*(fieldT(ip,jp) - operator[](ip))
             );
         }
     }
@@ -447,7 +447,7 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 (
-    PtrList<PartitionedField<Type, PatchField, GeoMesh>>& M,
+    TransferField<Type, PatchField, GeoMesh>& M,
     const dimensionedScalar& dt
 )
 {
@@ -459,7 +459,7 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
         {
             operator[](ip) += dt/max(sigma()[ip], smallSigma)*
             (
-                M[jp][ip]*(operator[](jp) - operator[](ip))
+                M(jp,ip)*(operator[](jp) - operator[](ip))
             );
         }
     }

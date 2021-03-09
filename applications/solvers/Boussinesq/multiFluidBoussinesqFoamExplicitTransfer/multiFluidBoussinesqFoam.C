@@ -32,6 +32,7 @@ Description
 
 #include "fvCFD.H"
 #include "PartitionedFields.H"
+#include "TransferFields.H"
 #include "Random.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -22,19 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 InClass
-    Foam::PartitionedField
+    Foam::TransferField
 
 Description
 
 SourceFiles
-    PartitionedFields.C
+    TransferFields.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PartitionedFieldsFwd_H
-#define PartitionedFieldsFwd_H
+#ifndef TransferFieldsFwd_H
+#define TransferFieldsFwd_H
 
-#include "PartitionedField.H"
+#include "TransferField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,23 +55,22 @@ class fvsPatchField;
 template<class Type, template<class> class PatchField, class GeoMesh>
 class GeometricField;
 
-typedef PartitionedField<scalar, fvPatchField, volMesh> partitionedVolScalarField;
-typedef PartitionedField<scalar, fvsPatchField, surfaceMesh> partitionedSurfaceScalarField;
-typedef PartitionedField<vector, fvPatchField, volMesh> partitionedVolVectorField;
-typedef PartitionedField<vector, fvsPatchField, surfaceMesh> partitionedSurfaceVectorField;
+typedef TransferField<scalar, fvPatchField, volMesh> volScalarTransferField;
+typedef TransferField<scalar, fvsPatchField, surfaceMesh> surfaceScalarTransferField;
+typedef TransferField<vector, fvPatchField, volMesh> volVectorTransferField;
+typedef TransferField<vector, fvsPatchField, surfaceMesh> surfaceVectorTransferField;
 
 template<class Type>
-inline PartitionedField<Type, fvsPatchField, surfaceMesh>& interpolate
+inline TransferField<Type, fvsPatchField, surfaceMesh>& interpolate
 (
-    PartitionedField<Type, fvsPatchField, surfaceMesh>& Tf,
-    const PartitionedField<Type, fvPatchField, volMesh>& T
+    TransferField<Type, fvsPatchField, surfaceMesh>& Tf,
+    const TransferField<Type, fvPatchField, volMesh>& T
 )
 {
     for(label ip = 0; ip < Tf.size(); ip++)
     {
         Tf[ip] = linearInterpolate(T[ip]);
     }
-    Tf.updateSum();
     return Tf;
 }
 

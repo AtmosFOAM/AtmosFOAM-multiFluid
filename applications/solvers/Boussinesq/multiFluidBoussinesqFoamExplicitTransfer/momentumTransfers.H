@@ -1,23 +1,28 @@
 // Velocity of the fluid transferred
-// only formulated for nParts == 2
-if (nParts != 2)
-{
-    FatalErrorIn("massTransfer.H")
-        << " mass transfer terms only formulated for nParts = 2, not nParts = "
-        << nParts << exit(FatalError);
-}
-volFluxT[0] = volFlux[0];
-volFluxT[1] = volFlux[1];
 
-if (!noTransfers && wTransfer0)
+for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
 {
+    volFluxT(ip,jp) = volFlux[ip];
+    volFluxT(jp,ip) = volFlux[jp];
+}
+
+if (wTransfer0)
+{
+    // only formulated for nParts == 2
+    if (nParts != 2)
+    {
+        FatalErrorIn("momentumTransfer.H")
+            << " wTransfer0 only formulated for nParts = 2, not nParts = "
+            << nParts << exit(FatalError);
+    }
+
     // Velocity anomalies of fluid transferred
-    volFluxT[0] += sigmaf[0]*wPrimeCoeff
-                   *mag(volFlux[0]*mesh.Sf().component(2))
-                   *mesh.Sf().component(2)/sqr(mesh.magSf());
-    volFluxT[1] -= sigmaf[1]*wPrimeCoeff
-                   *mag(volFlux[1]*mesh.Sf().component(2))
-                   *mesh.Sf().component(2)/sqr(mesh.magSf());
+    volFluxT(0,1) += sigmaf[0]*wPrimeCoeff
+                              *mag(volFlux[0]*mesh.Sf().component(2))
+                              *mesh.Sf().component(2)/sqr(mesh.magSf());
+    volFluxT(1,0) -= sigmaf[1]*wPrimeCoeff
+                              *mag(volFlux[1]*mesh.Sf().component(2))
+                              *mesh.Sf().component(2)/sqr(mesh.magSf());
 }
 
 // Transfer the velocity
@@ -29,7 +34,7 @@ if (mag(dragCoeff) > SMALL)
     // This code only works for nParts == 2
     if (nParts != 2)
     {
-        FatalErrorIn("calculateDrag.H")
+        FatalErrorIn("momentumTransfer.H")
             << " drag is only formulated for nParts = 2, not nParts = "
             << nParts << exit(FatalError);
     }

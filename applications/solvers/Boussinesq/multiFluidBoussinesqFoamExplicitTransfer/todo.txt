@@ -4,11 +4,12 @@ Diffusion
     - sigma, b and u
 done but not properly tested
 
-Decouple mass transfer from uT and bT
+Done: Class transferField (matrix)
+
+Done: Decouple mass transfer from uT and bT
     done for wTransfer but transfer functions are needed to generalise code
     need to make bT[i][j] instead of bT[i]
-    
-need to make S < 1/dt rather than limiting M
+
 Check size of explicit diffusion coefficients
 What transfer terms should be written out (seeing as they are re-used) - none?
 How to calculate final terms written out
@@ -16,6 +17,8 @@ How to calculate final terms written out
 transfer based on db/dz
 
 3 fluids?
+
+drag for n fluids
 
 Transfer to keep flagged cells uniform sigma
 
