@@ -32,6 +32,8 @@ Description
 
 #include "fvCFD.H"
 #include "PartitionedFields.H"
+#include "TransferFields.H"
+#include "Random.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,45 +72,32 @@ int main(int argc, char *argv[])
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
             #include "sigmaEqn.H"
-            if (!noTransfers)
-            {
-                #include "massTransfers.H"
-            }
-            
             #include "bEqn.H"
-            #include "calculateDrag.H"
+
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
                 #include "momentumEqn.H"
                 #include "PEqn.H"
                 #include "pEqn.H"
-                // Update velocities based on the flux
+
+                // Update velocities based on the volFlux
                 for(label ip = 0; ip < nParts; ip++)
                 {
                     u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
             }
-            if (!noTransfers)
-            {
-                #include "applyMassTransfer.H"
-                #include "bTransfers.H"
-                #include "momentumTransfers.H"
-            }
         }
 
+        #include "massTransfers.H"
+        #include "sigmaTransfers.H"
+        #include "bTransfers.H"
+        #include "momentumTransfers.H"
+        #include "diffusionTransfers.H"
+        #include "wTransfer.H"
 
-        // Update diagnositcs
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            Uf[ip] = linearInterpolate(u[ip]);
-            Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
-                      *mesh.Sf()/sqr(mesh.magSf());
-            //divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
-        }
-        Uf.updateSum();
-        //divu.updateSum();
-        u.updateSum();
+        Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
+            << max(sigma[0]).value() << endl;
 
         runTime.write();
         offCentre = offCentreSave;

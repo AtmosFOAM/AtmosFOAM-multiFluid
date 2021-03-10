@@ -1,4 +1,4 @@
-// Diffusive updates to the momentum
+// Explicit part of velocity for each partition (without mass tranfers)
 for(label ip = 0; ip < nParts; ip++)
 {
     // Compact Laplacian of the velocity
@@ -10,47 +10,23 @@ for(label ip = 0; ip < nParts; ip++)
             )
           );
 
-    volFlux.ddt()[ip] = nu*laplacianU;
-    
-    if (mag(nu - Ksigma).value() > SMALL)
-    {
-//        volFlux.ddt()[ip] += (Ksigma-nu)/Ksigma*(volFlux[1-ip] - volFlux[ip])
-//          * fvc::interpolate(massTransferD[1-ip]/max(sigma[ip], minSigmaDiv));
-        volFlux.ddt()[ip] += (Ksigma-nu)/Ksigma*
-        (
-            mesh.Sf()
-          & fvc::interpolate
-            (
-                (u[1-ip] - u[ip])
-               *massTransferD[1-ip]/max(sigma[ip], minSigmaDiv)
-            )
-        );
-    }
-}
-for(label ip = 0; ip < nParts; ip++)
-{
-    volFlux[ip] = volFlux[ip].oldTime() + dt*volFlux.ddt()[ip];
-}
-
-// Explicit part of velocity for each partition (without mass tranfers)
-for(label ip = 0; ip < nParts; ip++)
-{
-    // Rate of change of flux without diffusion or pressure gradient
+    // Rate of change of volFlux without pressure gradient
     volFlux.ddt()[ip] = (mesh.Sf() &
     (
       -fvc::interpolate
        (
-           fvc::div(volFlux[ip], u[ip], "u")
-         - u[ip]*fvc::div(volFlux[ip]),
+           fvc::div(volFlux[ip], u[ip], "u") - u[ip]*fvc::div(volFlux[ip]),
            "convection"
        )
-    ))
-  - fvc::snGrad(p[ip])*mesh.magSf();
+    )) + nu*laplacianU
+    - fvc::snGrad(p[ip])*mesh.magSf();
 }
 
+// Update volFlux
 for(label ip = 0; ip < nParts; ip++)
 {
-    volFlux[ip] += dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
+    volFlux[ip] = volFlux[ip].oldTime()
+                + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
                 + dt*offCentre*volFlux.ddt()[ip];
 }
 

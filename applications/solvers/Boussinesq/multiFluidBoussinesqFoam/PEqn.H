@@ -18,3 +18,4 @@ for(label ip = 0; ip < nParts; ip++)
     volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
 }
 volFlux.updateSum();
+

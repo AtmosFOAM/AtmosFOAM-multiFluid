@@ -14,8 +14,6 @@ IOdictionary envProps
 
 const dimensionedScalar nu(envProps.lookup("nu"));
 
-const Switch adjustQ(envProps.lookupOrDefault<Switch>("adjustQ", false));
-
 uniformDimensionedScalarField alpha
 (
     IOobject("alpha", runTime.timeName(), mesh), 
@@ -28,7 +26,7 @@ uniformDimensionedScalarField gamma
     dimensionedScalar(envProps.lookup("gamma"))
 );
 
-// Check that Ksigam is non-zero if alpha or nu are non-zero
+// Check that Ksigma is non-zero if alpha or nu are non-zero
 if
 (
     (mag(alpha.value() - Ksigma.value()) > SMALL)

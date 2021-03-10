@@ -67,15 +67,16 @@ int main(int argc, char *argv[])
 
         #include "partitionedCourantNo.H"
 
-        #include "bTransfers.H"
-        #include "momentumTransfers.H"
-
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
-            #include "massTransfers.H"
             #include "sigmaEqn.H"
+            if (!noTransfers)
+            {
+                #include "massTransfers.H"
+            }
+            
             #include "bEqn.H"
-
+            #include "calculateDrag.H"
             // Pressure and velocity updates
             for (int corr=0; corr<nCorr; corr++)
             {
@@ -85,24 +86,28 @@ int main(int argc, char *argv[])
                 // Update velocities based on the flux
                 for(label ip = 0; ip < nParts; ip++)
                 {
-                    u[ip] = fvc::reconstruct
-                    (
-                        flux[ip]/max(sigmaf[ip], minSigmaDiv)
-                    );
+                    u[ip] = fvc::reconstruct(volFlux[ip]);
                 }
-                volVectorField uDiff("uDiff", u[1] - u[0]);
-                Info << "uDiff goes from " << min(uDiff).value() << " to "
-                     << max(uDiff).value() << endl;
-                uDiff.write();
+            }
+            if (!noTransfers)
+            {
+                #include "applyMassTransfer.H"
+                #include "bTransfers.H"
+                #include "momentumTransfers.H"
             }
         }
+
 
         // Update diagnositcs
         for(label ip = 0; ip < nParts; ip++)
         {
             Uf[ip] = linearInterpolate(u[ip]);
+            Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))
+                      *mesh.Sf()/sqr(mesh.magSf());
+            //divu[ip] = fvc::div(sigmaf[ip]*volFlux[ip]);
         }
         Uf.updateSum();
+        //divu.updateSum();
         u.updateSum();
 
         runTime.write();

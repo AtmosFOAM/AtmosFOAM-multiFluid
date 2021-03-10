@@ -1,12 +1,16 @@
 if (!noTransfers || dragCoeff > 0)
 {
     // Velocity difference of fluid transferred
-    for(label ip = 0; ip < nParts; ip++)
+    if (wTransfer0) for(label ip = 0; ip < nParts; ip++)
     {
-        //volFluxt[ip] *= 0;
-        volFluxt[ip] = -volFlux[ip]*mesh.Sf().component(2)/mesh.magSf();
-        //volFluxt[ip] = -(volFlux[ip]-volFlux.mean())*mesh.Sf().component(2)/mesh.magSf();
-        //    * sigmaf[ip]/max(sigmaf[ip], SMALL);
+//        volFluxt[ip] = -sigmaf[ip]*wPrimeCoeff*volFlux[ip]
+//                       *mesh.Sf().component(2)/mesh.magSf();
+        volFluxt[0] =  sigmaf[0]*wPrimeCoeff*
+                        mag(volFlux[0]*mesh.Sf().component(2))
+                       *mesh.Sf().component(2)/sqr(mesh.magSf());
+        volFluxt[1] =  -sigmaf[1]*wPrimeCoeff*
+                        mag(volFlux[1]*mesh.Sf().component(2))
+                       *mesh.Sf().component(2)/sqr(mesh.magSf());
     }
 
     // Implicit updates of volFlux for each fluid separately
@@ -32,5 +36,4 @@ if (!noTransfers || dragCoeff > 0)
     )
     /(1 + transferf[0] + dt*sigmaf[0]*dragCommon);
 }
-
 

@@ -36,6 +36,10 @@ if (divTransfer < 0 || divTransfer > 2)
 const scalar dwdzTransfer = noTransfers ? scalar(0) :
     readScalar(transferProps.lookup("dwdzTransfer"));
 
+// Transfer based on dbdz
+const scalar dbdzTransfer = noTransfers ? scalar(0) :
+    readScalar(transferProps.lookup("dbdzTransfer"));
+
 // Transfers based on w
 const scalar wTransfer = readScalar(transferProps.lookup("wTransfer"));
 
@@ -48,52 +52,11 @@ const scalar wPrimeCoeff = noTransfers? scalar(0) :
       readScalar(transferProps.lookup("wPrimeCoeff"));
 
 // Minimum sigma for each partition
-const scalar minSigma = noTransfers? scalar(0) :
-      readScalar(transferProps.lookup("minSigma"));
-
-// Transfer to keep flagged cells uniform sigma
-const Switch uniformSigma = noTransfers? Switch(false) :
-      Switch(transferProps.lookup("uniformSigma"));
-
-// Transfer buoyancy anomalies based on linear combination of mean fluid 
-// buoyancies
-const scalar bAnomalyLinearCoeff = transferProps.lookupOrDefault<scalar>
-(
-    "bAnomalyLinearCoeff", scalar(0)
-);
+const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
 
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
 const scalar bAnomalyMeanCoeff = transferProps.lookupOrDefault<scalar>
 (
     "bAnomalyMeanCoeff", scalar(0)
-);
-
-// Transfer buoyancy to keep fluid 0 decending and fluid 1 ascending
-const Switch keepWseparate = transferProps.lookup("keepWseparate");
-
-// Transfer based on laplacian of buoyancy
-const dimensionedScalar bTransferDiffusivity
-(
-    transferProps.lookupOrDefault<dimensionedScalar>
-    (
-        "bTransferDiffusivity",
-        dimensionedScalar("bTransferDiffusivity", dimensionSet(0,2,-1,0,0), scalar(0))
-    )
-);
-const dimensionedScalar bTransferTimeScale
-(
-    transferProps.lookupOrDefault<dimensionedScalar>
-    (
-        "bTransferTimeScale",
-        dimensionedScalar("bTransferTimeScale", dimTime, scalar(0))
-    )
-);
-const dimensionedScalar bTransferMax
-(
-    transferProps.lookupOrDefault<dimensionedScalar>
-    (
-        "bTransferMax",
-        dimensionedScalar("bTransferMax", dimensionSet(0,1,-2,0,0), scalar(0))
-    )
 );
 

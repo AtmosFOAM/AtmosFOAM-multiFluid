@@ -31,26 +31,7 @@ partitionedSurfaceScalarField sigmaf
 (
     "sigmaf", partNames, linearInterpolate(sigma[0]), IOobject::NO_WRITE
 );
-for(label ip = 1; ip < nParts; ip++)
-{
-    sigmaf[ip] = linearInterpolate(sigma[ip]);
-}
-sigmaf.updateSum();
-
-Info << "Setting pressure anomaly in each partition\n" << endl;
-partitionedVolScalarField p
-(
-    "p",
-    partNames,
-    volScalarField
-    (
-        IOobject("p", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", P.dimensions(), scalar(0)),
-        "zeroGradient"
-    ),
-    sigma
-);
+interpolate(sigmaf, sigma);
 
 Info << "Reading in b in each partition\n" << endl;
 partitionedVolScalarField b
@@ -58,63 +39,6 @@ partitionedVolScalarField b
     "b", partNames, mesh, runTime.timeName(), sigma
 );
 b.mean().write();
-
-Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
-partitionedVolVectorField u
-(
-    "u", partNames, mesh, runTime.timeName(), sigma
-);
-u.mean().write();
-
-// fixed flux boundary conditions
-wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
-forAll(mesh.boundaryMesh(), patchi)
-{
-    const word btype = mesh.boundaryMesh()[patchi].type();
-    if (btype == "wall" || btype == "symmetryPlane" || btype == "empty")
-    {
-        fluxBCs[patchi] = "fixedValue";
-    }
-}
-
-Info << "Calculating the flux in each partition\n"<<endl;
-partitionedSurfaceScalarField volFlux
-(
-    "volFlux",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh),
-        linearInterpolate(u[0]) & mesh.Sf(),
-        fluxBCs
-    ),
-    sigmaf
-);
-for(label ip = 1; ip < volFlux.size(); ip++)
-{
-    volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
-}
-volFlux.updateSum();
-volFlux.mean().write();
-
-Info << "Storing necessary old times and rates of change\n" << endl;
-volFlux.storeTime();
-u.storeTime();
-b.storeTime();
-sigma.storeTime();
-
-// Velocity on the faces
-partitionedSurfaceVectorField Uf
-(
-    "Uf", partNames, linearInterpolate(u[0]), sigmaf
-);
-for(label ip = 0; ip < nParts; ip++)
-{
-    Uf[ip] = linearInterpolate(fvc::reconstruct(volFlux[ip]));
-    Uf[ip] += (volFlux[ip] - (Uf[ip] & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
-}
-Uf.updateSum();
-Uf.write();
 
 // Surface scalar fields for hydrostatic boundary conditions
 const surfaceScalarField gradPcoeff
@@ -134,102 +58,110 @@ for(label ip = 1; ip < nParts; ip++)
 }
 bf.updateSum();
 
-// The mass transfer specific to diffusion
-partitionedVolScalarField massTransferD
+Info << "Reading pressure anomaly in each partition\n" << endl;
+partitionedVolScalarField p
 (
-    "massTransferD",
-    partNames, 
+    "p",
+    partNames,
+    mesh,
+    runTime.timeName(),
+    sigma
+);
+
+Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
+partitionedVolVectorField u
+(
+    "u", partNames, mesh, runTime.timeName(), sigma
+);
+u.mean().write();
+
+// fixed flux boundary conditions
+wordList fluxBCs(mesh.boundaryMesh().size(), "calculated");
+forAll(mesh.boundaryMesh(), patchi)
+{
+    const word btype = mesh.boundaryMesh()[patchi].type();
+    if (btype == "wall" || btype == "symmetryPlane" || btype == "empty")
+    {
+        fluxBCs[patchi] = "fixedValue";
+    }
+}
+
+Info << "Reading/calculating the volFlux in each partition\n"<<endl;
+partitionedSurfaceScalarField volFlux
+(
+    "volFlux",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh,
+                IOobject::READ_IF_PRESENT),
+        linearInterpolate(u[0]) & mesh.Sf(),
+        fluxBCs
+    ),
+    sigmaf
+);
+for(label ip = 1; ip < nParts; ip++)
+{
+    IOobject volFluxIOobject
+    (
+        volFlux[ip].name(), runTime.timeName(), mesh, IOobject::MUST_READ
+    );
+    if (volFluxIOobject.typeHeaderOk<surfaceScalarField>(false))
+    {
+        volFlux[ip] = surfaceScalarField(volFluxIOobject, mesh);
+    }
+    else
+    {
+        volFlux[ip] = linearInterpolate(u[ip]) & mesh.Sf();
+    }
+}
+volFlux.updateSum();
+
+Info << "Storing necessary old times and rates of change\n" << endl;
+volFlux.storeTime();
+u.storeTime();
+b.storeTime();
+sigma.storeTime();
+
+volScalarTransferField massTransfer
+(
+    "massTransfer",
+    partNames,
     volScalarField
     (
-        IOobject("massTransferD", runTime.timeName(), mesh),
+        IOobject("massTransfer", runTime.timeName(), mesh),
         mesh,
         rateZero,
         "fixedValue"
-    ),
-    IOobject::NO_WRITE
+    )
 );
+massTransfer.write();
 
-PtrList<partitionedVolScalarField> massTransfer(nParts);
-for(label jp = 0; jp < nParts; jp++)
-{
-    massTransfer.set
-    (
-        jp, 
-        new partitionedVolScalarField
-        (
-            "massTransfer."+partNames[jp], partNames, massTransferD[0]
-        )
-    );
-    massTransfer[jp].write();
-}
-
-// Transfer terms for other variables (assuming nParts == 2)
-// transfer[0] = dt*massTransfer[0][1]/sigma[1]
-partitionedVolScalarField transfer
+// Mass transfers on faces
+surfaceScalarTransferField massTransferf
 (
-    "transfer",
+    "massTransferf",
     partNames,
-    volScalarField
+    surfaceScalarField
     (
-        IOobject("transfer", runTime.timeName(), mesh),
+        IOobject("massTransferf", runTime.timeName(), mesh),
         mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    ),
-    IOobject::NO_WRITE
+        rateZero
+    )
 );
 
-// Transfer terms for other variables (assuming nParts == 2)
-//S[0] = dt*massTransfer[0][1]/sigma[0]
-partitionedVolScalarField S
+// Drag between fluids
+surfaceScalarTransferField drag
 (
-    "S",
+    "drag",
     partNames,
-    volScalarField
+    surfaceScalarField
     (
-        IOobject("S", runTime.timeName(), mesh),
+        IOobject("drag", runTime.timeName(), mesh),
         mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    ),
-    IOobject::NO_WRITE
+        dimensionedScalar("", dimensionSet(0,3,-2,0,0), scalar(0))
+    )
 );
-
-// transferLocation = 1 where sigma is to be kept uniform
-const volScalarField transferLocation
-(
-    IOobject("transferLocation", runTime.constant(), mesh,
-             IOobject::READ_IF_PRESENT, IOobject::NO_WRITE),
-    mesh,
-    dimensionedScalar("", dimless, scalar(0))
-);
-
-if (uniformSigma)
-{
-    // Check that transferLocation is non-zero somewhere
-    if (abs(max(transferLocation).value()) < SMALL)
-    {
-        FatalErrorIn("multiFluidBoussinesqFoam") << " transferProperty uniformSigma set to true but no transferLocation set to non-zero"
-            << exit(FatalError);
-    }
-}
-
-// Write out initial massTransfer for uniformSigma
-if (uniformSigma)
-{
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        sigma.ddt()[ip] = -fvc::div(volFlux[ip], sigma[ip], "sigma");
-    }
-
-    massTransfer[0][1] = transferLocation*max(sigma.ddt()[0], rateZero)
-                       + (1-transferLocation)*massTransfer[0][1];
-    massTransfer[1][0] = transferLocation*max(sigma.ddt()[1], rateZero)
-                       + (1-transferLocation)*massTransfer[1][0];
-    massTransfer[0].write();
-    massTransfer[1].write();
-}
-
-Info << "Initialising the drag between partitions" << endl;
- surfaceScalarField dragCommon = -dragCoeff/cloudRadius* mag(Uf[0] - Uf[1]);
 
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
@@ -249,82 +181,36 @@ for(label ip = 0; ip < nParts; ip++)
     totalHeat0 += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
 }
 
-// Buoyancy difference of the transferred fluid
-partitionedVolScalarField bt
+// Buoyancy of the transferred fluid
+volScalarTransferField bT
 (
-    "bt",
+    "bT",
     partNames,
     volScalarField
     (
-        IOobject("bt", runTime.timeName(), mesh, 
+        IOobject("bT", runTime.timeName(), mesh, 
                 IOobject::NO_READ, IOobject::AUTO_WRITE),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0)),
         "fixedValue"
     ),
-    sigma
+    IOobject::NO_WRITE
 );
 
-// Volume flux difference of the transferred fluid
-partitionedSurfaceScalarField volFluxt
+// Velocity anomaly of the transferred fluid
+surfaceScalarTransferField volFluxT
 (
-    "volFluxt",
+    "volFluxT",
     partNames,
     surfaceScalarField
     (
-        IOobject("volFluxt", runTime.timeName(), mesh),
+        IOobject("volFluxT", runTime.timeName(), mesh),
         mesh,
         dimensionedScalar("", volFlux[0].dimensions(), scalar(0)),
         fluxBCs
     ),
-    sigmaf,
     IOobject::NO_WRITE
 );
-
-// Transfer terms on the faces
-partitionedSurfaceScalarField massTransferf
-(
-    "massTransferf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("massTransferf", runTime.timeName(), mesh),
-        mesh,
-        rateZero
-    ),
-    IOobject::NO_WRITE
-);
-partitionedSurfaceScalarField transferf
-(
-    "transferf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("transferf", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    ),
-    IOobject::NO_WRITE
-);
-partitionedSurfaceScalarField Sf
-(
-    "Sf",
-    partNames,
-    surfaceScalarField
-    (
-        IOobject("Sf", runTime.timeName(), mesh),
-        mesh,
-        dimensionedScalar("", dimless, scalar(0))
-    ),
-    IOobject::NO_WRITE
-);
-
-/*partitionedVolScalarField divu
-(
-    "divu", partNames, fvc::div(sigmaf[0]*volFlux[0])
-);
-divu[1] = fvc::div(sigmaf[1]*volFlux[1]);
-divu.write();*/
 
 // Compact Laplacian of the velocity
 surfaceScalarField laplacianU
@@ -334,4 +220,13 @@ surfaceScalarField laplacianU
         fvc::div(volFlux.updateSum()
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
+
+// Divergence of each fluid
+partitionedVolScalarField divu
+(
+    "divu",
+    partNames,
+    fvc::div(volFlux.mean()),
+    sigma
+);
 
