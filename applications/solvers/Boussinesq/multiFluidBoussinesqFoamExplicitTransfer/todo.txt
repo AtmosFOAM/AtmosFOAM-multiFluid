@@ -18,7 +18,7 @@ transfer based on db/dz
 
 3 fluids?
 
-drag for n fluids
+Done: drag for n fluids
 
 Transfer to keep flagged cells uniform sigma
 

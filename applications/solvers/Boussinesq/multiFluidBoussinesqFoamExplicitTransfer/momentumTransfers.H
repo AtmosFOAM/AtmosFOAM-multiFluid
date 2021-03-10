@@ -28,26 +28,28 @@ if (wTransfer0)
 // Transfer the velocity
 volFlux.transferField(interpolate(massTransferf, massTransfer), volFluxT, dt);
 
-// Calculate and apply the drag
+// Calculate and apply the drag between all pairs of fluids
 if (mag(dragCoeff) > SMALL)
 {
-    // This code only works for nParts == 2
-    if (nParts != 2)
+    // Calculate
+    for(label ip = 0; ip < nParts; ip++) for(label jp=ip+1; jp < nParts; jp++)
     {
-        FatalErrorIn("momentumTransfer.H")
-            << " drag is only formulated for nParts = 2, not nParts = "
-            << nParts << exit(FatalError);
+        surfaceScalarField dragCommon = dragCoeff/cloudRadius
+                               * mag(fvc::interpolate(u[ip] - u[jp]));
+        // Limit to avoid time step restrictions
+        dragCommon = min(dragCommon, 1/dt);
+        
+        dragCommon *= volFlux[ip] - volFlux[jp];
+        
+        drag(ip,jp) = -sigmaf[jp]*dragCommon;
+        drag(jp,ip) = sigmaf[ip]*dragCommon;
     }
-
-    // Calculate the cloud radius and hence the drag
-    surfaceScalarField drag = dt*dragCoeff/cloudRadius
-        * mag(fvc::interpolate(u[0] - u[1]));
-    // Limit and multiply by flux difference:
-    drag = min(drag, scalar(1));
-    drag *= volFlux[0] - volFlux[1];
-    
-    volFlux[0] -= sigmaf[1]*drag;
-    volFlux[1] += sigmaf[0]*drag;
+    // Apply the drag
+    for(label ip = 0; ip < nParts; ip++) for(label jp=ip+1; jp < nParts; jp++)
+    {
+        volFlux[ip] += dt*drag(ip,jp);
+        volFlux[jp] += dt*drag(jp,ip);
+    }
 }
 
 // Update velocities based on the volFlux

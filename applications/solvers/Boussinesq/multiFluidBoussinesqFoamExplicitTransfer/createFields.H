@@ -68,28 +68,6 @@ partitionedVolScalarField p
     sigma
 );
 
-/*// Laplacian of pressure based on random numbers in order to aid convergence
-Random rand(1);
-volScalarField h("h", fvc::laplacian(p[0]));
-forAll(h, cellI)
-{
-    h[cellI] = rand.scalarAB(-1,1);
-}
-h -= fvc::domainIntegrate(h)/dimensionedScalar("", dimVol,gSum(mesh.V()));
-h *= dt*fvc::domainIntegrate(fvc::div(bf.sum()))
-    /dimensionedScalar("", dimVol*h.dimensions(), scalar(1));
-
-// Dummy pressure to balance p
-volScalarField ph("ph", p[0]);
-{
-    fvScalarMatrix pEqn(fvm::laplacian(ph) - h/dt);
-    pEqn.setReference(0,0);
-    pEqn.solve();
-}
-ph.write();
-h.write();
-*/
-
 Info << "Reading in cell centre velocity, u, in each partition\n" << endl;
 partitionedVolVectorField u
 (
@@ -172,6 +150,19 @@ surfaceScalarTransferField massTransferf
     )
 );
 
+// Drag between fluids
+surfaceScalarTransferField drag
+(
+    "drag",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("drag", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimensionSet(0,3,-2,0,0), scalar(0))
+    )
+);
+
 // Rate of change of b (eg for radiative cooling)
 volScalarField Q
 (
@@ -229,4 +220,13 @@ surfaceScalarField laplacianU
         fvc::div(volFlux.updateSum()
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
+
+// Divergence of each fluid
+partitionedVolScalarField divu
+(
+    "divu",
+    partNames,
+    fvc::div(volFlux.mean()),
+    sigma
+);
 

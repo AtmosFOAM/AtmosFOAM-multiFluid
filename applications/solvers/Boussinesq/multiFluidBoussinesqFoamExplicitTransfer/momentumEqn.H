@@ -26,7 +26,8 @@ for(label ip = 0; ip < nParts; ip++)
 {
     volFlux[ip] = volFlux[ip].oldTime()
                 + dt*(1-offCentre)*volFlux.ddt()[ip].oldTime()
-                + dt*offCentre*volFlux.ddt()[ip];
+                + dt*offCentre*volFlux.ddt()[ip]
+                - dt*offCentre*fvc::snGrad(p[ip])*mesh.magSf();
 }
 
 volFlux.updateSum();

@@ -26,6 +26,25 @@ if (divTransfer>0)
     }
 }
 
+if (dbdzTransfer>0)
+{
+    // This transfer term is only formulated for nParts == 2
+    if (nParts != 2)
+    {
+        FatalErrorIn("massTransfer.H")
+            << " mass transfer term dwdzTransfer only formulated for nParts = 2, not nParts = "
+            << nParts << exit(FatalError);
+    }
+
+    volVectorField gradb = fvc::grad(b[0]);
+    volScalarField dbdz = gradb.component(2);
+    massTransfer(0,1) += dbdzTransfer*sigma[0]*sqrt(max(-dbdz, sqr(rateZero)));
+
+    gradb = fvc::grad(b[1]);
+    dbdz = gradb.component(2);
+    massTransfer(1,0) = dbdzTransfer*sigma[1]*sqrt(max(dbdz, sqr(rateZero)));
+}
+
 if (dwdzTransfer>0)
 {
     // This transfer term is only formulated for nParts == 2

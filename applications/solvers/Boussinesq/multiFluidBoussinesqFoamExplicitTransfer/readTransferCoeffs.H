@@ -36,6 +36,10 @@ if (divTransfer < 0 || divTransfer > 2)
 const scalar dwdzTransfer = noTransfers ? scalar(0) :
     readScalar(transferProps.lookup("dwdzTransfer"));
 
+// Transfer based on dbdz
+const scalar dbdzTransfer = noTransfers ? scalar(0) :
+    readScalar(transferProps.lookup("dbdzTransfer"));
+
 // Transfers based on w
 const scalar wTransfer = readScalar(transferProps.lookup("wTransfer"));
 
