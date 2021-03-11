@@ -13,12 +13,6 @@ volScalarField P
     mesh
 );
 
-// The partition names
-const label nParts = 2;
-wordList partNames(nParts);
-partNames[0] = "stable";
-partNames[1] = "buoyant";
-
 Info << "Reading in sigma in each partition\n" << endl;
 partitionedVolScalarField sigma
 (

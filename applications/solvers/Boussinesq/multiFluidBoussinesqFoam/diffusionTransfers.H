@@ -7,12 +7,17 @@ if (Ksigma.value() > SMALL)
     {
         for(label jp=ip+1; jp < nParts; jp++)
         {
-            volScalarField massTransferTmp = Ksigma/nParts*fvc::laplacian
-            (
-                sigma[ip] -sigma[jp]
-            );
-            massTransfer(ip,jp) = -min(massTransferTmp, rateZero);
-            massTransfer(jp,ip) = -min(-massTransferTmp, rateZero);
+            volScalarField lapI = 2*Ksigma*fvc::laplacian(sigma[ip]);
+            volScalarField lapJ = 2*Ksigma*fvc::laplacian(sigma[jp]);
+        
+            massTransfer(ip,jp)
+                 = max(-lapI, rateZero)
+                  *max( lapJ, rateZero)
+                  /max(lapJ - lapI, rateSMALL);
+            massTransfer(jp,ip)
+                 = max(-lapJ, rateZero)
+                  *max( lapI, rateZero)
+                  /max(lapI - lapJ, rateSMALL);
         }
     }
 
@@ -31,7 +36,7 @@ if (Ksigma.value() > SMALL)
         volFlux.transferField
         (
             interpolate(massTransferf, massTransfer),
-            dt*(nu - alpha)/nu
+            dt*(Ksigma-nu)/Ksigma
         );
     }
 }

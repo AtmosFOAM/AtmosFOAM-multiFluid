@@ -16,7 +16,7 @@ if (divTransfer>0)
         volScalarField transferTmp = max(-fvc::div(volFlux[ip]), rateZero);
         for(label jp=0; jp < nParts; jp++) if (ip != jp)
         {
-            massTransfer(ip,jp) = (1./(nParts-1) - sigma[jp])*transferTmp;
+            massTransfer(ip,jp) += (1./(nParts-1) - sigma[jp])*transferTmp;
         }
     }
 }
@@ -37,7 +37,7 @@ if (dbdzTransfer>0)
 
     gradb = fvc::grad(b[1]);
     dbdz = gradb.component(2);
-    massTransfer(1,0) = dbdzTransfer*sigma[1]*sqrt(max(dbdz, sqr(rateZero)));
+    massTransfer(1,0) += dbdzTransfer*sigma[1]*sqrt(max(dbdz, sqr(rateZero)));
 }
 
 if (dwdzTransfer>0)
@@ -56,12 +56,12 @@ if (dwdzTransfer>0)
     massTransfer(0,1) += dwdzTransfer*sigma[0]*max(-dwdz, rateZero);
 
     dwdz = fvc::div(volFlux[1]*Sfkhat);
-    massTransfer(1,0) = dwdzTransfer*sigma[1]*max(-dwdz, rateZero);
+    massTransfer(1,0) += dwdzTransfer*sigma[1]*max(-dwdz, rateZero);
 }
 
 // Constraint to keep sigma => 0 and to ensure not more than all transferred
 // in one time step (dt sigma S <= sigma)
-// This is not sufficient for nParts > 2
+// This is perhaps too prescriptive for nParts > 2
 for(label ip = 0; ip < nParts; ip++)
 {
     for(label jp = 0; jp < nParts; jp++)

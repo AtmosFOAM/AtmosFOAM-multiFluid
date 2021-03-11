@@ -24,7 +24,6 @@ if (gamma.value() > SMALL)
                   - divu.sum()
                   + fvc::div(volFlux[ip])
                   - offCentre*dt*fvm::laplacian(p[ip])
-                  //+ offCentre*dt*fvc::laplacian(p[ip])
                 );
                 pEqn.solve();
             }
@@ -33,10 +32,6 @@ if (gamma.value() > SMALL)
         p.updateSum();
         Info << "p.sum goes from " << min(p.sum()).value() << " to "
              << max(p.sum()).value() << endl;
-/*        for(label ip = 0; ip < nParts; ip++)
-        {
-            p[ip] -= p.sum();
-        }
-*/    }
+    }
 }
 

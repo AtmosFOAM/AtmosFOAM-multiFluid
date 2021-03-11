@@ -14,7 +14,7 @@ Check size of explicit diffusion coefficients
 What transfer terms should be written out (seeing as they are re-used) - none?
 How to calculate final terms written out
 
-transfer based on db/dz
+Done but no good: transfer based on db/dz
 
 3 fluids?
 

@@ -12,6 +12,10 @@ IOdictionary transferProps
     )
 );
 
+// The partition names
+const wordList partNames(transferProps.lookup("fluids"));
+const label nParts = partNames.size();
+
 // Drag parameters
 const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
 const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));

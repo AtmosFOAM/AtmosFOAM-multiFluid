@@ -89,8 +89,11 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Mass transfers
         #include "massTransfers.H"
-        #include "sigmaTransfers.H"
+        sigma.transferMass(massTransfer, dt);
+        interpolate(sigmaf, sigma);
+
         #include "bTransfers.H"
         #include "momentumTransfers.H"
         #include "diffusionTransfers.H"
