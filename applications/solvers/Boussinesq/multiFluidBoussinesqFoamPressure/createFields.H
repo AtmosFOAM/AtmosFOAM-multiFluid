@@ -1,18 +1,4 @@
 // Read in prognostic variables
-Info<< "Reading field P\n" << endl;
-volScalarField P
-(
-    IOobject
-    (
-        "P",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
 Info << "Reading in sigma in each partition\n" << endl;
 partitionedVolScalarField sigma
 (
@@ -52,10 +38,10 @@ for(label ip = 1; ip < nParts; ip++)
 }
 bf.updateSum();
 
-Info << "Reading pressure anomaly in each partition\n" << endl;
-partitionedVolScalarField p
+Info << "Reading pressure in each partition\n" << endl;
+partitionedVolScalarField P
 (
-    "p",
+    "P",
     partNames,
     mesh,
     runTime.timeName(),
@@ -131,6 +117,20 @@ volScalarTransferField massTransfer
 );
 massTransfer.write();
 
+// Sum of net transfers for each fluid
+partitionedVolScalarField sumM
+(
+    "sumM",
+    partNames, 
+    volScalarField
+    (
+        IOobject("sumM", runTime.timeName(), mesh),
+        mesh,
+        rateZero,
+        "fixedValue"
+    )
+);
+
 // Mass transfers on faces
 surfaceScalarTransferField massTransferf
 (
@@ -188,8 +188,8 @@ volScalarTransferField bT
                 IOobject::NO_READ, IOobject::AUTO_WRITE),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0))
-    )/*,
-    IOobject::NO_WRITE*/
+    ),
+    IOobject::NO_WRITE
 );
 
 // Velocity anomaly of the transferred fluid
@@ -216,13 +216,11 @@ surfaceScalarField laplacianU
       - (linearInterpolate(u.sum()) & mesh.Sf()))
     ));
 
-// Divergence of each fluid
 partitionedVolScalarField divu
 (
     "divu",
     partNames,
-    fvc::div(volFlux.mean()),
-    sigma,
-    IOobject::NO_WRITE
+    fvc::div(volFlux[0]),
+    sigma
 );
 

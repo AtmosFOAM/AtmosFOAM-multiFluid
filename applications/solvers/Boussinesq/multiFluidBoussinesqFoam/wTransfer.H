@@ -19,7 +19,8 @@ if (wTransfer > 0)
     {
         if (w[cellI] > SMALL)
         {
-            massTransfer(0,1)[cellI] += wTransfer*sigma[0][cellI]/dt.value();
+            massTransfer(0,1)[cellI] += max(sigma[0][cellI]-sigmaMin[0], scalar(0))
+                                        *wTransfer/dt.value();
         }
     }
     
@@ -28,7 +29,8 @@ if (wTransfer > 0)
     {
         if (w[cellI] < -SMALL)
         {
-            massTransfer(1,0)[cellI] += wTransfer*sigma[1][cellI]/dt.value();
+            massTransfer(1,0)[cellI] += max(sigma[1][cellI]-sigmaMin[1], scalar(0))
+                                        *wTransfer/dt.value();
         }
     }
 

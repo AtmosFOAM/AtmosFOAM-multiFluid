@@ -31,22 +31,26 @@ if
 (
     (mag(alpha.value() - Ksigma.value()) > SMALL)
  && (mag(Ksigma.value()) < SMALL)
+ && nParts > 1
 )
 {
-    FatalErrorIn("multiFluidBoussinesqFoam if one out of alpha and Ksigma ")
+    WarningIn("multiFluidBoussinesqFoam")
+         << " if one out of alpha and Ksigma "
          << "is zero then they must both be zero but alpha = "
          << alpha.value() << " and Ksigma = " << Ksigma.value()
-         << exit(FatalError);
+         << endl;
 }
 if
 (
     (mag(nu.value() - Ksigma.value()) > SMALL)
  && (mag(Ksigma.value()) < SMALL)
+ && nParts > 1
 )
 {
-    FatalErrorIn("multiFluidBoussinesqFoam if one out of nu and Ksigma ")
+    WarningIn("multiFluidBoussinesqFoam")
+        << " if one out of nu and Ksigma "
          << "is zero then they must both be zero but nu = "
          << nu.value() << " and Ksigma = " << Ksigma.value()
-         << exit(FatalError);
+         << endl;
 }
 

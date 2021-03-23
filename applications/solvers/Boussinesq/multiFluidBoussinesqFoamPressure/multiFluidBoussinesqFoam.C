@@ -23,7 +23,11 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Application
-    multiFluidBoussinesqFoam
+    multiFluidBoussinesqFoamPressure.
+    A new approach for calculating the pressure in each fluid and the mass
+    transfers. As well as the usual multi-fluid equations we solve:
+    sigma div(u) = sum(massTransers)
+    M_ij = (sigma-minSigma) max(Pi - Pj)/gamma
 
 Description
     Transient Solver for dry, multi-fluid Boussinesq equations
@@ -33,7 +37,6 @@ Description
 #include "fvCFD.H"
 #include "PartitionedFields.H"
 #include "TransferFields.H"
-#include "Random.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -43,14 +46,13 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "zeros.H"
-    #include "readTransferCoeffs.H"
     #include "readEnvironmentalProps.H"
+    #include "readTransferCoeffs.H"
     #define dt runTime.deltaT()
     #include "createFields.H"
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
-    const int nCorr = itsDict.lookupOrDefault<int>("nCorrectors", 1);
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
     scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
@@ -76,35 +78,26 @@ int main(int argc, char *argv[])
                 #include "sigmaEqn.H"
             }
             #include "bEqn.H"
+            // Momentum equation with explicit pressure gradient
+            #include "momentumEqn.H"
 
-            // Pressure and velocity updates
-            for (int corr=0; corr<nCorr; corr++)
+            // Mass transfers
+            if (transferType != noTransfer && nParts > 1)
             {
-                #include "momentumEqn.H"
-                #include "PEqn.H"
+                #include "diffusionTransfers.H"
 
-                // Update velocities based on the volFlux
-                for(label ip = 0; ip < nParts; ip++)
-                {
-                    u[ip] = fvc::reconstruct(volFlux[ip]);
-                }
+                #include "massTransfers.H"
+                //sigma.transferMass(massTransfer, dt);
+                //interpolate(sigmaf, sigma);
+            }
+            // Pressure in each fluid
+            #include "PEqn.H"
+            if (transferType != noTransfer && nParts > 1)
+            {
+                #include "bTransfers.H"
+                #include "momentumTransfers.H"
             }
         }
-
-        // Mass transfers
-        if (!noTransfers && nParts > 1)
-        {
-            #include "diffusionTransfers.H"
-
-            #include "massTransfers.H"
-            sigma.transferMass(massTransfer, dt);
-            interpolate(sigmaf, sigma);
-            #include "bTransfers.H"
-            #include "momentumTransfers.H"
-
-            #include "wTransfer.H"
-        }
-        #include "pEqn.H"
 
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
             << max(sigma[0]).value() << endl;

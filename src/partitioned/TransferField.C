@@ -67,6 +67,8 @@ Foam::TransferField<Type, PatchField, GeoMesh>::TransferField
                         mesh
                     )
                 );
+//                Info << "ip = " << ip << " jp = " << jp << " it = " << it
+//                     << endl;
                 it++;
             }
         }
@@ -112,6 +114,8 @@ Foam::TransferField<Type, PatchField, GeoMesh>::TransferField
                        field
                    )
                 );
+//                Info << "ip = " << ip << " jp = " << jp << " it = " << it
+//                     << endl;
                 it++;
             }
         }
@@ -173,6 +177,7 @@ Foam::TransferField<Type, PatchField, GeoMesh>::operator()
     }
     label j = jp < ip ? jp : (jp > ip ? jp-1 : -1);
     label it = ip*(nParts()-1) + j;
+//    Info << "ip = " << ip << " jp = " << jp << " it = " << it << endl;
     return PtrList<GeometricField<Type, PatchField, GeoMesh> >::operator[](it);
 }
 

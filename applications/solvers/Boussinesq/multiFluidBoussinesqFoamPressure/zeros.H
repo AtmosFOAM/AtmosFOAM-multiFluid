@@ -30,3 +30,8 @@ const dimensionedScalar dbdtZero
 (
     "dbdtZero", dimensionSet(0,1,-3,0,0), scalar(0)
 );
+const dimensionedScalar PZero
+(
+    "PZero", dimensionSet(0,2,-2,0,0), scalar(0)
+);
+

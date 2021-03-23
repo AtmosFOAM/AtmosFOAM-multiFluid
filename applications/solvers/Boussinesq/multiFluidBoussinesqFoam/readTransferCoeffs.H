@@ -40,9 +40,13 @@ if (divTransfer < 0 || divTransfer > 2)
 const scalar dwdzTransfer = noTransfers ? scalar(0) :
     readScalar(transferProps.lookup("dwdzTransfer"));
 
+// transfer based on divergence and buoyancy anomalies
+const Switch divBtransfer = noTransfers ? Switch(false) :
+    transferProps.lookup("divBtransfer");
+
 // Transfer based on dbdz
-const scalar dbdzTransfer = noTransfers ? scalar(0) :
-    readScalar(transferProps.lookup("dbdzTransfer"));
+const Switch dbdzTransfer = noTransfers ? Switch(false) :
+    transferProps.lookup("dbdzTransfer");
 
 // Transfers based on w
 const scalar wTransfer = readScalar(transferProps.lookup("wTransfer"));
@@ -55,12 +59,15 @@ const Switch wTransfer0 = noTransfers? Switch(false) :
 const scalar wPrimeCoeff = noTransfers? scalar(0) :
       readScalar(transferProps.lookup("wPrimeCoeff"));
 
-// Minimum sigma for each partition
+// Minimum sigma for each partition and for partition 0
 const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
+const scalar minSigma0 = transferProps.lookupOrDefault<scalar>("minSigma0", minSigma);
+scalarList sigmaMin(nParts, minSigma);
+sigmaMin[0] = minSigma0;
 
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
-const scalar bAnomalyMeanCoeff = transferProps.lookupOrDefault<scalar>
+const scalar bAnomalyMeanCoeff = readScalar
 (
-    "bAnomalyMeanCoeff", scalar(0)
+    transferProps.lookup("bAnomalyMeanCoeff")
 );
 
