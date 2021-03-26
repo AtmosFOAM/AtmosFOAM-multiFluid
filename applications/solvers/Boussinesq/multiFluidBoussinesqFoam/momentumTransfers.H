@@ -6,31 +6,27 @@ for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
     volFluxT(jp,ip) = volFlux[jp];
 }
 
-if (wTransfer0)
+if (mag(wTransfer0) > SMALL)
 {
     // Velocity anomalies of fluid transferred
     
-    if (nParts >= 2)
+    if (nParts == 2)
     {
-        volFluxT(0,1) += sigmaf[0]*wPrimeCoeff
+        volFluxT(0,1) += sigmaf[0]*wTransfer0
                        *mag(volFlux[0]*mesh.Sf().component(2))
                        *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(1,0) -= sigmaf[1]*wPrimeCoeff
+        volFluxT(1,0) -= sigmaf[1]*wTransfer0
                        *mag(volFlux[1]*mesh.Sf().component(2))
                        *mesh.Sf().component(2)/sqr(mesh.magSf());
     }
-    if (nParts >= 3)
+    if (nParts == 3)
     {
-        volFluxT(0,2) -= sigmaf[0]*wPrimeCoeff
-                       *mag(volFlux[0]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(2,0) += sigmaf[2]*wPrimeCoeff
-                       *mag(volFlux[2]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(1,2) -= sigmaf[1]*wPrimeCoeff
+        volFluxT(0,2) *= wTransfer0*mag(mesh.Sf().component(2))/mesh.magSf();
+        volFluxT(0,1) *= wTransfer0*mag(mesh.Sf().component(2))/mesh.magSf();
+        volFluxT(1,0) -= sigmaf[1]*wTransfer0
                         *mag(volFlux[1]*mesh.Sf().component(2))
                         *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(2,1) += sigmaf[2]*wPrimeCoeff
+        volFluxT(2,0) += sigmaf[2]*wTransfer0
                         *mag(volFlux[2]*mesh.Sf().component(2))
                         *mesh.Sf().component(2)/sqr(mesh.magSf());
     }
@@ -68,5 +64,4 @@ for(label ip = 0; ip < nParts; ip++)
 {
     u[ip] = fvc::reconstruct(volFlux[ip]);
 }
-u.updateSum();
 

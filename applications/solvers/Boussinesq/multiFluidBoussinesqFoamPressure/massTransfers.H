@@ -9,7 +9,7 @@ if (transferType != noTransfer) for(label ip = 0; ip < nParts; ip++)
 }
 
 // Tranfers based on pressure differences between fluids
-/*if (pressureTransfers)
+if (transferType == pressureTransfer)
 {
     for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
     {
@@ -18,7 +18,7 @@ if (transferType != noTransfer) for(label ip = 0; ip < nParts; ip++)
         massTransfer(jp,ip) = (sigma[jp]-minSigma[jp])/gamma
                             *max(P[jp]-P[ip], PZero);
     }
-}*/
+}
 
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (transferType == divTransfer)

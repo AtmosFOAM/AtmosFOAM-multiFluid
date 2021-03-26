@@ -20,54 +20,46 @@ const label nParts = partNames.size();
 const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
 const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 
-// Note if there are no transfers from any sources
-const Switch noTransfers(transferProps.lookup("noTransfers"));
-
-// Diffusion coefficient for inter-partition mass transfer
-const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
-
-// The amount of divergence transfer used (between zero and one)
-const scalar divTransfer = noTransfers? scalar(0) :
-      readScalar(transferProps.lookup("divTransfer"));
-if (divTransfer < 0 || divTransfer > 2)
+// Model for transfers between fluids
+enum TransferType
 {
-    FatalErrorIn("multiFluidBoussinesqFoam")
-        << "divTransfer read in from file system/transferProperties should be "
-        << "between zero and one, not " << divTransfer << exit(FatalError);
-}
+    noTransfer, divTransfer, dwdzTransfer, divBtransfer, wTransfer,
+    diffusionOnlyTransfer, badTransfer
+};
+const word transferTypeWord(transferProps.lookup("transferType"));
+const TransferType transferType = 
+       transferTypeWord == "noTransfer" ? noTransfer :
+       transferTypeWord == "divTransfer" ? divTransfer :
+       transferTypeWord == "dwdzTransfer" ? dwdzTransfer:
+       transferTypeWord == "divBtransfer" ? divBtransfer :
+       transferTypeWord == "wTransfer" ? wTransfer :
+       transferTypeWord == "diffusionOnly" ? diffusionOnlyTransfer :
+       badTransfer;
 
-// Transfer based on dwdz
-const scalar dwdzTransfer = noTransfers ? scalar(0) :
-    readScalar(transferProps.lookup("dwdzTransfer"));
-
-// transfer based on divergence and buoyancy anomalies
-const Switch divBtransfer = noTransfers ? Switch(false) :
-    transferProps.lookup("divBtransfer");
-
-// Transfer based on dbdz
-const Switch dbdzTransfer = noTransfers ? Switch(false) :
-    transferProps.lookup("dbdzTransfer");
-
-// Transfers based on w
-const scalar wTransfer = readScalar(transferProps.lookup("wTransfer"));
-
-// Transfer w=0 (w^T = 0) (scaled by sigma)
-const Switch wTransfer0 = noTransfers? Switch(false) :
-      transferProps.lookup("wTransfer0");
-
-// Proportion of sub-grid-scale variability of w
-const scalar wPrimeCoeff = noTransfers? scalar(0) :
-      readScalar(transferProps.lookup("wPrimeCoeff"));
+// Scale the mass transfes
+const scalar transferScale = transferType == noTransfer? scalar(0) :
+      readScalar(transferProps.lookup("transferScale"));
 
 // Minimum sigma for each partition and for partition 0
-const scalar minSigma = readScalar(transferProps.lookup("minSigma"));
-const scalar minSigma0 = transferProps.lookupOrDefault<scalar>("minSigma0", minSigma);
-scalarList sigmaMin(nParts, minSigma);
-sigmaMin[0] = minSigma0;
+const scalarList minSigma(transferProps.lookup("minSigma"));
+
+// Transfer w=0 (w^T = 0) (scaled by sigma)
+const scalar wTransfer0 = transferType == noTransfer? scalar(0) :
+      readScalar(transferProps.lookup("wTransfer0"));
 
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
 const scalar bAnomalyMeanCoeff = readScalar
 (
     transferProps.lookup("bAnomalyMeanCoeff")
+);
+
+// Diffusion coefficient for inter-partition mass transfer
+const dimensionedScalar Ksigma(transferProps.lookup("Ksigma"));
+
+// Constant of proportionality between pressure and divergence
+uniformDimensionedScalarField gamma
+(
+    IOobject("gamma", runTime.timeName(), mesh), 
+    dimensionedScalar(transferProps.lookup("gamma"))
 );
 

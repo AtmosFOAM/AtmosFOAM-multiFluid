@@ -7,11 +7,11 @@ for(label ip = 0; ip < nParts; ip++)
         ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip]),
         sigma[ip].oldTime(),
         "sigma"
-    )
-    + sigma[ip].oldTime()*fvc::div
-    (
-        ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip])
     );
+//    + sigma[ip].oldTime()*fvc::div
+//    (
+//        ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip])
+//    );
 
     // Update sigma based on the rate of change
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];

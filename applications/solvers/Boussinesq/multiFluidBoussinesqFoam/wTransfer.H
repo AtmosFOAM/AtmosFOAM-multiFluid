@@ -1,7 +1,7 @@
 // Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca
 // This should be combined with transferring the mean of other variables
 
-if (wTransfer > 0)
+if (transferType == wTransfer)
 {
     // Only formulated for nParts == 2
     if (nParts != 2)
@@ -19,8 +19,8 @@ if (wTransfer > 0)
     {
         if (w[cellI] > SMALL)
         {
-            massTransfer(0,1)[cellI] += max(sigma[0][cellI]-sigmaMin[0], scalar(0))
-                                        *wTransfer/dt.value();
+            massTransfer(0,1)[cellI] += max(sigma[0][cellI]-minSigma[0], scalar(0))
+                                        *transferScale/dt.value();
         }
     }
     
@@ -29,8 +29,8 @@ if (wTransfer > 0)
     {
         if (w[cellI] < -SMALL)
         {
-            massTransfer(1,0)[cellI] += max(sigma[1][cellI]-sigmaMin[1], scalar(0))
-                                        *wTransfer/dt.value();
+            massTransfer(1,0)[cellI] += max(sigma[1][cellI]-minSigma[1], scalar(0))
+                                        *transferScale/dt.value();
         }
     }
 
@@ -43,6 +43,10 @@ if (wTransfer > 0)
 
     // Transfer mean momentum
     volFlux.transferField(interpolate(massTransferf, massTransfer), dt);
+
+    // Update velocities based on the volFlux
+    for(label ip = 0; ip < nParts; ip++)
+    {
+        u[ip] = fvc::reconstruct(volFlux[ip]);
+    }
 }
-
-

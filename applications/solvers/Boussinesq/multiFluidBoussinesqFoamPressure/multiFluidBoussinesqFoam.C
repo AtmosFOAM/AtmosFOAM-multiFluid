@@ -27,7 +27,7 @@ Application
     A new approach for calculating the pressure in each fluid and the mass
     transfers. As well as the usual multi-fluid equations we solve:
     sigma div(u) = sum(massTransers)
-    M_ij = (sigma-minSigma) max(Pi - Pj)/gamma
+    M_ij = 0.5(simga_i max(-divu_i,0) + sigma_j max(divu_j,0))
 
 Description
     Transient Solver for dry, multi-fluid Boussinesq equations
@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
                 #include "diffusionTransfers.H"
 
                 #include "massTransfers.H"
-                //sigma.transferMass(massTransfer, dt);
-                //interpolate(sigmaf, sigma);
+                sigma.transferMass(massTransfer, dt);
+                interpolate(sigmaf, sigma);
             }
             // Pressure in each fluid
             #include "PEqn.H"

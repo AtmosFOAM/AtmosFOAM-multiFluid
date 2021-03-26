@@ -23,12 +23,14 @@ const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 // Model for transfers between fluids
 enum TransferType
 {
-    noTransfer, divTransfer, specialTransfer, diffusionOnlyTransfer, badTransfer
+    noTransfer, divTransfer, pressureTransfer, specialTransfer,
+    diffusionOnlyTransfer, badTransfer
 };
 const word transferTypeWord(transferProps.lookup("transferType"));
 const TransferType transferType = 
        transferTypeWord == "noTransfer" ? noTransfer :
        transferTypeWord == "divTransfer" ? divTransfer :
+       transferTypeWord == "pressureTransfer" ? pressureTransfer:
        transferTypeWord == "special" ? specialTransfer :
        transferTypeWord == "diffusionOnly" ? diffusionOnlyTransfer :
        badTransfer;
@@ -49,31 +51,8 @@ const scalar bAnomalyMeanCoeff = readScalar
     transferProps.lookup("bAnomalyMeanCoeff")
 );
 
-// Check that Ksigma is non-zero if alpha or nu are non-zero
-if
-(
-    (mag(alpha.value() - Ksigma.value()) > SMALL)
- && (mag(Ksigma.value()) < SMALL)
- && nParts > 1
-)
-{
-    WarningIn("multiFluidBoussinesqFoam")
-         << " if one out of alpha and Ksigma "
-         << "is zero then they must both be zero but alpha = "
-         << alpha.value() << " and Ksigma = " << Ksigma.value()
-         << endl;
-}
-if
-(
-    (mag(nu.value() - Ksigma.value()) > SMALL)
- && (mag(Ksigma.value()) < SMALL)
- && nParts > 1
-)
-{
-    WarningIn("multiFluidBoussinesqFoam")
-        << " if one out of nu and Ksigma "
-         << "is zero then they must both be zero but nu = "
-         << nu.value() << " and Ksigma = " << Ksigma.value()
-         << endl;
-}
+// gamma for pressureTransfer
+const dimensionedScalar gamma = transferType == pressureTransfer ?
+      dimensionedScalar(transferProps.lookup("gamma")) :
+      dimensionedScalar("gamma", dimensionSet(0,2,-1,0,0), scalar(0));
 

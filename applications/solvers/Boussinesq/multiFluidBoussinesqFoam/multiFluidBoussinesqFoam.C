@@ -33,7 +33,6 @@ Description
 #include "fvCFD.H"
 #include "PartitionedFields.H"
 #include "TransferFields.H"
-#include "Random.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -43,8 +42,8 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "zeros.H"
-    #include "readTransferCoeffs.H"
     #include "readEnvironmentalProps.H"
+    #include "readTransferCoeffs.H"
     #define dt runTime.deltaT()
     #include "createFields.H"
     
@@ -82,17 +81,11 @@ int main(int argc, char *argv[])
             {
                 #include "momentumEqn.H"
                 #include "PEqn.H"
-
-                // Update velocities based on the volFlux
-                for(label ip = 0; ip < nParts; ip++)
-                {
-                    u[ip] = fvc::reconstruct(volFlux[ip]);
-                }
             }
         }
 
         // Mass transfers
-        if (!noTransfers && nParts > 1)
+        if (transferType != noTransfer && nParts > 1)
         {
             #include "diffusionTransfers.H"
 
@@ -105,6 +98,12 @@ int main(int argc, char *argv[])
             #include "wTransfer.H"
         }
         #include "pEqn.H"
+        // Update velocities based on the volFlux
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            u[ip] = fvc::reconstruct(volFlux[ip]);
+        }
+        u.updateSum();
 
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
             << max(sigma[0]).value() << endl;

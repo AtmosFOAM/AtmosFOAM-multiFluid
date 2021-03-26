@@ -188,8 +188,8 @@ volScalarTransferField bT
                 IOobject::NO_READ, IOobject::AUTO_WRITE),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0))
-    )/*,
-    IOobject::NO_WRITE*/
+    ),
+    IOobject::NO_WRITE
 );
 
 // Velocity anomaly of the transferred fluid

@@ -26,7 +26,7 @@ for(label ip = 0; ip < nParts; ip++)
           - offCentre*dt*fvm::laplacian(P[ip])
          == sumM[ip]/max(sigma[ip], dimlessSMALL)
         );
-        PEqn.setReference(label(mesh.nCells()-1),scalar(0));
+        PEqn.setReference(label(mesh.nCells()/2),scalar(0));
         PEqn.solve();
     }
 
