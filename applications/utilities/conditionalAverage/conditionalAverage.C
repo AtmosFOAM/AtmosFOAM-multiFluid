@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
             // Find the projection of the cell centre onto the w=0 surface
             point xw0 = mesh.C()[cellI]
                       - conditionField[cellI]*gradCondition[cellI]
-                      /sqr(magGradCondition[cellI]);
+                      /(sqr(magGradCondition[cellI])+SMALL);
 
             // Calulate the distance to the w=0 line for each vertex
             scalarList d(mesh.cellPoints()[cellI].size());
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
             {
                 const point& v = mesh.points()[mesh.cellPoints()[cellI][i]];
                 d[i] = (v - xw0) & gradCondition[cellI]
-                                   /magGradCondition[cellI];
+                                   /(magGradCondition[cellI]+SMALL);
                 if (d[i] < 0)
                 {
                     nNegPos[0]++;

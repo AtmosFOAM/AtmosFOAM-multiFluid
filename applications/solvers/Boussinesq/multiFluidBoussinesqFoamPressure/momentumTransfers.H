@@ -6,37 +6,28 @@ for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
     volFluxT(jp,ip) = volFlux[jp];
 }
 
-if (mag(wTransfer0) > SMALL)
+if (wTransferScale > SMALL && nParts == 2)
 {
-    // Velocity anomalies of fluid transferred
-    
-    if (nParts >= 2)
-    {
-        volFluxT(0,1) += sigmaf[0]*wTransfer0
-                       *mag(volFlux[0]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(1,0) -= sigmaf[1]*wTransfer0
-                       *mag(volFlux[1]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-    }
-    if (nParts >= 3)
-    {
-        volFluxT(0,2) -= sigmaf[0]*wTransfer0
-                       *mag(volFlux[0]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(2,0) += sigmaf[2]*wTransfer0
-                       *mag(volFlux[2]*mesh.Sf().component(2))
-                       *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(1,2) -= sigmaf[1]*wTransfer0
-                        *mag(volFlux[1]*mesh.Sf().component(2))
-                        *mesh.Sf().component(2)/sqr(mesh.magSf());
-        volFluxT(2,1) += sigmaf[2]*wTransfer0
-                        *mag(volFlux[2]*mesh.Sf().component(2))
-                        *mesh.Sf().component(2)/sqr(mesh.magSf());
-    }
+    volFluxT(0,1) += wTransferScale*sigmaf[0]*kdir*max(-volFlux[0]*kdir,fluxZero);
+    volFluxT(1,0) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
+}
+else if (wTransferScale > SMALL && nParts == 3)
+{
+    volFluxT(2,0) += wTransferScale*sigmaf[2]*kdir*max(-volFlux[2]*kdir,fluxZero);
+    volFluxT(1,0) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
+/*
+    surfaceScalarField transferTmp = sigmaf[0]*volFlux.ddt()[0]
+                      + massTransferf(1,0)*(volFluxT(1,0)-volFlux[0])
+                      + massTransferf(2,0)*(volFluxT(2,0)-volFlux[0]);
+    volFluxT(0,1) += max(transferTmp, fluxChangeZero)
+                    /max(massTransferf(0,1), rateSMALL);
+    volFluxT(0,2) += min(transferTmp, fluxChangeZero)
+                     max(massTransferf(0,2), rateSMALL);
+*/
 }
 
 // Transfer the velocity
+sigmaf.updateSum();
 volFlux.transferField(interpolate(massTransferf, massTransfer), volFluxT, dt);
 
 // Calculate and apply the drag between all pairs of fluids
@@ -62,13 +53,4 @@ if (mag(dragCoeff) > SMALL)
         volFlux[jp] += dt*drag(jp,ip);
     }
 }
-
-// Update velocities based on the volFlux
-for(label ip = 0; ip < nParts; ip++)
-{
-    u[ip] = fvc::reconstruct(volFlux[ip]);
-    divu[ip] = fvc::div(volFlux[ip]);
-}
-u.updateSum();
-divu.updateSum();
 

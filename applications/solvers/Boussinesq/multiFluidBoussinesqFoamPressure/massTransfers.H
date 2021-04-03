@@ -8,17 +8,22 @@ if (transferType != noTransfer) for(label ip = 0; ip < nParts; ip++)
     }
 }
 
-// Tranfers based on pressure differences between fluids
-if (transferType == pressureTransfer)
+if (transferType == dwdzTransfer && nParts == 2)
 {
-    for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
+    for(label ip = 0; ip < nParts; ip++)
     {
-        massTransfer(ip,jp) = (sigma[ip]-minSigma[ip])/gamma
-                            *max(P[ip]-P[jp], PZero);
-        massTransfer(jp,ip) = (sigma[jp]-minSigma[jp])/gamma
-                            *max(P[jp]-P[ip], PZero);
+        volScalarField dwdz = fvc::div(volFlux[ip]*magk);
+        massTransfer(ip,1-ip) = transferScale
+                                *max(sigma[ip] - minSigma[ip], scalar(0))
+                                *max(-dwdz, rateZero);
     }
 }
+
+for(label ip = 0; ip < nParts; ip++)
+{
+    divu[ip] = fvc::div(volFlux[ip]);
+}
+divu.updateSum();
 
 // Mass transfer to avoid changes in sigma due to partition divergence
 if (transferType == divTransfer)
@@ -35,8 +40,7 @@ if (transferType == divTransfer)
         );
     }
 }
-
-if (transferType == specialTransfer)
+else if (transferType == specialTransfer)
 {
     const dimensionedScalar L("L", dimLength, scalar(5000));
     const dimensionedScalar T("T", dimTime, scalar(2e3));
@@ -63,7 +67,7 @@ if (transferType == specialTransfer)
             massTransfer(ip,jp) = min
             (
                 massTransfer(ip,jp),
-                max(sigma[ip]-minSigma[ip], dimlessZero)/dt
+                max(sigma[ip]-minSigma[ip], dimlessZero)/(dt*(nParts-1))
             );
         }
     }

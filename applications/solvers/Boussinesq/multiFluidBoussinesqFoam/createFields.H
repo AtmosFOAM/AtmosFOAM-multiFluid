@@ -226,3 +226,5 @@ partitionedVolScalarField divu
     IOobject::NO_WRITE
 );
 
+const surfaceScalarField kdir = mesh.Sf().component(2)/mesh.magSf();
+const surfaceScalarField magk = mag(kdir);

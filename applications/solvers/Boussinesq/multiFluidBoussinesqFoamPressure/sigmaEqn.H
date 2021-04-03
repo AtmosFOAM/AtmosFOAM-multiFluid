@@ -1,17 +1,13 @@
 // update sigma according to the continuity equation without transfers
 for(label ip = 0; ip < nParts; ip++)
 {
-    // Lagrangian Advection of sigma
+    // Transport of sigma
     sigma.ddt()[ip] = -fvc::div
     (
         ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip]),
         sigma[ip].oldTime(),
         "sigma"
     );
-//    + sigma[ip].oldTime()*fvc::div
-//    (
-//        ((1-offCentre)*volFlux[ip].oldTime() + offCentre*volFlux[ip])
-//    );
 
     // Update sigma based on the rate of change
     sigma[ip] = sigma[ip].oldTime() + dt*sigma.ddt()[ip];

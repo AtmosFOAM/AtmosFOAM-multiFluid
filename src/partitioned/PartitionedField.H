@@ -209,22 +209,22 @@ public:
         //- rates in M
         void transferMass
         (
-            TransferField<Type, PatchField, GeoMesh>& M,
+            const TransferField<Type, PatchField, GeoMesh>& M,
             const dimensionedScalar& dt
         );
         
         //- Transfer non-mass weighted field
         void transferField
         (
-            TransferField<Type, PatchField, GeoMesh>& M,
-            TransferField<Type, PatchField, GeoMesh>& fieldT,
+            const TransferField<Type, PatchField, GeoMesh>& M,
+            const TransferField<Type, PatchField, GeoMesh>& fieldT,
             const dimensionedScalar& dt
         );
         
         //- Transfer non-mass weighted field. Special case transferring mean
         void transferField
         (
-            TransferField<Type, PatchField, GeoMesh>& M,
+            const TransferField<Type, PatchField, GeoMesh>& M,
             const dimensionedScalar& dt
         );
         

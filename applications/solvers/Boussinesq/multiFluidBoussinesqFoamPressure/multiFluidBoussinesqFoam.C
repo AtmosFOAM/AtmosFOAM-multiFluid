@@ -24,10 +24,6 @@ License
 
 Application
     multiFluidBoussinesqFoamPressure.
-    A new approach for calculating the pressure in each fluid and the mass
-    transfers. As well as the usual multi-fluid equations we solve:
-    sigma div(u) = sum(massTransers)
-    M_ij = 0.5(simga_i max(-divu_i,0) + sigma_j max(divu_j,0))
 
 Description
     Transient Solver for dry, multi-fluid Boussinesq equations
@@ -73,30 +69,30 @@ int main(int argc, char *argv[])
 
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
+            #include "bEqn.H"
+            #include "momentumEqn.H"
+            #include "PEqn.H"
             if (nParts > 1)
             {
                 #include "sigmaEqn.H"
             }
-            #include "bEqn.H"
-            // Momentum equation with explicit pressure gradient
-            #include "momentumEqn.H"
-
             // Mass transfers
             if (transferType != noTransfer && nParts > 1)
             {
-                #include "diffusionTransfers.H"
-
                 #include "massTransfers.H"
                 sigma.transferMass(massTransfer, dt);
                 interpolate(sigmaf, sigma);
-            }
-            // Pressure in each fluid
-            #include "PEqn.H"
-            if (transferType != noTransfer && nParts > 1)
-            {
                 #include "bTransfers.H"
                 #include "momentumTransfers.H"
             }
+            #include "pEqn.H"
+            // Update velocities based on the volFlux
+            for(label ip = 0; ip < nParts; ip++)
+            {
+                u[ip] = fvc::reconstruct(volFlux[ip]);
+            }
+            u.updateSum();
+            volFlux.updateSum();
         }
 
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "

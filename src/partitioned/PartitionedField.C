@@ -406,7 +406,7 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::divideBy
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
 (
-    TransferField<Type, PatchField, GeoMesh>& M,
+    const TransferField<Type, PatchField, GeoMesh>& M,
     const dimensionedScalar& dt
 )
 {
@@ -416,6 +416,7 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
         {
             operator[](ip) += dt*(M(jp,ip) - M(ip,jp));
         }
+        operator[](ip).correctBoundaryConditions();
     }
 }
 
@@ -423,12 +424,13 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferMass
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 (
-    TransferField<Type, PatchField, GeoMesh>& M,
-    TransferField<Type, PatchField, GeoMesh>& fieldT,
+    const TransferField<Type, PatchField, GeoMesh>& M,
+    const TransferField<Type, PatchField, GeoMesh>& fieldT,
     const dimensionedScalar& dt
 )
 {
     const dimensionedScalar smallSigma("", sigma()[0].dimensions(), SMALL);
+    const PartitionedField<Type, PatchField, GeoMesh> old = *this;
 
     for(label ip = 0; ip < size(); ip++)
     {
@@ -436,8 +438,8 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
         {
             operator[](ip) += dt/max(sigma()[ip], smallSigma)*
             (
-                M(jp,ip)*(fieldT(jp,ip) - operator[](ip))
-              - M(ip,jp)*(fieldT(ip,jp) - operator[](ip))
+                M(jp,ip)*(fieldT(jp,ip) - old[ip])
+              - M(ip,jp)*(fieldT(ip,jp) - old[ip])
             );
         }
     }
@@ -447,19 +449,24 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 (
-    TransferField<Type, PatchField, GeoMesh>& M,
+    const TransferField<Type, PatchField, GeoMesh>& M,
     const dimensionedScalar& dt
 )
 {
     const dimensionedScalar smallSigma("", sigma()[0].dimensions(), SMALL);
+    const PartitionedField<Type, PatchField, GeoMesh> old = *this;
 
     for(label ip = 0; ip < size(); ip++)
     {
-        for(label jp = 0; jp < size(); jp++) if (ip != jp)
+        for(label jp = ip+1; jp < size(); jp++)
         {
             operator[](ip) += dt/max(sigma()[ip], smallSigma)*
             (
-                M(jp,ip)*(operator[](jp) - operator[](ip))
+                M(jp,ip)*(old[jp] - old[ip])
+            );
+            operator[](jp) += dt/max(sigma()[jp], smallSigma)*
+            (
+                M(ip,jp)*(old[ip] - old[jp])
             );
         }
     }

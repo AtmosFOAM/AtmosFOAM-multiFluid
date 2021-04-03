@@ -1,16 +1,8 @@
 // Transfers to keep sigma[0] = 0 where w[0]>0 and vice verca
 // This should be combined with transferring the mean of other variables
 
-if (transferType == wTransfer)
+if (transferType == wTransfer && nParts == 2)
 {
-    // Only formulated for nParts == 2
-    if (nParts != 2)
-    {
-        FatalErrorIn("wTransfer.H")
-            << " mass transfer terms only formulated for nParts = 2, not nParts = "
-            << nParts << exit(FatalError);
-    }
-
     massTransfer(0,1) = rateZero;
     massTransfer(1,0) = rateZero;
 
@@ -43,10 +35,4 @@ if (transferType == wTransfer)
 
     // Transfer mean momentum
     volFlux.transferField(interpolate(massTransferf, massTransfer), dt);
-
-    // Update velocities based on the volFlux
-    for(label ip = 0; ip < nParts; ip++)
-    {
-        u[ip] = fvc::reconstruct(volFlux[ip]);
-    }
 }

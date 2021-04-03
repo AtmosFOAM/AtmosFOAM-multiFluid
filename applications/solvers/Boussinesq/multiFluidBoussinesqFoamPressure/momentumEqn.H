@@ -19,8 +19,7 @@ for(label ip = 0; ip < nParts; ip++)
            "convection"
        )
     )) + nu*laplacianU
-    - fvc::snGrad(P[ip])*mesh.magSf()
-    + bf[ip];
+    - fvc::snGrad(p[ip])*mesh.magSf();
 }
 
 // Update volFlux
@@ -32,13 +31,4 @@ for(label ip = 0; ip < nParts; ip++)
 }
 
 volFlux.updateSum();
-
-// Update velocities based on the volFlux
-for(label ip = 0; ip < nParts; ip++)
-{
-    u[ip] = fvc::reconstruct(volFlux[ip]);
-    divu[ip] = fvc::div(volFlux[ip]);
-}
-divu.updateSum();
-u.updateSum();
 

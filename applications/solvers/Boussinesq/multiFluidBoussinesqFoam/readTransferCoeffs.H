@@ -16,25 +16,46 @@ IOdictionary transferProps
 const wordList partNames(transferProps.lookup("fluids"));
 const label nParts = partNames.size();
 
-// Drag parameters
-const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
-const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
-
 // Model for transfers between fluids
 enum TransferType
 {
-    noTransfer, divTransfer, dwdzTransfer, divBtransfer, wTransfer,
-    diffusionOnlyTransfer, badTransfer
+    noTransfer, dwdzTransfer, wTransfer, diffusionOnlyTransfer, badTransfer
 };
 const word transferTypeWord(transferProps.lookup("transferType"));
 const TransferType transferType = 
        transferTypeWord == "noTransfer" ? noTransfer :
-       transferTypeWord == "divTransfer" ? divTransfer :
        transferTypeWord == "dwdzTransfer" ? dwdzTransfer:
-       transferTypeWord == "divBtransfer" ? divBtransfer :
        transferTypeWord == "wTransfer" ? wTransfer :
        transferTypeWord == "diffusionOnly" ? diffusionOnlyTransfer :
        badTransfer;
+
+if (transferType == badTransfer)
+{
+    FatalErrorIn("readTransferCoeffs.H") 
+             << " transferType must be one of "
+             << "noTransfer, dwdzTransfer, wTransfer, diffusionOnlyTransfer"
+             << " not " << transferTypeWord << " in system/transferProperties"
+             << exit(FatalError);
+}
+
+if (transferType == dwdzTransfer || transferType == wTransfer)
+{
+    if (nParts == 2 && (partNames[0] != "down" || partNames[1] != "up"))
+    {
+        FatalErrorIn("readTransferCoeffs.H") << " fluids " << partNames
+             << " given but two fluids and transfer type wTransfer or dwdzTransfer the fluids must be down and up" << exit(FatalError);
+    }
+    else if
+    (
+        nParts == 3
+     && (partNames[0]!="stable" || partNames[1]!="up" || partNames[2]!="down")
+    )
+    {
+        FatalErrorIn("readTransferCoeffs.H") << " fluids " << partNames
+             << " given but three fluids and transfer type wTransfer or dwdzTransfer the fluids must be stable, up and down"
+             << exit(FatalError);
+    }
+}
 
 // Scale the mass transfes
 const scalar transferScale = transferType == noTransfer? scalar(0) :
@@ -44,13 +65,13 @@ const scalar transferScale = transferType == noTransfer? scalar(0) :
 const scalarList minSigma(transferProps.lookup("minSigma"));
 
 // Transfer w=0 (w^T = 0) (scaled by sigma)
-const scalar wTransfer0 = transferType == noTransfer? scalar(0) :
-      readScalar(transferProps.lookup("wTransfer0"));
+const scalar wTransferScale = transferType == noTransfer? scalar(0) :
+      readScalar(transferProps.lookup("wTransferScale"));
 
 // Transfer buoyancy anomalies based on constant factor times mean buoyancy
-const scalar bAnomalyMeanCoeff = readScalar
+const scalar bTransferScale = readScalar
 (
-    transferProps.lookup("bAnomalyMeanCoeff")
+    transferProps.lookup("bTransferScale")
 );
 
 // Diffusion coefficient for inter-partition mass transfer
@@ -62,4 +83,8 @@ uniformDimensionedScalarField gamma
     IOobject("gamma", runTime.timeName(), mesh), 
     dimensionedScalar(transferProps.lookup("gamma"))
 );
+
+// Drag parameters
+const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
+const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 

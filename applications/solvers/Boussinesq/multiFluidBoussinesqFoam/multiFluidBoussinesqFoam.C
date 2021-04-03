@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
     
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
-    const int nCorr = itsDict.lookupOrDefault<int>("nCorrectors", 1);
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
     scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
@@ -70,40 +69,33 @@ int main(int argc, char *argv[])
 
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
+            #include "bEqn.H"
+            #include "momentumEqn.H"
+            #include "PEqn.H"
             if (nParts > 1)
             {
                 #include "sigmaEqn.H"
             }
-            #include "bEqn.H"
-
-            // Pressure and velocity updates
-            for (int corr=0; corr<nCorr; corr++)
+            // Mass transfers
+            if (transferType != noTransfer && nParts > 1)
             {
-                #include "momentumEqn.H"
-                #include "PEqn.H"
+                #include "diffusionTransfers.H"
+                #include "massTransfers.H"
+                sigma.transferMass(massTransfer, dt);
+                interpolate(sigmaf, sigma);
+                #include "bTransfers.H"
+                #include "momentumTransfers.H"
+                #include "wTransfer.H"
             }
+            #include "pEqn.H"
+            // Update velocities based on the volFlux
+            for(label ip = 0; ip < nParts; ip++)
+            {
+                u[ip] = fvc::reconstruct(volFlux[ip]);
+            }
+            u.updateSum();
+            volFlux.updateSum();
         }
-
-        // Mass transfers
-        if (transferType != noTransfer && nParts > 1)
-        {
-            #include "diffusionTransfers.H"
-
-            #include "massTransfers.H"
-            sigma.transferMass(massTransfer, dt);
-            interpolate(sigmaf, sigma);
-            #include "bTransfers.H"
-            #include "momentumTransfers.H"
-
-            #include "wTransfer.H"
-        }
-        #include "pEqn.H"
-        // Update velocities based on the volFlux
-        for(label ip = 0; ip < nParts; ip++)
-        {
-            u[ip] = fvc::reconstruct(volFlux[ip]);
-        }
-        u.updateSum();
 
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
             << max(sigma[0]).value() << endl;
