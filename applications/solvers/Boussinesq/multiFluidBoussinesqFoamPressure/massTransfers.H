@@ -30,13 +30,21 @@ if (transferType == divTransfer)
 {
     for(label ip = 0; ip < nParts; ip++) for(label jp = ip+1; jp < nParts; jp++)
     {
-        massTransfer(ip,jp) = 0.5*
+/*        massTransfer(ip,jp) = 0.5*
         (
             max(-sigma[ip]*divu[ip],rateZero) + max(sigma[jp]*divu[jp],rateZero)
         );
         massTransfer(jp,ip) = 0.5*
         (
             max(-sigma[jp]*divu[jp],rateZero) + max(sigma[ip]*divu[ip],rateZero)
+        );*/
+        massTransfer(ip,jp) = 0.5*sigma[ip]*
+        (
+            max(-divu[ip],rateZero) + max(divu[jp],rateZero)
+        );
+        massTransfer(jp,ip) = 0.5*sigma[jp]*
+        (
+            max(-divu[jp],rateZero) + max(divu[ip],rateZero)
         );
     }
 }

@@ -24,7 +24,7 @@ if (gamma.value() > SMALL)
                 fvm::Sp(1/gamma, p[ip])
               + fvc::div(volFlux[ip])
               - offCentre*dt*fvm::laplacian(p[ip])
-              //- offCentre*dt*fvc::laplacian(p.sum())
+              - offCentre*dt*fvc::laplacian(p.sum())
               //== sumM[ip]/max(sigma[ip], dimlessSMALL)
             );
             pEqn.solve();
@@ -35,9 +35,8 @@ if (gamma.value() > SMALL)
          << max(p.sum()).value() << endl;
     for(label ip = 0; ip < nParts; ip++)
     {
-        //p[ip] -= p.sum();
         // Back-substitutions
-        volFlux[ip] -= offCentre*dt*fvc::snGrad(p[ip])*mesh.magSf();
-        volFlux.ddt()[ip] -= fvc::snGrad(p[ip])*mesh.magSf();
+        volFlux[ip] -= offCentre*dt*fvc::snGrad(p[ip]-p.sum())*mesh.magSf();
+        volFlux.ddt()[ip] -= fvc::snGrad(p[ip]-p.sum())*mesh.magSf();
     }
 }

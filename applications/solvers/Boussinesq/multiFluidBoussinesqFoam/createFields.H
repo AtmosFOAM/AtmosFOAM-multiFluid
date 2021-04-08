@@ -126,7 +126,7 @@ volScalarTransferField massTransfer
         IOobject("massTransfer", runTime.timeName(), mesh),
         mesh,
         rateZero,
-        "fixedValue"
+        "zeroGradient"
     )
 );
 massTransfer.write();

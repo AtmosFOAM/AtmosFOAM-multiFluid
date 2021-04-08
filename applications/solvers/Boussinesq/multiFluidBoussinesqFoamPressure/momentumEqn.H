@@ -19,7 +19,7 @@ for(label ip = 0; ip < nParts; ip++)
            "convection"
        )
     )) + nu*laplacianU
-    - fvc::snGrad(p[ip])*mesh.magSf();
+    - fvc::snGrad(p[ip]-p.sum())*mesh.magSf();
 }
 
 // Update volFlux

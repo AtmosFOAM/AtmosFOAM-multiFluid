@@ -13,5 +13,5 @@ set -e
 }
 
 wmake $makeType partitioned
-wmake $makeType TurbulenceModels
+#wmake $makeType TurbulenceModels
 
