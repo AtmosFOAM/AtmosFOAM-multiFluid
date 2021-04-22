@@ -12,5 +12,6 @@ set -e
     exit 1
 }
 
-wmake -all $targetType solvers
 wmake -all $targetType utilities
+wmake -all $targetType solvers
+
