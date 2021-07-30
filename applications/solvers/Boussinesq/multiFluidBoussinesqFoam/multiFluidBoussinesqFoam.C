@@ -100,6 +100,14 @@ int main(int argc, char *argv[])
         Info << "sigma[0] goes from " << min(sigma[0]).value() <<  " to "
             << max(sigma[0]).value() << endl;
 
+        dimensionedScalar totalHeat
+             = fvc::domainIntegrate(sigma[0]*b[0])/sum(mesh.V());
+        for(label ip = 1; ip < nParts; ip++)
+        {
+            totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
+        }
+        Info << "totalHeat = " << totalHeat.value() << endl;
+
         runTime.write();
         offCentre = offCentreSave;
 

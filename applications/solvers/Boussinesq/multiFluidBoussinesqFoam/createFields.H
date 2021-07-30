@@ -176,6 +176,7 @@ for(label ip = 0; ip < nParts; ip++)
 {
     totalHeat0 += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
 }
+Info << "totalHeat0 = " << totalHeat0 << endl;
 
 // Buoyancy of the transferred fluid
 volScalarTransferField bT

@@ -19,12 +19,13 @@ const label nParts = partNames.size();
 // Model for transfers between fluids
 enum TransferType
 {
-    noTransfer, dwdzTransfer, wTransfer, diffusionOnlyTransfer, badTransfer
+    noTransfer, dwdzTransfer, dbdzTransfer, wTransfer, diffusionOnlyTransfer, badTransfer
 };
 const word transferTypeWord(transferProps.lookup("transferType"));
 const TransferType transferType = 
        transferTypeWord == "noTransfer" ? noTransfer :
        transferTypeWord == "dwdzTransfer" ? dwdzTransfer:
+       transferTypeWord == "dbdzTransfer" ? dbdzTransfer:
        transferTypeWord == "wTransfer" ? wTransfer :
        transferTypeWord == "diffusionOnly" ? diffusionOnlyTransfer :
        badTransfer;
@@ -33,17 +34,17 @@ if (transferType == badTransfer)
 {
     FatalErrorIn("readTransferCoeffs.H") 
              << " transferType must be one of "
-             << "noTransfer, dwdzTransfer, wTransfer, diffusionOnlyTransfer"
+             << "noTransfer, dwdzTransfer, dbdzTransfer, wTransfer, diffusionOnlyTransfer"
              << " not " << transferTypeWord << " in system/transferProperties"
              << exit(FatalError);
 }
 
-if (transferType == dwdzTransfer || transferType == wTransfer)
+if (transferType == dwdzTransfer || transferType == dbdzTransfer || transferType == wTransfer)
 {
     if (nParts == 2 && (partNames[0] != "down" || partNames[1] != "up"))
     {
         FatalErrorIn("readTransferCoeffs.H") << " fluids " << partNames
-             << " given but two fluids and transfer type wTransfer or dwdzTransfer the fluids must be down and up" << exit(FatalError);
+             << " given but two fluids and transfer type wTransfer, dbdzTransfer or dwdzTransfer the fluids must be down and up" << exit(FatalError);
     }
     else if
     (
@@ -52,7 +53,7 @@ if (transferType == dwdzTransfer || transferType == wTransfer)
     )
     {
         FatalErrorIn("readTransferCoeffs.H") << " fluids " << partNames
-             << " given but three fluids and transfer type wTransfer or dwdzTransfer the fluids must be stable, up and down"
+             << " given but three fluids and transfer type wTransfer, dbdzTransfer or dwdzTransfer the fluids must be stable, up and down"
              << exit(FatalError);
     }
 }
