@@ -33,6 +33,7 @@ Description
 #include "fvCFD.H"
 #include "PartitionedFields.H"
 #include "TransferFields.H"
+#include "fvcSmooth.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -42,6 +43,8 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "zeros.H"
+    const surfaceScalarField kdir = mesh.Sf().component(2)/mesh.magSf();
+    const surfaceScalarField magk = mag(kdir);
     #include "readEnvironmentalProps.H"
     #include "readTransferCoeffs.H"
     #define dt runTime.deltaT()
@@ -86,9 +89,10 @@ int main(int argc, char *argv[])
                 #include "bTransfers.H"
                 #include "momentumTransfers.H"
                 #include "wTransfer.H"
+
             }
             #include "pEqn.H"
-            // Update velocities based on the volFlux
+            // Update velocities based on the volFlux and set volFlux boundary
             for(label ip = 0; ip < nParts; ip++)
             {
                 u[ip] = fvc::reconstruct(volFlux[ip]);
@@ -110,6 +114,20 @@ int main(int argc, char *argv[])
 
         runTime.write();
         offCentre = offCentreSave;
+        
+        // Update volFlux boundary values
+        for(label ip = 0; ip < nParts; ip++)
+        {
+            forAll(mesh.boundaryMesh(), patchi)
+            {
+                if (fluxBCs[patchi] == "fixedValue")
+                {
+                    volFlux[ip].boundaryField()[patchi].internalField()
+        == (u[ip].boundaryField()[patchi] & mesh.Sf().boundaryField()[patchi]);
+                }
+            }
+        }
+        volFlux.updateSum();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"

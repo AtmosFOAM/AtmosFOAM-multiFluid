@@ -90,7 +90,7 @@ partitionedSurfaceScalarField volFlux
         IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh,
                 IOobject::READ_IF_PRESENT),
         linearInterpolate(u[0]) & mesh.Sf(),
-        fluxBCs
+        wordList(mesh.boundaryMesh().size(), "calculated")
     ),
     sigmaf
 );
@@ -126,7 +126,7 @@ volScalarTransferField massTransfer
         IOobject("massTransfer", runTime.timeName(), mesh),
         mesh,
         rateZero,
-        "zeroGradient"
+        "fixedValue"
     )
 );
 massTransfer.write();
@@ -210,11 +210,14 @@ surfaceScalarTransferField volFluxT
 
 // Compact Laplacian of the velocity
 surfaceScalarField laplacianU
-    = (fvc::interpolate(fvc::laplacian(u.updateSum())) & mesh.Sf())
-    + mesh.magSf()*(fvc::snGrad
+    = (fvc::interpolate(fvc::laplacian(nuf,u.updateSum())) & mesh.Sf())
+    + mesh.magSf()*(nuf*fvc::snGrad
     (
-        fvc::div(volFlux.updateSum()
-      - (linearInterpolate(u.sum()) & mesh.Sf()))
+        fvc::div
+        (
+            volFlux.updateSum()
+         - (linearInterpolate(u.sum()) & mesh.Sf())
+        )
     ));
 
 // Divergence of each fluid
@@ -227,5 +230,3 @@ partitionedVolScalarField divu
     IOobject::NO_WRITE
 );
 
-const surfaceScalarField kdir = mesh.Sf().component(2)/mesh.magSf();
-const surfaceScalarField magk = mag(kdir);

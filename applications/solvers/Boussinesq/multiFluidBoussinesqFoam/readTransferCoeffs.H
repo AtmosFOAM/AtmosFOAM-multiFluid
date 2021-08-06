@@ -58,9 +58,17 @@ if (transferType == dwdzTransfer || transferType == dbdzTransfer || transferType
     }
 }
 
-// Scale the mass transfes
+// Smooth the mass transfers
+const scalar massTransferSmooth
+     = transferProps.lookupOrDefault<scalar>("massTransferSmooth", scalar(0));
+
+// Scale the mass transfers
 const scalar transferScale = transferType == noTransfer? scalar(0) :
       readScalar(transferProps.lookup("transferScale"));
+      
+// Entrainment rate for dwdzTransfer with 3 fluids
+const scalar entRate = (transferType == dwdzTransfer && nParts == 3) ?
+      readScalar(transferProps.lookup("entRate")) : scalar(1);
 
 // Minimum sigma for each partition and for partition 0
 const scalarList minSigma(transferProps.lookup("minSigma"));

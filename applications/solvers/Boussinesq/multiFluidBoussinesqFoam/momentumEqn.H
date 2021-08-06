@@ -3,8 +3,8 @@ for(label ip = 0; ip < nParts; ip++)
 {
     // Compact Laplacian of the velocity
     laplacianU 
-        = (fvc::interpolate(fvc::laplacian(u[ip])) & mesh.Sf())
-        + mesh.magSf()*(fvc::snGrad
+        = (fvc::interpolate(fvc::laplacian(nuf, u[ip])) & mesh.Sf())
+        + mesh.magSf()*(nuf*fvc::snGrad
             (
                 fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
             )
@@ -18,7 +18,7 @@ for(label ip = 0; ip < nParts; ip++)
            fvc::div(volFlux[ip], u[ip], "u") - u[ip]*fvc::div(volFlux[ip]),
            "convection"
        )
-    )) + nu*laplacianU
+    )) + laplacianU
     - fvc::snGrad(p[ip])*mesh.magSf();
 }
 
