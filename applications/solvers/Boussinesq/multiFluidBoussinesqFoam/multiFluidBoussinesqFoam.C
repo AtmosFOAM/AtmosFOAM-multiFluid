@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
         runTime.write();
         offCentre = offCentreSave;
         
-        // Update volFlux boundary values
+/*        // Update volFlux boundary values
         for(label ip = 0; ip < nParts; ip++)
         {
             forAll(mesh.boundaryMesh(), patchi)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
             }
         }
         volFlux.updateSum();
-
+*/
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;

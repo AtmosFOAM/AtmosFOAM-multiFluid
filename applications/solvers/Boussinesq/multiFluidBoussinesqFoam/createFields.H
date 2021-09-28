@@ -90,7 +90,7 @@ partitionedSurfaceScalarField volFlux
         IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh,
                 IOobject::READ_IF_PRESENT),
         linearInterpolate(u[0]) & mesh.Sf(),
-        wordList(mesh.boundaryMesh().size(), "calculated")
+        fluxBCs //wordList(mesh.boundaryMesh().size(), "calculated")
     ),
     sigmaf
 );
@@ -185,12 +185,11 @@ volScalarTransferField bT
     partNames,
     volScalarField
     (
-        IOobject("bT", runTime.timeName(), mesh, 
-                IOobject::NO_READ, IOobject::AUTO_WRITE),
+        IOobject("bT", runTime.timeName(), mesh, IOobject::NO_READ),
         mesh,
         dimensionedScalar("", b[0].dimensions(), scalar(0))
-    ),
-    IOobject::NO_WRITE
+    )/*,
+    IOobject::NO_WRITE*/
 );
 
 // Velocity anomaly of the transferred fluid
