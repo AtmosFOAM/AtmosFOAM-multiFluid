@@ -34,6 +34,8 @@ Description
 #include "PartitionedFields.H"
 #include "TransferFields.H"
 #include "fvcSmooth.H"
+#include "localMax.H"
+#include "fvcLocalMinMax.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,6 +57,8 @@ int main(int argc, char *argv[])
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
     scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
+
+    localMax<scalar> maxInterp(mesh);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

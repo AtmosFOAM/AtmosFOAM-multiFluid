@@ -30,6 +30,10 @@ const dimensionedScalar dbdtZero
 (
     "dbdtZero", dimensionSet(0,1,-3,0,0), scalar(0)
 );
+const dimensionedScalar dbdtSMALL
+(
+    "dbdtSMALL", dimensionSet(0,1,-3,0,0), SMALL
+);
 const dimensionedScalar fluxZero
 (
     "fluxZero", dimensionSet(0,3,-1,0,0), scalar(0)

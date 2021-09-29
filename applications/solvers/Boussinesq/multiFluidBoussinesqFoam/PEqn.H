@@ -18,15 +18,3 @@ for(label ip = 0; ip < nParts; ip++)
     volFlux[ip] += offCentre*dt*(bf[ip] - fvc::snGrad(P)*mesh.magSf());
 }
 
-/*volScalarField divFlux("divFlux", fvc::div(volFlux.sum()));
-volScalarField divb("divb", offCentre*dt*fvc::div(bf.sum()));
-volScalarField del2P("del2P", offCentre*dt*fvc::laplacian(P));
-divFlux.write();
-divb.write();
-del2P.write();
-
-volFlux.updateSum();
-divFlux.rename("divFlux2");
-divFlux = fvc::div(volFlux.sum());
-divFlux.write();
-*/
