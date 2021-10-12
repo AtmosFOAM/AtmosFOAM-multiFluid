@@ -5,6 +5,11 @@ for(label ip = 0; ip < nParts; ip++)
                 + b[ip]*fvc::div(volFlux[ip])
                 + fvc::laplacian(alphaf,b[ip]);
 
+    if (ip == 0 && maxAlpha0.value() > SMALL)
+    {
+        b.ddt()[ip] += fvc::laplacian(alpha0, b[ip]);
+    }
+
     // Update b according to rate of change
     b[ip] = b[ip].oldTime() + dt*
     (
@@ -20,8 +25,5 @@ for(label ip = 0; ip < nParts; ip++)
 
 b.updateSum();
 bf.updateSum();
-
-//Info << "b[1] - b[0] goes from " << min(b[1] - b[0]).value() << " to "
-//     << max(b[1] - b[0]).value() << endl;
 
 

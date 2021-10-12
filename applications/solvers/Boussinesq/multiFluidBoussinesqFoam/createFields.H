@@ -229,3 +229,14 @@ partitionedVolScalarField divu
     IOobject::NO_WRITE
 );
 
+// Distance to a wall for each cell
+wallDist wd(mesh);
+const volScalarField wallDistance("wallDistance", wd.y());
+
+// Additional eddy diffusivity of heat for fluid 0
+const surfaceScalarField alpha0
+(
+    "alpha0",
+    min(linearInterpolate(wallDistance)*alphaScale, maxAlpha0)
+);
+

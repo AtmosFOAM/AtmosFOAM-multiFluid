@@ -36,6 +36,7 @@ Description
 #include "fvcSmooth.H"
 #include "localMax.H"
 #include "fvcLocalMinMax.H"
+#include "wallDist.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
