@@ -71,7 +71,24 @@ else if (transferType == dbdzTransfer && nParts == 3)
         // Transfer out of 0 if dbdz<0. Transfer to 1 if dbdt>0, otherwise to 2
         if (ip == 0)
         {
-            volScalarField d2bdz2 = volVectorField(fvc::grad(dbdz)).component(2);
+            // Calculate which fluid to transfer to. j=1 for rising, j=2 falling
+            volScalarField w0 = u[0].component(2);
+            volScalarField wdwdz = u[0].component(2)*fvc::div(volFlux[0]*magk);
+            //wdwdz.rename("wdwdz"); wdwdz.write();
+            
+            volScalarField w0big = positive
+            (
+                mag(w0*dbdz) - mag(fvc::laplacian(alphaf,b[0]))
+            );
+            
+            volScalarField toOne = positive(w0big)*positive(wdwdz)
+                                 + positive(-w0big)*positive(b.ddt()[0]);
+            //toOne.rename("toOne"); toOne.write();
+        
+            massTransfer(0,1) += toOne*transferTmp;
+            massTransfer(0,2) += (1-toOne)*transferTmp;
+        
+//            volScalarField d2bdz2 = volVectorField(fvc::grad(dbdz)).component(2);
 //            volScalarField wdwdz = //u[0].component(2)*fvc::div(volFlux[0]*magk);
 //                                  fvc::div(sqr(volFlux[0])*kdir);
 //            massTransfer(0,1) += transferTmp*0.5*(1+sign(b.ddt()[0]-dbdtSMALL));
@@ -80,8 +97,8 @@ else if (transferType == dbdzTransfer && nParts == 3)
 //            massTransfer(0,2) += transferTmp*0.5*(1-sign(b[0]));
 //            massTransfer(0,1) += transferTmp*0.5*(1+sign(DbDt));
 //            massTransfer(0,2) += transferTmp*0.5*(1-sign(DbDt));
-            massTransfer(0,1) += transferTmp*0.5*(1+sign(d2bdz2));
-            massTransfer(0,2) += transferTmp*(1-0.5*(1+sign(d2bdz2)));
+//            massTransfer(0,1) += transferTmp*0.5*(1+sign(d2bdz2));
+//            massTransfer(0,2) += transferTmp*(1-0.5*(1+sign(d2bdz2)));
 //            massTransfer(0,1) += transferTmp*0.5*(1+sign(wdwdz));
 //            massTransfer(0,2) += transferTmp*(1-0.5*(1+sign(wdwdz)));
         }

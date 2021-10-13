@@ -37,6 +37,7 @@ Description
 #include "localMax.H"
 #include "fvcLocalMinMax.H"
 #include "wallDist.H"
+#include "positive.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
