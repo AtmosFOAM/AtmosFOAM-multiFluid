@@ -44,22 +44,3 @@ surfaceScalarField alphaf
     magk*alpha + (scalar(1)-magk)*alphaH
 );
 
-// Scaling to go from distance to wall to thermal diffusivity of fluid 0
-const dimensionedScalar alphaScale
-(
-    envProps.lookupOrDefault<dimensionedScalar>
-    (
-        "alphaScale", 
-        dimensionedScalar("alphaScale", dimVelocity, scalar(0))
-    )
-);
-// Maximum thermal diffusivity of fluid 0
-const dimensionedScalar maxAlpha0
-(
-    envProps.lookupOrDefault<dimensionedScalar>
-    (
-        "maxAlpha0",
-        dimensionedScalar("maxAlpha0", alpha.dimensions(), scalar(0))
-    )
-);
-

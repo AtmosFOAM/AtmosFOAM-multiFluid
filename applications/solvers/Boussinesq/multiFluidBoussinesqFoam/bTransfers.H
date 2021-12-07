@@ -21,14 +21,18 @@ else if (transferType == dwdzTransfer && bTransferScale > SMALL && nParts == 3)
 }
 else if (transferType == dbdzTransfer && nParts == 3 && bTransferScale > SMALL)
 {
-    bT(0,1) == (1-bTransferScale)*b[0]
-             + bTransferScale*fvc::localMax(maxInterp.interpolate(b[0]));
-    bT(0,2) == (1-bTransferScale)*b[0]
-             + bTransferScale*fvc::localMin(-maxInterp.interpolate(-b[0]));
-    bT(1,0) == fvc::localMin(-maxInterp.interpolate(-b[1]));
-    bT(1,2) == fvc::localMin(-maxInterp.interpolate(-b[1]));
-    bT(2,0) == fvc::localMax(maxInterp.interpolate(b[2]));
-    bT(2,1) == fvc::localMax(maxInterp.interpolate(b[2]));
+    bT(0,1) += bTransferScale*sigma[0]
+             *(fvc::localMax(maxInterp.interpolate(b[0])) - b[0]);
+    bT(0,2) += bTransferScale*sigma[0]
+             *(fvc::localMin(-maxInterp.interpolate(-b[0])) - b[0]);
+    bT(1,0) += bTransferScale*sigma[1]
+             *(fvc::localMin(-maxInterp.interpolate(-b[1])) - b[1]);
+    bT(1,2) += bTransferScale*sigma[1]
+             *(fvc::localMin(-maxInterp.interpolate(-b[1])) - b[1]);
+    bT(2,0) += bTransferScale*sigma[2]
+             *(fvc::localMax(maxInterp.interpolate(b[2])) - b[2]);
+    bT(2,1) += bTransferScale*sigma[2]
+             *(fvc::localMax(maxInterp.interpolate(b[2])) - b[2]);
     
 /*    bT(1,2) += min(sigma[1]*b.ddt()[1], dbdtZero)/max(massTransfer(1,2), rateSMALL);
     bT(2,1) += max(sigma[2]*b.ddt()[2], dbdtZero)/max(massTransfer(2,1), rateSMALL);

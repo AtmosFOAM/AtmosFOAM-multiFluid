@@ -97,3 +97,32 @@ uniformDimensionedScalarField gamma
 const dimensionedScalar cloudRadius(transferProps.lookup("cloudRadius"));
 const scalar dragCoeff(readScalar(transferProps.lookup("dragCoeff")));
 
+// Additional thermal diffusivity for fluid 0
+// Scaling to go from distance to wall to thermal diffusivity of fluid 0
+const dimensionedScalar alphaScale
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "alphaScale", 
+        dimensionedScalar("alphaScale", dimVelocity, scalar(0))
+    )
+);
+// Maximum thermal diffusivity of fluid 0
+const dimensionedScalar maxAlpha0
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "maxAlpha0",
+        dimensionedScalar("maxAlpha0", alpha.dimensions(), scalar(0))
+    )
+);
+// BL depth for setting alpha0 outside BL
+const dimensionedScalar BLdepth
+(
+    transferProps.lookupOrDefault<dimensionedScalar>
+    (
+        "BLdepth",
+        dimensionedScalar("BLdepth", dimLength, scalar(0))
+    )
+);
+

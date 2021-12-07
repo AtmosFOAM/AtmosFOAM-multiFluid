@@ -207,6 +207,9 @@ surfaceScalarTransferField volFluxT
     IOobject::NO_WRITE
 );
 
+// Cell centred velocity of the transferred fluid (for output)
+//volVectorTransferField uT("uT", partNames, u[0]);
+
 // Compact Laplacian of the velocity
 surfaceScalarField laplacianU
     = (fvc::interpolate(fvc::laplacian(nuf,u.updateSum())) & mesh.Sf())
@@ -231,7 +234,7 @@ partitionedVolScalarField divu
 
 // Distance to a wall for each cell
 wallDist wd(mesh);
-const volScalarField wallDistance("wallDistance", wd.y());
+const volScalarField wallDistance("wallDistance", max(wd.y() - BLdepth, lengthZero));
 
 // Additional eddy diffusivity of heat for fluid 0
 const surfaceScalarField alpha0

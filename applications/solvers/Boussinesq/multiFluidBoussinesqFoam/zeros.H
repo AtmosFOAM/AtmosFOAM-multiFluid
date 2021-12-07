@@ -42,3 +42,8 @@ const dimensionedScalar fluxChangeZero
 (
     "fluxChangeZero", dimensionSet(0,3,-2,0,0), scalar(0)
 );
+const dimensionedScalar lengthZero
+(
+    "lengthZero", dimensionSet(0,1,0,0,0), scalar(0)
+);
+

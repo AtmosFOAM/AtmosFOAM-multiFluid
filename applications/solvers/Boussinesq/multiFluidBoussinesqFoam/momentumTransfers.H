@@ -13,12 +13,20 @@ if (wTransferScale > SMALL && nParts == 2)
 }
 else if (wTransferScale > SMALL && nParts == 3)
 {
-    volFluxT(0,1) -= wTransferScale*sigmaf[0]*kdir*min(volFlux[0]*kdir,fluxZero);
-    volFluxT(0,2) -= wTransferScale*sigmaf[0]*kdir*max(volFlux[0]*kdir,fluxZero);
+    // Entrainmnet
+    volFluxT(0,1) += kdir*wTransferScale*(volFlux[1] - volFlux[0]);
+    volFluxT(0,2) += kdir*wTransferScale*(volFlux[2] - volFlux[0]);
+//    volFluxT(0,1) -= wTransferScale*sigmaf[0]*kdir*min(volFlux[0]*kdir,fluxZero);
+//    volFluxT(0,2) -= wTransferScale*sigmaf[0]*kdir*max(volFlux[0]*kdir,fluxZero);
+
+    // Detrainment
     volFluxT(1,0) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
-    volFluxT(1,2) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
     volFluxT(2,0) -= wTransferScale*sigmaf[2]*kdir*min(volFlux[2]*kdir,fluxZero);
+
+    // trainment
+    volFluxT(1,2) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
     volFluxT(2,1) -= wTransferScale*sigmaf[2]*kdir*min(volFlux[2]*kdir,fluxZero);
+
 /*
     surfaceScalarField transferTmp = sigmaf[0]*volFlux.ddt()[0]
                       + massTransferf(1,0)*(volFluxT(1,0)-volFlux[0])

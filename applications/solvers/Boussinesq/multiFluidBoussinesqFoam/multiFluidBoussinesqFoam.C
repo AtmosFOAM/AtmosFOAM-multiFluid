@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
             for(label ip = 0; ip < nParts; ip++)
             {
                 u[ip] = fvc::reconstruct(volFlux[ip]);
+                u[ip].correctBoundaryConditions();
             }
             u.updateSum();
             volFlux.updateSum();
@@ -117,6 +118,17 @@ int main(int argc, char *argv[])
             totalHeat += fvc::domainIntegrate(sigma[ip]*b[ip])/sum(mesh.V());
         }
         Info << "totalHeat = " << totalHeat.value() << endl;
+
+        // uT for output
+        /*if (runTime.writeTime())
+        {
+            for(label ip = 0; ip < nParts; ip++) 
+                for(label jp=ip+1; jp < nParts; jp++)
+            {
+                uT(ip,jp) = fvc::reconstruct(volFluxT(ip,jp));
+                uT(jp,ip) = fvc::reconstruct(volFluxT(jp,ip));
+            }
+        }*/
 
         runTime.write();
         offCentre = offCentreSave;
