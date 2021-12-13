@@ -122,18 +122,18 @@ else if (transferType == dbdzTransfer && nParts == 3)
         // Entrainment
         if (ip == 1)
         {
-            massTransfer(0,1) += entRate*0.5*(1+sign(u[1].component(2)))*min
+            massTransfer(0,1) += entRate*0.5*(1+sign(u[1].component(2)))* //min
             (
-                max((sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0)),
-                max((sigma[1] - minSigma[1])/(1-minSigma[1]), scalar(0))
+                max((sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0))/*,
+                max((sigma[1] - minSigma[1])/(1-minSigma[1]), scalar(0))*/
             )*max(dwdz, rateZero);
         }
         else if (ip == 2)
         {
-            massTransfer(0,2) += entRate*0.5*(1-sign(u[2].component(2)))*min
+            massTransfer(0,2) += entRate*0.5*(1-sign(u[2].component(2)))*//min
             (
-                max((sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0)),
-                max((sigma[2] - minSigma[2])/(1-minSigma[0]), scalar(0))
+                max((sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0))/*,
+                max((sigma[2] - minSigma[2])/(1-minSigma[0]), scalar(0))*/
             )*max(dwdz, rateZero);
         }
     }

@@ -82,13 +82,15 @@ int main(int argc, char *argv[])
         for(label ip = 0; ip < nParts; ip++)
         {
             heatTransfer[ip] = fvc::reconstruct(heatTransferf[ip]*mesh.magSf());
-/*            forAll(heatTransfer[ip].boundaryField(), ipat)
+            forAll(heatTransfer[ip].boundaryField(), ipat)
             {
                 heatTransfer[ip].boundaryFieldRef()[ipat]
                      = heatTransferf[ip].boundaryField()[ipat]
                       *mesh.boundary()[ipat].Sf()/mesh.boundary()[ipat].magSf();
             }
-*/        }
+        }
+        heatTransfer.updateSum();
+        heatTransferf.updateSum();
         heatTransfer.write();
         heatTransferf.write();
     }
