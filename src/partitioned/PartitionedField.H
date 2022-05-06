@@ -228,6 +228,16 @@ public:
             const dimensionedScalar& dt
         );
         
+        //- Transfer non-mass weighted fields and separate asymmetric bits
+        void asymetricTransferField
+        (
+            const TransferField<Type, PatchField, GeoMesh>& M,
+            const TransferField<Type, PatchField, GeoMesh>& fieldT,
+            const TransferField<Type, PatchField, GeoMesh>& add,
+            const TransferField<Type, PatchField, GeoMesh>& remove,
+            const dimensionedScalar& dt
+        );
+
         //- Store the old time values and the rates of change
         void storeTime();
 

@@ -474,6 +474,34 @@ void Foam::PartitionedField<Type, PatchField, GeoMesh>::transferField
 
 
 template<class Type, template<class> class PatchField, class GeoMesh>
+void Foam::PartitionedField<Type, PatchField, GeoMesh>
+         ::asymetricTransferField
+(
+    const TransferField<Type, PatchField, GeoMesh>& M,
+    const TransferField<Type, PatchField, GeoMesh>& fieldT,
+    const TransferField<Type, PatchField, GeoMesh>& add,
+    const TransferField<Type, PatchField, GeoMesh>& remove,
+    const dimensionedScalar& dt
+)
+{
+    const dimensionedScalar smallSigma("", sigma()[0].dimensions(), SMALL);
+    const PartitionedField<Type, PatchField, GeoMesh> old = *this;
+
+    for(label ip = 0; ip < size(); ip++)
+    {
+        for(label jp = 0; jp < size(); jp++) if (ip != jp)
+        {
+            operator[](ip) += dt/max(sigma()[ip], smallSigma)*
+            (
+                M(jp,ip)*(fieldT(jp,ip) - old[ip] + add(jp,ip))
+              - M(ip,jp)*(fieldT(ip,jp) - old[ip] + remove(ip,jp))
+            );
+        }
+    }
+}
+
+
+template<class Type, template<class> class PatchField, class GeoMesh>
 void Foam::PartitionedField<Type, PatchField, GeoMesh>::storeTime()
 {
     // Only call this function once (only set the pointers once)
