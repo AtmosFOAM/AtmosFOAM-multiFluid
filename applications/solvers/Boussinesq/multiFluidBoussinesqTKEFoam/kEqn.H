@@ -11,7 +11,8 @@ for(label ip = 0; ip < nParts; ip++)
                   + fvc::laplacian(nuTurb[ip], TKE[ip])
                   + (nuTurbC + nu)*(dev(twoSymm(gradu)) && gradu)
                   - nuTurbC*dbdz
-                  - 0.09*pow(TKE[ip], 1.5)/turbLength[ip];
+                  - Cmu*pow(TKE[ip], 1.5)/turbLength[ip];
+
     // Limit to maintain positivity
     TKE.ddt()[ip] = max(TKE.ddt()[ip], -(0.5-SMALL)*TKE[ip].oldTime()/dt);
     TKE.ddt()[ip].oldTime() 
@@ -25,6 +26,8 @@ for(label ip = 0; ip < nParts; ip++)
     );
 
     TKE[ip].correctBoundaryConditions();
+//    Info << "In kEqn.H TKE[" << ip << "] goes from " << min(TKE[ip]).value()
+//         << " to " << max(TKE[ip]).value() << endl;
     
     // Update nuTurb
     nuTurb[ip] = nu + linearInterpolate(turbLength[ip]*sqrt(TKE[ip]));

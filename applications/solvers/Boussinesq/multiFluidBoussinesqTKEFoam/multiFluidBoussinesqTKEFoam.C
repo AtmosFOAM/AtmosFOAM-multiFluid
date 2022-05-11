@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
             volFlux.updateSum();
         }
 
-        Info << "sigma[1] goes from " << min(sigma[1]).value() <<  " to "
-            << max(sigma[1]).value() << endl;
+        Info << "sigma.last() goes from " << min(sigma.last()).value() <<  " to "
+            << max(sigma.last()).value() << endl;
 
         dimensionedScalar totalHeat
              = fvc::domainIntegrate(sigma[0]*b[0])/sum(mesh.V());

@@ -30,6 +30,7 @@ if (gamma.value() > SMALL)
         volFlux[ip] -= offCentre*dt*fvc::snGrad(p[ip])*mesh.magSf();
         volFlux.ddt()[ip] -= fvc::snGrad(p[ip])*mesh.magSf();
     }
+    
     p.updateSum();
     Info << "p.sum goes from " << min(p.sum()).value() << " to "
          << max(p.sum()).value() << endl;

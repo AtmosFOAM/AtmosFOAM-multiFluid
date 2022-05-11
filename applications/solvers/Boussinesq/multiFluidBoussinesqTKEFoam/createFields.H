@@ -223,8 +223,8 @@ volScalarTransferField tkeT
         IOobject("tkeT", runTime.timeName(), mesh, IOobject::NO_READ),
         mesh,
         dimensionedScalar("", TKE[0].dimensions(), scalar(0))
-    ),
-    IOobject::NO_WRITE
+    )/*,
+    IOobject::NO_WRITE*/
 );
 volScalarTransferField tkeAdd
 (
@@ -251,11 +251,11 @@ volScalarTransferField tkeRemove
 wallDist wd(mesh);
 partitionedVolScalarField turbLength
 (
-    "turbLength", partNames, wd.y()*vonKarmenKappa, IOobject::NO_WRITE
+    "turbLength", partNames, wd.y()*vonKarmenKappa, sigma, IOobject::NO_WRITE
 );
 for(label ip = 0; ip < nParts; ip++)
 {
-    turbLength[ip] = min(turbLength[ip], maxLength[ip]);
+    turbLength[ip] = min(max(turbLength[ip], minLength[ip]), maxLength[ip]);
 }
 turbLength.write();
 
