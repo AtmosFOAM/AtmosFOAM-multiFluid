@@ -33,7 +33,6 @@ Description
 
 #include "fvCFD.H"
 #include "PartitionedFields.H"
-#include "wallDist.H"
 #include "cellSet.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -57,8 +56,8 @@ int main(int argc, char *argv[])
     #include "createMeshRegion.H"
     const surfaceScalarField kdir = mesh.Sf().component(2)/mesh.magSf();
     const surfaceScalarField magk = mag(kdir);
-    #include "../readEnvironmentalProps.H"
-    #include "../readTransferCoeffs.H"
+    #include "readEnvironmentalProps.H"
+    #include "readTransferCoeffs.H"
     #define dt runTime.deltaT()
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -73,11 +72,7 @@ int main(int argc, char *argv[])
         for(label ip = 0; ip < nParts; ip++)
         {
             heatTransferf[ip] = volFlux[ip]*linearInterpolate(b[ip])/mesh.magSf()
-                              - alphaf*fvc::snGrad(b[ip]);
-        }
-        if (maxAlpha0.value() > SMALL)
-        {
-            heatTransferf[0] -= alpha0*fvc::snGrad(b[0]);
+                              - nuTurb[ip]*fvc::snGrad(b[ip]);
         }
         for(label ip = 0; ip < nParts; ip++)
         {

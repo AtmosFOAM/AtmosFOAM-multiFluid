@@ -262,6 +262,23 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
 }
 
 
+template<class Type, template<class> class PatchField, class GeoMesh>
+Foam::PartitionedField<Type, PatchField, GeoMesh>::PartitionedField
+(
+    const PartitionedField& pf__
+)
+:
+    PtrList<GeometricField<Type, PatchField, GeoMesh> >(pf__),
+    baseName_(pf__.baseName_),
+    partNames_(pf__.partNames_),
+    sum_(pf__.sum_),
+    mean_(pf__.mean_),
+    needsSigma_(pf__.needsSigma_),
+    sigmaPtr_(pf__.sigmaPtr_),
+    ddtPtr_(NULL)
+{}
+
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type, template<class> class PatchField, class GeoMesh>

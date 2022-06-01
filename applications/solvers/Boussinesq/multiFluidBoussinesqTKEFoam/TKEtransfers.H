@@ -4,7 +4,7 @@
 for(label ip = 0; ip < nParts; ip++) 
     for(label jp = 0; jp < nParts; jp++) if (ip != jp)
 {
-    tkeT(ip,jp) == TKE[ip];
+    tkeT(ip,jp) = TKE[ip];
     tkeAdd(ip,jp) = 0.5*magSqr(fvc::reconstruct(volFluxT(ip,jp) - volFlux[jp]));
     tkeRemove(ip,jp) = 0.5*magSqr(fvc::reconstruct(volFluxT(ip,jp) - volFlux[ip]));
 }
@@ -17,3 +17,9 @@ TKE.asymetricTransferField(massTransfer, tkeT, tkeAdd, tkeRemove, dt);
     Info << "In TKEtransfers.H TKE[" << ip << "] goes from " << min(TKE[ip]).value()
          << " to " << max(TKE[ip]).value() << endl;
 }*/
+
+// Non energy conserving post fix of TKE (really need to modify volFluxT)
+for(label ip = 0; ip < nParts; ip++) 
+{
+    TKE[ip] = max(TKE[ip], sqr(speedSMALL));
+}

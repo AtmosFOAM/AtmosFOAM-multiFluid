@@ -1,14 +1,22 @@
-// Explicit part of velocity for each partition (without mass tranfers)
-for(label ip = 0; ip < nParts; ip++)
+// Compact diffusion of the velocity, common to all fluids
+surfaceScalarField laplacianU
+    = (fvc::interpolate(fvc::laplacian(nuTurb[0],u[0])) & mesh.Sf())
+    + mesh.magSf()*nuTurb[0]*fvc::snGrad
+    (
+        fvc::div(volFlux[0] - (linearInterpolate(u[0]) & mesh.Sf()))
+    );
+for(label ip = 1; ip < nParts; ip++)
 {
-    // Compact Laplacian of the velocity
-    laplacianU 
-        = (fvc::interpolate(fvc::laplacian(nuTurb[ip], u[ip])) & mesh.Sf())
-        + mesh.magSf()*nuTurb[ip]*fvc::snGrad
+    laplacianU += (fvc::interpolate(fvc::laplacian(nuTurb[ip], u[ip])) & mesh.Sf())
+            + mesh.magSf()*nuTurb[ip]*fvc::snGrad
             (
                 fvc::div(volFlux[ip] - (linearInterpolate(u[ip]) & mesh.Sf()))
             );
+}
 
+// Explicit part of velocity for each partition (without mass tranfers)
+for(label ip = 0; ip < nParts; ip++)
+{
     // Rate of change of volFlux without pressure gradient
     volFlux.ddt()[ip] = (mesh.Sf() &
     (

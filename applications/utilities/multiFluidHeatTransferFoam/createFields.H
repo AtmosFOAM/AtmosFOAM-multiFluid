@@ -47,21 +47,34 @@ for(label ip = 1; ip < nParts; ip++)
 }
 volFlux.updateSum();
 
-// Distance to a wall for each cell
-wallDist wd(mesh);
-const volScalarField wallDistance
+// Read in turbulent viscosity if it exists
+partitionedSurfaceScalarField nuTurb
 (
-    "wallDistance",
-    max(wd.y() - BLdepth, dimensionedScalar("", dimLength, scalar(0)))
+    "nuTurb",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("nuTurb"+'.'+partNames[0], runTime.timeName(), mesh,
+                IOobject::READ_IF_PRESENT),
+        mesh,
+        alpha,
+        wordList(mesh.boundaryMesh().size(), "calculated")
+    ),
+    sigmaf
 );
+for(label ip = 1; ip < nParts; ip++)
+{
+    IOobject nuTurbIOobject
+    (
+        nuTurb[ip].name(), runTime.timeName(), mesh, IOobject::MUST_READ
+    );
+    if (nuTurbIOobject.typeHeaderOk<surfaceScalarField>(false))
+    {
+        nuTurb[ip] = surfaceScalarField(nuTurbIOobject, mesh);
+    }
+}
 
-// Additional eddy diffusivity of heat for fluid 0
-const surfaceScalarField alpha0
-(
-    "alpha0",
-    min(linearInterpolate(wallDistance)*alphaScale, maxAlpha0)
-);
-
+// Create heat transfer in each fluid
 partitionedSurfaceScalarField heatTransferf
 (
     "heatTransferf", partNames, -alpha*fvc::snGrad(b[0]), sigmaf,

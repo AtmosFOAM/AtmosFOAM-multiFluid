@@ -1,17 +1,25 @@
-// flux form TKE equation without diffusion or transfers (explicit solution)
+// Diffusion common for all fluids
+volScalarField kDiffusion = sigma[0]*fvc::laplacian(nuTurb[0], TKE[0]);
+for(label ip = 1; ip < nParts; ip++)
+{
+    kDiffusion += sigma[ip]*fvc::laplacian(nuTurb[ip], TKE[ip]);
+}
+
+// TKE equation without diffusion or transfers (explicit solution)
 for(label ip = 0; ip < nParts; ip++)
 {
     u[ip] = fvc::reconstruct(volFlux[ip]);
     volTensorField gradu = fvc::grad(u[ip]);
     volScalarField dbdz = fvc::div(bf[ip]*magk);
-    volScalarField nuTurbC = turbLength[ip]*sqrt(TKE[ip]);
+    volScalarField nuTurbC = turbLength[ip]*sqrt(TKE[ip]) + nu;
     
     TKE.ddt()[ip] = - fvc::div(volFlux[ip], TKE[ip], "TKE")
                   + TKE[ip]*fvc::div(volFlux[ip])
-                  + fvc::laplacian(nuTurb[ip], TKE[ip])
-                  + (nuTurbC + nu)*(dev(twoSymm(gradu)) && gradu)
+                  + kDiffusion
+                  + nuTurbC*(dev(twoSymm(gradu)) && gradu)
                   - nuTurbC*dbdz
-                  - Cmu*pow(TKE[ip], 1.5)/turbLength[ip];
+                  - Cmu*pow(TKE[ip], 1.5)/turbLength[ip]
+                  + gamma*(u[ip] & fvc::laplacian(u[ip]));
 
     // Limit to maintain positivity
     TKE.ddt()[ip] = max(TKE.ddt()[ip], -(0.5-SMALL)*TKE[ip].oldTime()/dt);

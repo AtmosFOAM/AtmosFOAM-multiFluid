@@ -278,15 +278,3 @@ for(label ip = 0; ip < nParts; ip++)
 }
 nuTurb.write();
 
-// Compact Laplacian of the velocity
-surfaceScalarField laplacianU
-    = (fvc::interpolate(fvc::laplacian(nuTurb[0],u.updateSum())) & mesh.Sf())
-    + mesh.magSf()*nuTurb[0]*fvc::snGrad
-    (
-        fvc::div
-        (
-            volFlux.updateSum()
-         - (linearInterpolate(u.sum()) & mesh.Sf())
-        )
-    );
-

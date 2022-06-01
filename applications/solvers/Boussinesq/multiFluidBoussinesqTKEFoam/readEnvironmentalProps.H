@@ -5,7 +5,7 @@ IOdictionary envProps
     IOobject
     (
         "environmentalProperties",
-        runTime.system(),
+        runTime.constant(),
         mesh,
         IOobject::MUST_READ,
         IOobject::NO_WRITE

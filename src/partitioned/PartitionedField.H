@@ -135,6 +135,12 @@ public:
             const PartitionedField<scalar, PatchField, GeoMesh>& sigma__,
             IOobject::writeOption writeOpt = IOobject::AUTO_WRITE
         );
+        
+        //- Copy construct
+        PartitionedField
+        (
+            const PartitionedField& copyFrom_
+        );
 
 
     //- Destructor
