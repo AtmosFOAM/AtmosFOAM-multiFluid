@@ -1,10 +1,42 @@
-// Set all mass transfers to zero
+/*// Set all mass transfers to zero
 if (transferType != noTransfer) for(label ip = 0; ip < nParts; ip++)
 {
     for(label jp=ip+1; jp < nParts; jp++)
     {
         massTransfer(ip,jp) == rateZero;
         massTransfer(jp,ip) == rateZero;
+    }
+}
+*/
+
+// Start with diffusion transfers
+for(label ip = 0; ip < nParts; ip++)
+{
+    for(label jp=ip+1; jp < nParts; jp++)
+    {
+        volScalarField lapI = 2*fvc::laplacian(nuTurb[ip], sigma[ip]);
+        volScalarField lapJ = 2*fvc::laplacian(nuTurb[jp], sigma[jp]);
+    
+        massTransfer(ip,jp)
+             = max(-lapI, rateZero)
+              *max( lapJ, rateZero)
+              /max(lapJ - lapI, rateSMALL);
+        massTransfer(jp,ip)
+             = max(-lapJ, rateZero)
+              *max( lapI, rateZero)
+              /max(lapI - lapJ, rateSMALL);
+    }
+}
+
+// Add mixing transfers
+if (mixingTransfer > 0) for(label ip = 0; ip < nParts; ip++)
+{
+    for(label jp=ip+1; jp < nParts; jp++)
+    {
+        massTransfer(ip,jp) += mixingTransfer*sigma[ip]*sigma[jp]
+                    *pow(TKE[ip]*TKE[jp], 0.25)/turbLength[ip];
+        massTransfer(jp,ip) += mixingTransfer*sigma[ip]*sigma[jp]
+                    *pow(TKE[ip]*TKE[jp], 0.25)/turbLength[jp];
     }
 }
 

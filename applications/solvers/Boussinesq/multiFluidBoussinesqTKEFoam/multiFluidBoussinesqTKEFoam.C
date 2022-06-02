@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
             // Mass transfers
             if (transferType != noTransfer && nParts > 1)
             {
-                #include "diffusionTransfers.H"
                 #include "massTransfers.H"
                 sigma.transferMass(massTransfer, dt);
                 interpolate(sigmaf, sigma);

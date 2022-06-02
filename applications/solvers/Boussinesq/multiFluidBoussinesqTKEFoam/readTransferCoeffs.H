@@ -56,6 +56,10 @@ if (transferType == dwdzTransfer)
     }
 }
 
+// Scale the mixing transfer
+const scalar mixingTransfer = transferType == noTransfer? scalar(0) :
+                  readScalar(transferProps.lookup("mixingTransfer"));
+
 // Scale the mass transfers
 const scalar transferScale = transferType == noTransfer? scalar(0) :
       readScalar(transferProps.lookup("transferScale"));

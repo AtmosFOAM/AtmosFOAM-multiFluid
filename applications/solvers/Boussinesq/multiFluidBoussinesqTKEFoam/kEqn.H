@@ -17,7 +17,7 @@ for(label ip = 0; ip < nParts; ip++)
                   + TKE[ip]*fvc::div(volFlux[ip])
                   + kDiffusion
                   + nuTurbC*(dev(twoSymm(gradu)) && gradu)
-                  - nuTurbC*dbdz
+                  - 10*nuTurbC*dbdz
                   - Cmu*pow(TKE[ip], 1.5)/turbLength[ip]
                   + gamma*(u[ip] & fvc::laplacian(u[ip]));
 
