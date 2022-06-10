@@ -80,9 +80,9 @@ int main(int argc, char *argv[])
 
         for (int ucorr=0; ucorr < nOuterCorr; ucorr++)
         {
+            #include "kEqn.H"
             #include "bEqn.H"
             #include "momentumEqn.H"
-            #include "kEqn.H"
             #include "PEqn.H"
             if (nParts > 1)
             {
@@ -112,6 +112,11 @@ int main(int argc, char *argv[])
             }
             u.updateSum();
             volFlux.updateSum();
+            // Update nuTurb
+            for(label ip = 1; ip < nParts; ip++)
+            {
+                nuTurb[ip] = nu + linearInterpolate(turbLength[ip]*sqrt(TKE[ip]));
+            }
         }
 
         Info << "sigma.last() goes from " << min(sigma.last()).value() <<  " to "

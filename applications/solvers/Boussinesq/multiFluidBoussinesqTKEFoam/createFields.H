@@ -234,7 +234,8 @@ volScalarTransferField tkeAdd
         IOobject("tkeAdd", runTime.timeName(), mesh, IOobject::NO_READ),
         mesh,
         dimensionedScalar("", TKE[0].dimensions(), scalar(0))
-    )
+    ),
+    IOobject::NO_WRITE
 );
 volScalarTransferField tkeRemove
 (
@@ -244,18 +245,21 @@ volScalarTransferField tkeRemove
         IOobject("tkeRemove", runTime.timeName(), mesh, IOobject::NO_READ),
         mesh,
         dimensionedScalar("", TKE[0].dimensions(), scalar(0))
-    )
+    ),
+    IOobject::NO_WRITE
 );
 
 // Fixed turbulent length scale based on distance to a wall
 wallDist wd(mesh);
 partitionedVolScalarField turbLength
 (
-    "turbLength", partNames, wd.y()*vonKarmenKappa, sigma, IOobject::NO_WRITE
+    "turbLength", partNames, (wd.y()+roughnessHeight)*vonKarmenKappa, sigma,
+    IOobject::NO_WRITE
 );
-for(label ip = 0; ip < nParts; ip++)
+turbLength[0] = min(max(turbLength[0], minLength[0]), maxLength[0]);
+for(label ip = 1; ip < nParts; ip++)
 {
-    turbLength[ip] = min(max(turbLength[ip], minLength[ip]), maxLength[ip]);
+    turbLength[ip] = min(max(wd.y()*vonKarmenKappa, minLength[ip]), maxLength[ip]);
 }
 turbLength.write();
 

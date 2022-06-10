@@ -14,23 +14,23 @@ if (wTransferScale > SMALL && nParts == 2)
 else if (wTransferScale > SMALL && nParts == 3) // Transfer dependent on TKE
 {
     // Entrainmnet
-    volFluxT(0,1) += wTransferScale*sigmaf[0]*sqrt(linearInterpolate(2*TKE[0]))
+    volFluxT(0,1) += wTransferScale*/*sigmaf[0]**/sqrt(linearInterpolate(2*TKE[0]))
                     *mesh.Sf().component(2);
-    volFluxT(0,2) -= wTransferScale*sigmaf[0]*sqrt(linearInterpolate(2*TKE[0]))
+    volFluxT(0,2) -= wTransferScale*/*sigmaf[0]**/sqrt(linearInterpolate(2*TKE[0]))
                     *mesh.Sf().component(2);
 
-    // Detrainmnet
-//    volFluxT(1,0) -= wTransferScale*sigmaf[1]*sqrt(linearInterpolate(2*TKE[1]))
+// Detrainmnet
+//    volFluxT(1,0) -= wTransferScale*/*sigmaf[1]**/sqrt(linearInterpolate(2*TKE[1]))
 //                    *mesh.Sf().component(2);
-//    volFluxT(2,0) += wTransferScale*sigmaf[2]*sqrt(linearInterpolate(2*TKE[2]))
+//    volFluxT(2,0) += wTransferScale*/*sigmaf[2]**/sqrt(linearInterpolate(2*TKE[2]))
 //                    *mesh.Sf().component(2);
     volFluxT(1,0) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
     volFluxT(2,0) += wTransferScale*sigmaf[2]*kdir*max(-volFlux[2]*kdir,fluxZero);
 
     // trainmnet
-//    volFluxT(1,2) -= wTransferScale*sigmaf[1]*sqrt(linearInterpolate(2*TKE[1]))
+//    volFluxT(1,2) -= wTransferScale*/*sigmaf[1]**/sqrt(linearInterpolate(2*TKE[1]))
 //                    *mesh.Sf().component(2);
-//    volFluxT(2,1) += wTransferScale*sigmaf[2]*sqrt(linearInterpolate(2*TKE[2]))
+//    volFluxT(2,1) += wTransferScale*/*sigmaf[2]**/sqrt(linearInterpolate(2*TKE[2]))
 //                    *mesh.Sf().component(2);
     volFluxT(1,2) -= wTransferScale*sigmaf[1]*kdir*max(volFlux[1]*kdir,fluxZero);
     volFluxT(2,1) += wTransferScale*sigmaf[2]*kdir*max(-volFlux[2]*kdir,fluxZero);

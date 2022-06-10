@@ -71,8 +71,11 @@ int main(int argc, char *argv[])
 
         for(label ip = 0; ip < nParts; ip++)
         {
-            heatTransferf[ip] = volFlux[ip]*linearInterpolate(b[ip])/mesh.magSf()
-                              - nuTurb[ip]*fvc::snGrad(b[ip]);
+            heatTransferf[ip] = sigmaf[ip]*
+            (
+                volFlux[ip]*linearInterpolate(b[ip])/mesh.magSf()
+              - nuTurb[ip]*fvc::snGrad(b[ip])
+            );
         }
         for(label ip = 0; ip < nParts; ip++)
         {

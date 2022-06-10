@@ -14,7 +14,14 @@ if (bTransferScale > SMALL && nParts == 2)
 }
 else if (transferType == dwdzTransfer && nParts == 3 && bTransferScale > SMALL)
 {
-    bT(0,1) += bTransferScale*sigma[0]
+    //bT(0,1) += bTransferScale*sigma[0]*max(b[0], bZero);
+    //bT(0,2) += bTransferScale*sigma[0]*min(b[0], bZero);
+    bT(1,0) -= bTransferScale*sigma[1]*max(b[1], bZero);
+    bT(1,2) -= bTransferScale*sigma[1]*max(b[1], bZero);
+    bT(2,0) += bTransferScale*sigma[2]*max(-b[2], bZero);
+    bT(2,1) += bTransferScale*sigma[2]*max(-b[2], bZero);
+
+/*    bT(0,1) += bTransferScale*sigma[0]
              *(fvc::localMax(maxInterp.interpolate(b[0])) - b[0]);
     bT(0,2) += bTransferScale*sigma[0]
              *(fvc::localMin(-maxInterp.interpolate(-b[0])) - b[0]);
@@ -26,6 +33,7 @@ else if (transferType == dwdzTransfer && nParts == 3 && bTransferScale > SMALL)
              *(fvc::localMax(maxInterp.interpolate(b[2])) - b[2]);
     bT(2,1) += bTransferScale*sigma[2]
              *(fvc::localMax(maxInterp.interpolate(b[2])) - b[2]);
+*/
 }
 
 // Transfer the buoyancy

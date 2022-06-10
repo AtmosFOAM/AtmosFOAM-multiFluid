@@ -34,9 +34,9 @@ if (mixingTransfer > 0) for(label ip = 0; ip < nParts; ip++)
     for(label jp=ip+1; jp < nParts; jp++)
     {
         massTransfer(ip,jp) += mixingTransfer*sigma[ip]*sigma[jp]
-                    *pow(TKE[ip]*TKE[jp], 0.25)/turbLength[ip];
+                    *pow(0.5*(TKE[ip]+TKE[jp]), 0.5)/turbLength[ip];
         massTransfer(jp,ip) += mixingTransfer*sigma[ip]*sigma[jp]
-                    *pow(TKE[ip]*TKE[jp], 0.25)/turbLength[jp];
+                    *pow(0.5*(TKE[ip]+TKE[jp]), 0.5)/turbLength[jp];
     }
 }
 

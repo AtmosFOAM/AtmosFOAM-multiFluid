@@ -77,14 +77,12 @@ for(label ip = 1; ip < nParts; ip++)
 // Create heat transfer in each fluid
 partitionedSurfaceScalarField heatTransferf
 (
-    "heatTransferf", partNames, -alpha*fvc::snGrad(b[0]), sigmaf,
-    IOobject::NO_WRITE
+    "heatTransferf", partNames, -alpha*fvc::snGrad(b[0])*sigmaf[0]
 );
 
 partitionedVolVectorField heatTransfer
 (
-    "heatTransfer", partNames, fvc::reconstruct(heatTransferf[0]*mesh.magSf()),
-    sigma, IOobject::NO_WRITE
+    "heatTransfer", partNames, fvc::reconstruct(heatTransferf[0]*mesh.magSf())
 );
 
 
