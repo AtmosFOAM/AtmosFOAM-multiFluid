@@ -1,4 +1,5 @@
 // TKE equation without diffusion or transfers (explicit solution)
+
 for(label ip = 0; ip < nParts; ip++)
 {
     u[ip] = fvc::reconstruct(volFlux[ip]);
@@ -12,7 +13,8 @@ for(label ip = 0; ip < nParts; ip++)
                   + (nuTurbC+nu)*(dev(twoSymm(gradu)) && gradu)
                   - Cb*nuTurbC*dbdz
                   - Cmu*pow(TKE[ip], 1.5)/turbLength[ip]
-                  + gamma*(u[ip] & fvc::grad(fvc::div(volFlux[ip])));
+                  + Cp*(u[ip] & fvc::grad(p[ip]));
+//                  + dragTKEsource;
 
     // Limit to maintain positivity
     TKE.ddt()[ip] = max(TKE.ddt()[ip], -(0.5-SMALL)*TKE[ip].oldTime()/dt);

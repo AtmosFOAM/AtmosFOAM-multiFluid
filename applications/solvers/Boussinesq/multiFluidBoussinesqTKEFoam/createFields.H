@@ -251,15 +251,15 @@ volScalarTransferField tkeRemove
 
 // Fixed turbulent length scale based on distance to a wall
 wallDist wd(mesh);
+volScalarField yWall = max(wd.y() - surfaceHeight, lengthZero);
 partitionedVolScalarField turbLength
 (
-    "turbLength", partNames, (wd.y()+roughnessHeight)*vonKarmenKappa, sigma,
+    "turbLength", partNames, yWall*vonKarmenKappa, sigma,
     IOobject::NO_WRITE
 );
-turbLength[0] = min(max(turbLength[0], minLength[0]), maxLength[0]);
-for(label ip = 1; ip < nParts; ip++)
+for(label ip = 0; ip < nParts; ip++)
 {
-    turbLength[ip] = min(max(wd.y()*vonKarmenKappa, minLength[ip]), maxLength[ip]);
+    turbLength[ip] = min(max(yWall*vonKarmenKappa, minLength[ip]), maxLength[ip]);
 }
 turbLength.write();
 
@@ -282,3 +282,41 @@ for(label ip = 0; ip < nParts; ip++)
 }
 nuTurb.write();
 
+// Turbulent diffusivity in each fluid
+partitionedSurfaceScalarField alphaTurb
+(
+    "alphaTurb",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("alphaTurb", runTime.timeName(), mesh),
+        mesh,
+        nu
+    ),
+    sigmaf
+);
+for(label ip = 0; ip < nParts; ip++)
+{
+    alphaTurb[ip] = alpha + Cb*linearInterpolate(turbLength[ip]*sqrt(TKE[ip]));
+}
+alphaTurb.write();
+
+// Drag between fluids
+surfaceScalarTransferField drag
+(
+    "drag",
+    partNames,
+    surfaceScalarField
+    (
+        IOobject("drag", runTime.timeName(), mesh),
+        mesh,
+        dimensionedScalar("", dimensionSet(0,3,-2,0,0), scalar(0))
+    ),
+    IOobject::NO_WRITE
+);
+
+/*volScalarField dragTKEsource
+(
+    "dragTKEsource", 
+    u.sum() & fvc::reconstruct(drag(0,1))
+);*/

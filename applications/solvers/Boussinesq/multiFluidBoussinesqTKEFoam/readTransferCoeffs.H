@@ -88,3 +88,6 @@ uniformDimensionedScalarField gamma
     dimensionedScalar(transferProps.lookup("gamma"))
 );
 
+// Drag parameters
+const dimensionedScalar dragRadius(transferProps.lookup("dragRadius"));
+

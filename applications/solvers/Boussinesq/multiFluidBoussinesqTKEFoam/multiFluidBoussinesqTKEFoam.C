@@ -113,9 +113,11 @@ int main(int argc, char *argv[])
             u.updateSum();
             volFlux.updateSum();
             // Update nuTurb
-            for(label ip = 1; ip < nParts; ip++)
+            for(label ip = 0; ip < nParts; ip++)
             {
                 nuTurb[ip] = nu + linearInterpolate(turbLength[ip]*sqrt(TKE[ip]));
+                alphaTurb[ip] = alpha
+                            + Cb*linearInterpolate(turbLength[ip]*sqrt(TKE[ip]));
             }
         }
 

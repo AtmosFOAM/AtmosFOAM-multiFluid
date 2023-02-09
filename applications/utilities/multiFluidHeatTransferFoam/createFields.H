@@ -26,7 +26,7 @@ partitionedSurfaceScalarField volFlux
     partNames,
     surfaceScalarField
     (
-        IOobject("volFlux"+'.'+partNames[0], runTime.timeName(), mesh,
+        IOobject("volFlux."+partNames[0], runTime.timeName(), mesh,
                 IOobject::READ_IF_PRESENT),
         mesh,
         dimensionedScalar("", dimensionSet(0,3,-1,0,0), scalar(0)),
@@ -47,14 +47,14 @@ for(label ip = 1; ip < nParts; ip++)
 }
 volFlux.updateSum();
 
-// Read in turbulent viscosity if it exists
-partitionedSurfaceScalarField nuTurb
+Info << "Reading in turbulent diffusivity if it exists\n" << endl;
+partitionedSurfaceScalarField alphaTurb
 (
-    "nuTurb",
+    "alphaTurb",
     partNames,
     surfaceScalarField
     (
-        IOobject("nuTurb"+'.'+partNames[0], runTime.timeName(), mesh,
+        IOobject("alphaTurb."+partNames[0], runTime.timeName(), mesh,
                 IOobject::READ_IF_PRESENT),
         mesh,
         alpha,
@@ -64,17 +64,17 @@ partitionedSurfaceScalarField nuTurb
 );
 for(label ip = 1; ip < nParts; ip++)
 {
-    IOobject nuTurbIOobject
+    IOobject alphaTurbIOobject
     (
-        nuTurb[ip].name(), runTime.timeName(), mesh, IOobject::MUST_READ
+        alphaTurb[ip].name(), runTime.timeName(), mesh, IOobject::MUST_READ
     );
-    if (nuTurbIOobject.typeHeaderOk<surfaceScalarField>(false))
+    if (alphaTurbIOobject.typeHeaderOk<surfaceScalarField>(false))
     {
-        nuTurb[ip] = surfaceScalarField(nuTurbIOobject, mesh);
+        alphaTurb[ip] = surfaceScalarField(alphaTurbIOobject, mesh);
     }
 }
 
-// Create heat transfer in each fluid
+Info << "Creating heat transfer in each fluid\n" << endl;
 partitionedSurfaceScalarField heatTransferf
 (
     "heatTransferf", partNames, -alpha*fvc::snGrad(b[0])*sigmaf[0]

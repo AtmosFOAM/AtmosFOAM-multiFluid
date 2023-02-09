@@ -1,5 +1,5 @@
 EXE_INC = \
-    -ggdb -O0 \
+    -ggdb -O3 \
     -I$(ATMOSFOAM_TOOLS_SRC)/OpenFOAM/lnInclude \
     -I$(ATMOSFOAM_TOOLS_SRC)/finiteVolume/lnInclude \
     -I$(ATMOSFOAM_MULTIF_SRC)/partitioned/lnInclude \

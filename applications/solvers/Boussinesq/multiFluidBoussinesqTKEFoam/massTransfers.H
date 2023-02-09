@@ -45,9 +45,7 @@ if (transferType == dwdzTransfer && nParts == 2)
     for(label ip = 0; ip < nParts; ip++)
     {
         volScalarField dwdz = fvc::div(volFlux[ip]*magk);
-        massTransfer(ip,1-ip) = transferScale
-                                *max(sigma[ip] - minSigma[ip], scalar(0))
-                                *max(-dwdz, rateZero);
+        massTransfer(ip,1-ip) = entRate*sigma[ip]*max(-dwdz, rateZero);
     }
 }
 
@@ -60,23 +58,35 @@ else if (transferType == dwdzTransfer && nParts == 3)
         (sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0)
     )*transferScale*sqrt(max(-dbdz, sqr(rateZero)));
     
-    // Transfer to the fluid that has dwdz>0
-    massTransfer(0,1) += positive(fvc::div(volFlux[1]*magk))*transferTmp;
-    massTransfer(0,2) += positive(fvc::div(volFlux[2]*magk))*transferTmp;
+    // Transfer to the fluid that has greater dwdz
+    volScalarField oneGreater = positive
+    (
+        fvc::div(volFlux[1]*magk) - fvc::div(volFlux[2]*magk)
+    );
+    massTransfer(0,1) += oneGreater*transferTmp;
+    massTransfer(0,2) += (1-oneGreater)*transferTmp;
     
     // Detrainment and Entrainment
     for(label ip = 1; ip < nParts; ip++)
     {
         volScalarField dwdz = fvc::div(volFlux[ip]*magk);
         // Detrainment
-        massTransfer(ip,0) += detrainRate*max(-dwdz, rateZero)*
-            sigma[ip];
-            //max((sigma[ip]-minSigma[ip])/(1-minSigma[ip]), scalar(0));
+        massTransfer(ip,0) += detrainRate*max(-dwdz, rateZero)*sigma[ip];
     
         // Entrainment
-        massTransfer(0,ip) += entRate*max(dwdz, rateZero)*
-            min(sigma[0], sigma[ip]);
-            //max((sigma[0]-minSigma[0])/(1-minSigma[0]), scalar(0));
+        massTransfer(0,ip) += entRate*max(dwdz, rateZero)
+            *min(sigma[0], sigma[ip]);
+    
+        // swap 1 and 2 if in the wrong direction
+        volScalarField w = u[ip].component(2);
+        if (ip == 1)
+        {
+            massTransfer(ip,3-ip) += sigma[ip]*mag(dwdz)*positive(sign(-w));
+        }
+        else
+        {
+            massTransfer(ip,3-ip) += sigma[ip]*mag(dwdz)*positive(sign(w));
+        }
     }
 }
 

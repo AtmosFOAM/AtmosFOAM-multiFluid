@@ -322,7 +322,12 @@ Foam::PartitionedField<Type, PatchField, GeoMesh>::updateSum()
         {
             sum_ += sigma()[ip]*operator[](ip);
         }
-        mean_ = sum_/sigma().sum();
+        mean_ = sum_/
+            max
+            (
+                sigma().sum(),
+                dimensionedScalar("", sigma().sum().dimensions(), SMALL)
+            );
     }
     
     return sum_;

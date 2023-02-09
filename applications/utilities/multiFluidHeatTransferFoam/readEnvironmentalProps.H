@@ -12,13 +12,6 @@ IOdictionary envProps
     )
 );
 
-// Viscosity
-const dimensionedScalar nu(envProps.lookup("nu"));
-
 // Thermal diffusivity
-uniformDimensionedScalarField alpha
-(
-    IOobject("alpha", runTime.timeName(), mesh), 
-    dimensionedScalar(envProps.lookup("alpha"))
-);
+const dimensionedScalar alpha(envProps.lookup("alpha"));
 
