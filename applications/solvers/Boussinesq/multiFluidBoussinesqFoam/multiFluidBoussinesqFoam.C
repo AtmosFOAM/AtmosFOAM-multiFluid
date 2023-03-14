@@ -54,11 +54,11 @@ int main(int argc, char *argv[])
     #define dt runTime.deltaT()
     #include "createFields.H"
     
-    const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
+    const dictionary& itsDict = mesh.solution().subDict("iterations");
     const int nOuterCorr = itsDict.lookupOrDefault<int>("nOuterCorrectors", 2);
     const int nNonOrthCorr =
         itsDict.lookupOrDefault<int>("nNonOrthogonalCorrectors", 0);
-    scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
+    scalar offCentre = readScalar(mesh.schemes().lookup("offCentre"));
 
     localMax<scalar> maxInterp(mesh);
 

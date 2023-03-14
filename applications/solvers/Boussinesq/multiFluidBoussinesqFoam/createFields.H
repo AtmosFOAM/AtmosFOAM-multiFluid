@@ -100,7 +100,7 @@ for(label ip = 1; ip < nParts; ip++)
     (
         volFlux[ip].name(), runTime.timeName(), mesh, IOobject::MUST_READ
     );
-    if (volFluxIOobject.typeHeaderOk<surfaceScalarField>(false))
+    if (volFluxIOobject.headerOk())
     {
         volFlux[ip] = surfaceScalarField(volFluxIOobject, mesh);
     }

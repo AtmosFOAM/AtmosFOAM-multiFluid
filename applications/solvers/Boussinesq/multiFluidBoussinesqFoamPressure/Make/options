@@ -1,7 +1,7 @@
 EXE_INC = \
     -ggdb -O0 \
-    -I$(ATMOSFOAM_TOOLS_SRC)/OpenFOAM/lnInclude \
-    -I$(ATMOSFOAM_TOOLS_SRC)/finiteVolume/lnInclude \
+    -I$(ATMOSFOAM_SRC)/OpenFOAM/lnInclude \
+    -I$(ATMOSFOAM_SRC)/finiteVolume/lnInclude \
     -I$(ATMOSFOAM_MULTIF_SRC)/partitioned/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude
@@ -10,5 +10,5 @@ EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lPartitionedFields \
     -lmeshTools \
-    -lfiniteVolumeAtmosFOAMtools \
+    -lfiniteVolumeAtmosFOAM \
     -lfiniteVolume

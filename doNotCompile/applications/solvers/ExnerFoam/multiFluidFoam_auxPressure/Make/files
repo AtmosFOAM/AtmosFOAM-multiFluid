@@ -1,3 +1,0 @@
-multiFluidFoam.C
-
-EXE = $(FOAM_USER_APPBIN)/multiFluidFoam_auxPressure
